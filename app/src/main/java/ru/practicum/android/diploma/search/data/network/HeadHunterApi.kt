@@ -6,8 +6,8 @@ import retrofit2.http.Path
 import retrofit2.http.QueryMap
 import ru.practicum.android.diploma.search.data.dto.FilterAreaDto
 import ru.practicum.android.diploma.search.data.dto.FilterIndustryDto
-import ru.practicum.android.diploma.search.data.dto.VacancyDetailDto
 import ru.practicum.android.diploma.search.data.dto.VacanciesSearchResponseDto
+import ru.practicum.android.diploma.search.data.dto.VacancyDetailDto
 
 interface HeadHunterApi {
 

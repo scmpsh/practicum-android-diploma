@@ -1,0 +1,143 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "94bb34225b06abff6a6f5f7cc269435f",
+    "entities": [
+      {
+        "tableName": "vacancy",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `description` TEXT, `salaryFrom` INTEGER, `salaryTo` INTEGER, `salaryCurrency` TEXT, `employerName` TEXT, `employerLogoUrl` TEXT, `areaName` TEXT, `experience` TEXT, `schedule` TEXT, `employment` TEXT, `addressCity` TEXT, `addressStreet` TEXT, `addressBuilding` TEXT, `addressRaw` TEXT, `contactsName` TEXT, `contactsEmail` TEXT, `contactsPhones` TEXT, `contactsComments` TEXT, `keySkills` TEXT, `url` TEXT, `createdAt` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "salaryFrom",
+            "columnName": "salaryFrom",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "salaryTo",
+            "columnName": "salaryTo",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "salaryCurrency",
+            "columnName": "salaryCurrency",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "employerName",
+            "columnName": "employerName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "employerLogoUrl",
+            "columnName": "employerLogoUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "areaName",
+            "columnName": "areaName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "experience",
+            "columnName": "experience",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "schedule",
+            "columnName": "schedule",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "employment",
+            "columnName": "employment",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "addressCity",
+            "columnName": "addressCity",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "addressStreet",
+            "columnName": "addressStreet",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "addressBuilding",
+            "columnName": "addressBuilding",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "addressRaw",
+            "columnName": "addressRaw",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "contactsName",
+            "columnName": "contactsName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "contactsEmail",
+            "columnName": "contactsEmail",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "contactsPhones",
+            "columnName": "contactsPhones",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "contactsComments",
+            "columnName": "contactsComments",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "keySkills",
+            "columnName": "keySkills",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "url",
+            "columnName": "url",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '94bb34225b06abff6a6f5f7cc269435f')"
+    ]
+  }
+}
