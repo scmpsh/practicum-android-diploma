@@ -7,6 +7,12 @@ material = "1.13.0"
 minSdk = "26"
 targetSdk = "33"
 
+# Plugins
+androidGradlePlugin = "8.12.0"
+kotlin = "2.3.10"
+ksp = "2.3.9"
+detektPlugin = "1.23.8"
+
 # AndroidX
 appcompat = "1.7.1"
 constraintlayout = "2.2.1"
@@ -28,7 +34,7 @@ koin = "3.5.6"
 retrofit = "2.11.0"
 
 # Room
-room = "2.6.1"
+room = "2.8.4"
 
 # Navigation
 navigation = "2.8.5"
@@ -100,4 +106,10 @@ compose-material3 = { group = "androidx.compose.material3", name = "material3" }
 activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
 lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleViewModelCompose" }
 
-[bundles]
+[plugins]
+android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+room = { id = "androidx.room", version.ref = "room" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detektPlugin" }

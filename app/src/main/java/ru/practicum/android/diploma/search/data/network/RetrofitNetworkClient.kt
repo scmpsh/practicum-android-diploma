@@ -7,13 +7,12 @@ import ru.practicum.android.diploma.BuildConfig
 import ru.practicum.android.diploma.search.data.dto.Response
 import ru.practicum.android.diploma.search.data.dto.VacanciesSearchRequest
 
-
 class RetrofitNetworkClient(
-    private val apiService: HeadHunterApi, private val connectionChecker: ConnectionChecker
+    private val apiService: HeadHunterApi,
+    private val connectionChecker: ConnectionChecker
 ) : NetworkClient {
 
     override suspend fun doRequest(dto: Any): Response {
-
         var result: Response
 
         if (!connectionChecker.isConnected()) {

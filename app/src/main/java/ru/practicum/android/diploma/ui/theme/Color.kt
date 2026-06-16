@@ -10,7 +10,7 @@ private const val HEX_GREY = 0xFFAEAFB4
 private const val HEX_LIGHT_GREY = 0xFFE6E8EB
 private const val HEX_SURFACE_CONTAINER_LIGHT = 0xFFF1F3F5
 private const val HEX_SURFACE_VARIANT_DARK = 0xFF2A2C35
-private const val OVERLAY_BACKGROUND_HEX = 0x801A1B22  // Полный hex с альфой
+private const val OVERLAY_BACKGROUND_HEX = 0x801A1B22 // Полный hex с альфой
 
 // Базовые цвета
 val Black = Color(HEX_BLACK)
@@ -19,7 +19,6 @@ val Blue = Color(HEX_BLUE)
 val Red = Color(HEX_RED)
 val Grey = Color(HEX_GREY)
 val LightGrey = Color(HEX_LIGHT_GREY)
-
 
 val OverlayBackground = Color(OVERLAY_BACKGROUND_HEX)
 

@@ -17,7 +17,7 @@ class App : Application() {
             modules(
                 searchModule,
                 favoritesModule,
-                teamModule
+                teamModule,
             )
         }
     }

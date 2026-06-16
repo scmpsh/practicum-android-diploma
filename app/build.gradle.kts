@@ -1,12 +1,13 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    id("com.android.application")
-    id("org.jetbrains.kotlin.android")
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
     id("ru.practicum.android.diploma.plugins.developproperties")
     id("org.jetbrains.kotlin.kapt")
-    id("org.jetbrains.kotlin.plugin.compose")
-    id("com.google.devtools.ksp")
+    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.room)
 }
 
 android {
@@ -38,6 +39,10 @@ android {
     buildFeatures {
         buildConfig = true
         compose = true
+    }
+
+    room {
+        schemaDirectory("$projectDir/schemas")
     }
 }
 
