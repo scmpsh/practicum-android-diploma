@@ -4,6 +4,7 @@ import android.app.Application
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 import ru.practicum.android.diploma.di.favoritesModule
+import ru.practicum.android.diploma.di.presentationModule
 import ru.practicum.android.diploma.di.searchModule
 import ru.practicum.android.diploma.di.teamModule
 
@@ -18,6 +19,7 @@ class App : Application() {
                 searchModule,
                 favoritesModule,
                 teamModule,
+                presentationModule,
             )
         }
     }
