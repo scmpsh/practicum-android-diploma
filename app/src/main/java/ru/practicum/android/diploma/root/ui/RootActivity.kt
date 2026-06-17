@@ -2,6 +2,7 @@ package ru.practicum.android.diploma.root.ui
 
 import android.os.Bundle
 import android.view.View
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
@@ -12,10 +13,13 @@ class RootActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        enableEdgeToEdge()
         setContentView(R.layout.activity_root)
 
         val navHostFragment = supportFragmentManager
             .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+
         val navController = navHostFragment.navController
 
         findViewById<BottomNavigationView>(R.id.bottom_navigation)
@@ -23,11 +27,10 @@ class RootActivity : AppCompatActivity() {
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
             val bottomNavigation = findViewById<BottomNavigationView>(R.id.bottom_navigation)
+
             bottomNavigation.visibility = when (destination.id) {
                 R.id.filterSettingsFragment,
-                R.id.vacancyDetailsFragment,
-                -> View.GONE
-
+                R.id.vacancyDetailsFragment -> View.GONE
                 else -> View.VISIBLE
             }
         }
