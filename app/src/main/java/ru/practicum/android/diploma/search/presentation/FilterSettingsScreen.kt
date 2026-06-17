@@ -22,12 +22,12 @@ fun FilterSettingsScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(Dimens.Dimens.ScreenHorizontalPadding),
+            .padding(Dimens.ScreenHorizontalPadding),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
         Text(text = stringResource(R.string.filter_settings_title))
-        Spacer(modifier = Modifier.height(Dimens.Dimens.Padding16))
+        Spacer(modifier = Modifier.height(Dimens.Padding16))
         Button(onClick = onNavigateBack) {
             Text(text = stringResource(R.string.back))
         }
