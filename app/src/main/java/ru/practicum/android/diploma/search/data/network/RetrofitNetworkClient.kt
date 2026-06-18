@@ -14,13 +14,11 @@ class RetrofitNetworkClient(
 ) : NetworkClient {
 
     override suspend fun doRequest(dto: Any): Response {
-
         if (!connectionChecker.isConnected()) {
             return Response().apply { resultCode = NO_CONNECTION }
         }
 
         return when (dto) {
-
             is VacanciesSearchRequest -> {
                 searchVacancies(dto)
             }
@@ -38,10 +36,9 @@ class RetrofitNetworkClient(
     private suspend fun getVacancyDetail(
         dto: VacancyDetailRequest
     ): Response {
-
         return withContext(Dispatchers.IO) {
             try {
-                apiService.getVacancy (
+                apiService.getVacancy(
                     token = "Bearer ${BuildConfig.API_ACCESS_TOKEN}",
                     id = dto.vacancyId
                 ).apply {
@@ -57,14 +54,14 @@ class RetrofitNetworkClient(
     private suspend fun searchVacancies(
         dto: VacanciesSearchRequest
     ): Response {
-
         val options: HashMap<String, String> = HashMap()
         options["text"] = dto.expression
 
         return withContext(Dispatchers.IO) {
             try {
                 apiService.searchVacancies(
-                    token = "Bearer ${BuildConfig.API_ACCESS_TOKEN}", options = options
+                    token = "Bearer ${BuildConfig.API_ACCESS_TOKEN}",
+                    options = options
                 ).apply {
                     resultCode = HTTP_OK
                 }

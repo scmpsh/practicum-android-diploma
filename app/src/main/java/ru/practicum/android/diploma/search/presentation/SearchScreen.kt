@@ -23,16 +23,16 @@ fun SearchScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(Dimens.Dimens.ScreenHorizontalPadding),
+            .padding(Dimens.ScreenHorizontalPadding),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
         Text(text = stringResource(R.string.search_screen_title))
-        Spacer(modifier = Modifier.height(Dimens.Dimens.Padding16))
+        Spacer(modifier = Modifier.height(Dimens.Padding16))
         Button(onClick = onNavigateToFilter) {
             Text(text = stringResource(R.string.vacancies_filter))
         }
-        Spacer(modifier = Modifier.height(Dimens.Dimens.Padding8))
+        Spacer(modifier = Modifier.height(Dimens.Padding8))
         Button(onClick = onNavigateToVacancyDetails) {
             Text(text = stringResource(R.string.vacancy_screen_title))
         }

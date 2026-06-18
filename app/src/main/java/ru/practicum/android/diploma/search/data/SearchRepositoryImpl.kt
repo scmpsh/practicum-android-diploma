@@ -15,7 +15,7 @@ class SearchRepositoryImpl(
     private val mapper: VacancyMapper
 ) : SearchRepository {
 
-    override fun searchVacancies(expression: String): Flow<Resource<List<Vacancy>>> = flow {
+    override fun searchVacancies(expression: String): Flow<Resource<Pair<List<Vacancy>, Int>>> = flow {
         val response = networkClient.doRequest(VacanciesSearchRequest(expression))
         when (response.resultCode) {
             RetrofitNetworkClient.NO_CONNECTION -> {
@@ -23,10 +23,9 @@ class SearchRepositoryImpl(
             }
 
             RetrofitNetworkClient.HTTP_OK -> {
-                val data = (response as VacanciesSearchResponseDto).items.map {
-                    mapper.map(it)
-                }
-                emit(Resource.Success(data))
+                val searchResponse = response as VacanciesSearchResponseDto
+                val vacancies = searchResponse.items.map { mapper.map(it) }
+                emit(Resource.Success(Pair(vacancies, searchResponse.found)))
             }
 
             else -> {
