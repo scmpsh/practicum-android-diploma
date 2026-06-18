@@ -2,17 +2,15 @@ package ru.practicum.android.diploma.favorites.presentation
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -20,18 +18,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ru.practicum.android.diploma.R
+import ru.practicum.android.diploma.favorites.presentation.models.FavoritesState
+import ru.practicum.android.diploma.search.domain.models.Vacancy
 import ru.practicum.android.diploma.ui.theme.AppTheme
 import ru.practicum.android.diploma.ui.theme.Medium22
 
 
-@Preview(showSystemUi = false)
 @Composable
-fun FavoritesScreen() {
+fun FavoritesScreen(state: FavoritesState) {
     AppTheme { }
     Column(
         Modifier.fillMaxSize()
@@ -46,15 +43,38 @@ fun FavoritesScreen() {
                 style = Medium22
             )
         }
-
-
-
+        FavoritesContent(state)
     }
 }
 
 @Composable
-fun FavoritesList() {
+fun FavoritesContent(state: FavoritesState) {
 
+    when (state) {
+
+        is FavoritesState.Empty -> {
+            FavoritesEmpty()
+        }
+
+        is FavoritesState.Content -> {
+            FavoritesList(state.list)
+        }
+
+        is FavoritesState.Error -> {
+            FavoritesError()
+        }
+    }
+}
+
+
+@Composable
+fun FavoritesList(list: List<Vacancy>) {
+    LazyColumn {
+        items(list) { item ->
+            //Здесь будет VacancyCard
+            Text(item.name)
+        }
+    }
 
 }
 
