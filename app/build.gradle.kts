@@ -79,6 +79,7 @@ dependencies {
     // Room
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
+    debugImplementation(libs.ui.tooling)
     ksp(libs.room.compiler)
 
     // Navigation
