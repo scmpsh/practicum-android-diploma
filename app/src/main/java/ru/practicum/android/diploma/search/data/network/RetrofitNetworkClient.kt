@@ -6,6 +6,7 @@ import kotlinx.coroutines.withContext
 import ru.practicum.android.diploma.BuildConfig
 import ru.practicum.android.diploma.search.data.dto.Response
 import ru.practicum.android.diploma.search.data.dto.VacanciesSearchRequest
+import ru.practicum.android.diploma.search.data.dto.VacancyDetailRequest
 
 class RetrofitNetworkClient(
     private val apiService: HeadHunterApi,
@@ -13,22 +14,54 @@ class RetrofitNetworkClient(
 ) : NetworkClient {
 
     override suspend fun doRequest(dto: Any): Response {
-        var result: Response
 
         if (!connectionChecker.isConnected()) {
-            result = Response().apply { resultCode = NO_CONNECTION }
-            return result
+            return Response().apply { resultCode = NO_CONNECTION }
         }
 
-        if (dto !is VacanciesSearchRequest) {
-            result = Response().apply { resultCode = HTTP_BAD_REQUEST }
-            return result
+        return when (dto) {
+
+            is VacanciesSearchRequest -> {
+                searchVacancies(dto)
+            }
+
+            is VacancyDetailRequest -> {
+                getVacancyDetail(dto)
+            }
+
+            else -> {
+                Response().apply { resultCode = HTTP_BAD_REQUEST }
+            }
         }
+    }
+
+    private suspend fun getVacancyDetail(
+        dto: VacancyDetailRequest
+    ): Response {
+
+        return withContext(Dispatchers.IO) {
+            try {
+                apiService.getVacancy (
+                    token = "Bearer ${BuildConfig.API_ACCESS_TOKEN}",
+                    id = dto.vacancyId
+                ).apply {
+                    resultCode = HTTP_OK
+                }
+            } catch (e: Exception) {
+                Log.e("Network", "Request failed", e)
+                Response().apply { resultCode = INNER_SERVER_ERROR }
+            }
+        }
+    }
+
+    private suspend fun searchVacancies(
+        dto: VacanciesSearchRequest
+    ): Response {
 
         val options: HashMap<String, String> = HashMap()
         options["text"] = dto.expression
 
-        result = withContext(Dispatchers.IO) {
+        return withContext(Dispatchers.IO) {
             try {
                 apiService.searchVacancies(
                     token = "Bearer ${BuildConfig.API_ACCESS_TOKEN}", options = options
@@ -40,8 +73,6 @@ class RetrofitNetworkClient(
                 Response().apply { resultCode = INNER_SERVER_ERROR }
             }
         }
-
-        return result
     }
 
     companion object {
