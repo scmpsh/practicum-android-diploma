@@ -56,6 +56,7 @@ class RetrofitNetworkClient(
     ): Response {
         val options: HashMap<String, String> = HashMap()
         options["text"] = dto.expression
+        options["page"] = dto.page.toString()
 
         return withContext(Dispatchers.IO) {
             try {
@@ -78,4 +79,5 @@ class RetrofitNetworkClient(
         const val NO_CONNECTION = -1
         const val INNER_SERVER_ERROR = 500
     }
+
 }

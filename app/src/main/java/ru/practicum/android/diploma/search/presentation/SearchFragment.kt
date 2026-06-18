@@ -8,10 +8,14 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import ru.practicum.android.diploma.R
+import ru.practicum.android.diploma.search.presentation.models.SearchViewModel
 import ru.practicum.android.diploma.ui.theme.AppTheme
 
 class SearchFragment : Fragment() {
+
+    private val viewModel: SearchViewModel by viewModel()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -33,6 +37,7 @@ class SearchFragment : Fragment() {
                                 R.id.action_searchFragment_to_vacancyDetailsFragment,
                             )
                         },
+                        viewModel = viewModel,
                     )
                 }
             }
