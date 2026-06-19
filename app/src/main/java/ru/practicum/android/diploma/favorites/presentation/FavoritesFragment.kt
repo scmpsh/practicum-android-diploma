@@ -9,8 +9,8 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.launch
+import androidx.navigation.findNavController
+import ru.practicum.android.diploma.R
 import ru.practicum.android.diploma.favorites.presentation.models.FavoritesState
 import ru.practicum.android.diploma.ui.theme.AppTheme
 
@@ -27,9 +27,25 @@ class FavoritesFragment : Fragment() {
             setContent {
                 AppTheme {
                     val state = favoritesViewModel.favoritesState.collectAsState(FavoritesState.Empty).value
-                    FavoritesScreen(state = state)
+
+                    FavoritesScreen(
+                        state = state,
+                        onNavigateToDetails = { vacancyId ->
+                            val bundle = Bundle().apply {
+                                putString(VACANCY_ID, vacancyId)
+                            }
+                            // В detailes фрагмент получить bundle VacancyId, и по нему сделать запрос Favorites БД
+                            findNavController().navigate(
+                                R.id.action_favoritesFragment_to_vacancyDetailsFragment,
+                                bundle
+                            )
+                        })
                 }
             }
         }
+    }
+
+    companion object {
+        const val VACANCY_ID = "vacancyId"
     }
 }

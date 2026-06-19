@@ -1,4 +1,3 @@
-package ru.practicum.android.diploma.data.mapper
 
 import ru.practicum.android.diploma.favorites.data.db.entity.VacancyEntity
 import ru.practicum.android.diploma.search.domain.models.*
@@ -40,18 +39,15 @@ object VacancyMapper {
         )
     }
 
-
     fun toVacancy(vacancyEntity: VacancyEntity): Vacancy {
         return Vacancy(
             id = vacancyEntity.id,
             name = vacancyEntity.name,
             company = vacancyEntity.employerName,
             city = vacancyEntity.areaName,
-            salary = formatSalary(
-                vacancyEntity.salaryFrom,
-                vacancyEntity.salaryTo,
-                vacancyEntity.salaryCurrency
-            ),
+            salaryFrom = vacancyEntity.salaryFrom,
+            salaryTo = vacancyEntity.salaryTo,
+            salaryCurrency = vacancyEntity.salaryCurrency,
             logoUrl = vacancyEntity.employerLogoUrl
         )
     }
@@ -61,57 +57,16 @@ object VacancyMapper {
             id = entity.id,
             name = entity.name,
             description = entity.description ?: "",
-
-            salary = Salary(
-                from = entity.salaryFrom,
-                to = entity.salaryTo,
-                currency = entity.salaryCurrency
-            ),
-
-            address = Address(
-                city = entity.addressCity ?: "",
-                street = entity.addressStreet ?: "",
-                building = entity.addressBuilding ?: "",
-                raw = entity.addressRaw ?: ""
-            ),
-
-            experience = Experience(
-                id = entity.experience ?: "",
-                name = entity.experience ?: ""
-            ),
-
-            schedule = Schedule(
-                id = entity.schedule ?: "",
-                name = entity.schedule ?: ""
-            ),
-
-            employment = Employment(
-                id = entity.employment ?: "",
-                name = entity.employment ?: ""
-            ),
-
-            contacts = Contacts(
-                id = "",
-                name = entity.contactsName ?: "",
-                email = entity.contactsEmail ?: "",
-                phones = parsePhones(entity.contactsPhones)
-            ),
-
-            employer = Employer(
-                id = "",
-                name = entity.employerName ?: "",
-                logo = entity.employerLogoUrl ?: ""
-            ),
-
-            area = Area(
-                id = 0,
-                name = entity.areaName ?: ""
-            ),
-
+            salary = mapSalary(entity),
+            address = mapAddress(entity),
+            experience = mapExperience(entity),
+            schedule = mapSchedule(entity),
+            employment = mapEmployment(entity),
+            contacts = mapContacts(entity),
+            employer = mapEmployer(entity),
+            area = mapArea(entity),
             skills = parseSkills(entity.keySkills),
-
             url = entity.url ?: "",
-
             industry = Industry(
                 id = 0,
                 name = ""
@@ -119,8 +74,70 @@ object VacancyMapper {
         )
     }
 
-    // helpers
+    // dividers
+    private fun mapSalary(entity: VacancyEntity): Salary {
+        return Salary(
+            from = entity.salaryFrom,
+            to = entity.salaryTo,
+            currency = entity.salaryCurrency
+        )
+    }
 
+    private fun mapAddress(entity: VacancyEntity): Address {
+        return Address(
+            city = entity.addressCity ?: "",
+            street = entity.addressStreet ?: "",
+            building = entity.addressBuilding ?: "",
+            raw = entity.addressRaw ?: ""
+        )
+    }
+
+    private fun mapExperience(entity: VacancyEntity): Experience {
+        return Experience(
+            id = entity.experience ?: "",
+            name = entity.experience ?: ""
+        )
+    }
+
+    private fun mapSchedule(entity: VacancyEntity): Schedule {
+        return Schedule(
+            id = entity.schedule ?: "",
+            name = entity.schedule ?: ""
+        )
+    }
+
+    private fun mapEmployment(entity: VacancyEntity): Employment {
+        return Employment(
+            id = entity.employment ?: "",
+            name = entity.employment ?: ""
+        )
+    }
+
+    private fun mapContacts(entity: VacancyEntity): Contacts {
+        return Contacts(
+            id = "",
+            name = entity.contactsName ?: "",
+            email = entity.contactsEmail ?: "",
+            phones = parsePhones(entity.contactsPhones)
+        )
+    }
+
+    private fun mapEmployer(entity: VacancyEntity): Employer {
+        return Employer(
+            id = "",
+            name = entity.employerName ?: "",
+            logo = entity.employerLogoUrl ?: ""
+        )
+    }
+
+    private fun mapArea(entity: VacancyEntity): Area {
+        return Area(
+            id = 0,
+            name = entity.areaName ?: ""
+        )
+    }
+
+    // helpers
     private fun parseSkills(raw: String?): List<String> {
         if (raw.isNullOrBlank()) return emptyList()
         return raw.split(",")
@@ -138,18 +155,5 @@ object VacancyMapper {
                     formatted = it.trim()
                 )
             }
-    }
-
-    private fun formatSalary(from: Int?, to: Int?, currency: String?): String? {
-        if (from == null && to == null) return null
-
-        val cur = currency ?: ""
-
-        return when {
-            from != null && to != null -> "$from - $to $cur"
-            from != null -> "от $from $cur"
-            to != null -> "до $to $cur"
-            else -> null
-        }
     }
 }

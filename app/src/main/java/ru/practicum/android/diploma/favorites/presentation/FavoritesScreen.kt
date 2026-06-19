@@ -19,17 +19,22 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ru.practicum.android.diploma.R
 import ru.practicum.android.diploma.favorites.presentation.models.FavoritesState
 import ru.practicum.android.diploma.search.domain.models.Vacancy
+import ru.practicum.android.diploma.search.presentation.components.VacancyItem
 import ru.practicum.android.diploma.ui.theme.AppTheme
+import ru.practicum.android.diploma.ui.theme.AppTypography
 import ru.practicum.android.diploma.ui.theme.Medium22
 
 
 @Composable
-fun FavoritesScreen(state: FavoritesState) {
-    AppTheme { }
+fun FavoritesScreen(
+    state: FavoritesState,
+    onNavigateToDetails: (vacancyId: String) -> Unit
+) {
     Column(
         Modifier.fillMaxSize()
     ) {
@@ -40,16 +45,18 @@ fun FavoritesScreen(state: FavoritesState) {
         ) {
             Text(
                 text = "Избранное",
-                style = Medium22
+                style = AppTypography.headlineMedium
             )
         }
-        FavoritesContent(state)
+        FavoritesContent(state, onNavigateToDetails)
     }
 }
 
 @Composable
-fun FavoritesContent(state: FavoritesState) {
-
+fun FavoritesContent(
+    state: FavoritesState,
+    onNavigateToDetails: (vacancyId: String) -> Unit
+) {
     when (state) {
 
         is FavoritesState.Empty -> {
@@ -57,7 +64,7 @@ fun FavoritesContent(state: FavoritesState) {
         }
 
         is FavoritesState.Content -> {
-            FavoritesList(state.list)
+            FavoritesList(state.list, onNavigateToDetails)
         }
 
         is FavoritesState.Error -> {
@@ -66,16 +73,19 @@ fun FavoritesContent(state: FavoritesState) {
     }
 }
 
-
 @Composable
-fun FavoritesList(list: List<Vacancy>) {
+fun FavoritesList(
+    list: List<Vacancy>,
+    onNavigateToDetails: (vacancyId: String) -> Unit
+) {
     LazyColumn {
         items(list) { item ->
-            //Здесь будет VacancyCard
-            Text(item.name)
+            VacancyItem(
+                vacancy = item,
+                onClick = { onNavigateToDetails(item.id) }
+            )
         }
     }
-
 }
 
 @Composable
@@ -85,7 +95,6 @@ fun FavoritesEmpty() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-
         Spacer(Modifier.weight(1f))
 
         Image(
@@ -96,7 +105,6 @@ fun FavoritesEmpty() {
                 .padding(horizontal = 22.dp),
             contentScale = ContentScale.FillWidth
         )
-
 
         Spacer(Modifier.height(16.dp))
 
@@ -116,7 +124,6 @@ fun FavoritesError() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-
         Spacer(Modifier.weight(1f))
 
         Image(
@@ -127,7 +134,6 @@ fun FavoritesError() {
                 .padding(horizontal = 22.dp),
             contentScale = ContentScale.FillWidth
         )
-
 
         Spacer(Modifier.height(16.dp))
 
@@ -141,3 +147,59 @@ fun FavoritesError() {
     }
 }
 
+@Preview()
+@Composable
+fun FavoritesContentPreview() {
+    AppTheme {
+        FavoritesScreen(
+            state = FavoritesState.Content(
+                list = listOf(
+                    Vacancy(
+                        id = "1",
+                        name = "Android Developer",
+                        company = "Google",
+                        city = "Prague",
+                        salaryFrom = 100_000,
+                        salaryTo = 150_000,
+                        salaryCurrency = "CZK",
+                        logoUrl = null
+                    ),
+                    Vacancy(
+                        id = "2",
+                        name = "Senior Kotlin Developer",
+                        company = "JetBrains",
+                        city = "Saint Petersburg",
+                        salaryFrom = 250_000,
+                        salaryTo = 350_000,
+                        salaryCurrency = "RUR",
+                        logoUrl = null
+                    )
+                )
+            ),
+            onNavigateToDetails = { }
+        )
+    }
+}
+
+@Preview
+@Composable
+fun FavoritesEmptyPreview() {
+    AppTheme {
+        FavoritesScreen(
+            state = FavoritesState.Empty,
+            onNavigateToDetails = {}
+        )
+    }
+}
+
+
+@Preview
+@Composable
+fun FavoritesErrorPreview() {
+    AppTheme {
+        FavoritesScreen(
+            state = FavoritesState.Error(""),
+            onNavigateToDetails = {}
+        )
+    }
+}

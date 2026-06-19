@@ -2,7 +2,6 @@ package ru.practicum.android.diploma.favorites.data
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import ru.practicum.android.diploma.data.mapper.VacancyMapper
 import ru.practicum.android.diploma.favorites.data.db.dao.VacancyDao
 import ru.practicum.android.diploma.favorites.domain.api.FavoritesRepository
 import ru.practicum.android.diploma.search.domain.models.Vacancy
