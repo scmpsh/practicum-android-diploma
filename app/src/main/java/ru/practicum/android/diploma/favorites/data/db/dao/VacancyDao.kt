@@ -13,7 +13,6 @@ interface VacancyDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertVacancy(vacancy: VacancyEntity): Long
-
     @Delete
     suspend fun deleteVacancy(vacancy: VacancyEntity): Int
 
@@ -24,5 +23,8 @@ interface VacancyDao {
     fun getAllVacancies(): Flow<List<VacancyEntity>>
 
     @Query("SELECT * FROM vacancy WHERE id = :id")
-    suspend fun getVacancyById(id: String): VacancyEntity?
+    suspend fun getVacancyById(id: String): VacancyEntity
+
+    @Query("SELECT EXISTS(SELECT 1 FROM vacancy WHERE id = :id)")
+    suspend fun isFavorite(id: String): Boolean
 }
