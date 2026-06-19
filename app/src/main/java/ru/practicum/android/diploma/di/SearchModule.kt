@@ -1,6 +1,7 @@
 package ru.practicum.android.diploma.di
 
 import org.koin.android.ext.koin.androidContext
+import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -19,6 +20,7 @@ import ru.practicum.android.diploma.search.domain.api.VacancyDetailRepository
 import ru.practicum.android.diploma.search.domain.api.VacancyDetailsInteractor
 import ru.practicum.android.diploma.search.domain.impl.SearchInteractorImpl
 import ru.practicum.android.diploma.search.domain.impl.VacancyDetailsInteractorImpl
+import ru.practicum.android.diploma.search.ui.SearchViewModel
 
 const val HEAD_HUNTER_BASE_URL = "https://android-diploma.education-services.ru"
 
@@ -59,4 +61,7 @@ val searchModule = module {
         VacancyDetailsInteractorImpl(get())
     }
 
+    viewModel {
+        SearchViewModel(get())
+    }
 }
