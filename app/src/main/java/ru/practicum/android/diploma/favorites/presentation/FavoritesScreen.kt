@@ -149,7 +149,7 @@ fun FavoritesError() {
 
 @Preview()
 @Composable
-fun FavoritesContentPreview() {
+private fun FavoritesContentPreview() {
     AppTheme {
         FavoritesScreen(
             state = FavoritesState.Content(
@@ -183,7 +183,7 @@ fun FavoritesContentPreview() {
 
 @Preview
 @Composable
-fun FavoritesEmptyPreview() {
+private fun FavoritesEmptyPreview() {
     AppTheme {
         FavoritesScreen(
             state = FavoritesState.Empty,
@@ -195,7 +195,7 @@ fun FavoritesEmptyPreview() {
 
 @Preview
 @Composable
-fun FavoritesErrorPreview() {
+private fun FavoritesErrorPreview() {
     AppTheme {
         FavoritesScreen(
             state = FavoritesState.Error(""),

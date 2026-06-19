@@ -28,7 +28,7 @@ val favoritesModule = module {
         FavoritesRepositoryImpl(get())
     }
 
-    factory<FavoritesInteractor> {
+    single<FavoritesInteractor> {
         FavoritesInteractorImpl(get())
     }
 
