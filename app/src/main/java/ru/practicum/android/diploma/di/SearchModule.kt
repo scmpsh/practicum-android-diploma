@@ -20,7 +20,7 @@ import ru.practicum.android.diploma.search.domain.api.VacancyDetailRepository
 import ru.practicum.android.diploma.search.domain.api.VacancyDetailsInteractor
 import ru.practicum.android.diploma.search.domain.impl.SearchInteractorImpl
 import ru.practicum.android.diploma.search.domain.impl.VacancyDetailsInteractorImpl
-import ru.practicum.android.diploma.search.ui.SearchViewModel
+import ru.practicum.android.diploma.search.presentation.view_model.SearchViewModel
 
 const val HEAD_HUNTER_BASE_URL = "https://android-diploma.education-services.ru"
 
@@ -57,7 +57,7 @@ val searchModule = module {
         SearchInteractorImpl(get())
     }
 
-    factory<VacancyDetailsInteractor> {
+    single<VacancyDetailsInteractor> {
         VacancyDetailsInteractorImpl(get())
     }
 
