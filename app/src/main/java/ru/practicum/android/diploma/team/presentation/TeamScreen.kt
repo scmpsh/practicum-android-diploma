@@ -10,11 +10,8 @@ import androidx.compose.ui.res.stringResource
 import ru.practicum.android.diploma.R
 
 @Composable
-fun TeamScreen() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(text = stringResource(R.string.team))
-    }
+
+
+fun TeamScreen(modifier: Modifier = Modifier) {
+
 }
