@@ -7,6 +7,12 @@ material = "1.13.0"
 minSdk = "26"
 targetSdk = "33"
 
+# Plugins
+androidGradlePlugin = "8.12.0"
+kotlin = "2.3.10"
+ksp = "2.3.9"
+detektPlugin = "1.23.8"
+
 # AndroidX
 appcompat = "1.7.1"
 constraintlayout = "2.2.1"
@@ -20,6 +26,29 @@ junitExt = "1.1.5"
 # Static analysis
 detekt = "1.23.8"
 detektTwitterComposeRules = "0.0.26"
+
+# Koin
+koin = "3.5.6"
+
+# Retrofit
+retrofit = "2.11.0"
+
+# Room
+room = "2.8.4"
+
+# Navigation
+navigation = "2.8.5"
+
+# Coil
+coil = "2.7.0"
+
+# Coroutines
+coroutines = "1.9.0"
+
+# Compose
+composeBom = "2024.10.00"
+activityCompose = "1.9.3"
+lifecycleViewModelCompose = "2.8.7"
 
 [libraries]
 
@@ -45,4 +74,42 @@ staticAnalysis-detektPlugin = { module = "io.gitlab.arturbosch.detekt:detekt-gra
 staticAnalysis-detektTest = { module = "io.gitlab.arturbosch.detekt:detekt-test", version.ref = "detekt" }
 staticAnalysis-detektTwitterComposeRules = { module = "com.twitter.compose.rules:detekt", version.ref = "detektTwitterComposeRules" }
 
-[bundles]
+# Koin
+koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
+koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin" }
+
+# Retrofit
+retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
+retrofit-converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
+
+# Room
+room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
+room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
+room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
+
+# Navigation
+navigation-fragment-ktx = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "navigation" }
+navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigation" }
+navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigation" }
+
+# Coil (Image loading)
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
+
+# Coroutines
+kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
+
+# Compose core libraries (using Compose BOM)
+compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
+compose-ui = { group = "androidx.compose.ui", name = "ui" }
+compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
+lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleViewModelCompose" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+room = { id = "androidx.room", version.ref = "room" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detektPlugin" }

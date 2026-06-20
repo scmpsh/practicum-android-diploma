@@ -1,9 +1,13 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    id("com.android.application")
-    id("org.jetbrains.kotlin.android")
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
     id("ru.practicum.android.diploma.plugins.developproperties")
+    id("org.jetbrains.kotlin.kapt")
+    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.room)
 }
 
 android {
@@ -34,6 +38,11 @@ android {
     }
     buildFeatures {
         buildConfig = true
+        compose = true
+    }
+
+    room {
+        schemaDirectory("$projectDir/schemas")
     }
 }
 
@@ -51,6 +60,39 @@ dependencies {
     implementation(libs.material)
     implementation(libs.constraintlayout)
 
+    // Jetpack Compose core dependencies
+    implementation(platform(libs.compose.bom))
+    implementation(libs.compose.ui)
+    implementation(libs.compose.ui.tooling.preview)
+    implementation(libs.compose.material3)
+    implementation(libs.activity.compose)
+    implementation(libs.lifecycle.viewmodel.compose)
+
+    // Koin
+    implementation(libs.koin.android)
+    implementation(libs.koin.androidx.compose)
+
+    // Retrofit
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
+
+    // Room
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    ksp(libs.room.compiler)
+
+    // Navigation
+    implementation(libs.navigation.fragment.ktx)
+    implementation(libs.navigation.ui.ktx)
+    implementation(libs.navigation.compose)
+
+    // Image loading
+    implementation(libs.coil.compose)
+
+    // Coroutines
+    implementation(libs.kotlinx.coroutines.android)
+
+    // Testing
     testImplementation(libs.junit4)
     androidTestImplementation(libs.junit.ext)
     androidTestImplementation(libs.espresso.core)
