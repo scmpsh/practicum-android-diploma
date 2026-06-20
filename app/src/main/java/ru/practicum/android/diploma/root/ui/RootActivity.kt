@@ -1,8 +1,8 @@
 package ru.practicum.android.diploma.root.ui
 
 import android.os.Bundle
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -23,12 +23,12 @@ class RootActivity : AppCompatActivity() {
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
             val bottomNavigation = findViewById<BottomNavigationView>(R.id.bottom_navigation)
-            bottomNavigation.visibility = when (destination.id) {
+            bottomNavigation.isVisible = when (destination.id) {
                 R.id.filterSettingsFragment,
                 R.id.vacancyDetailsFragment,
-                -> View.GONE
+                -> false
 
-                else -> View.VISIBLE
+                else -> true
             }
         }
     }
