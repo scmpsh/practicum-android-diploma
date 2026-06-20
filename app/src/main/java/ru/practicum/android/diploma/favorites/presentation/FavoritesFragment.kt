@@ -8,14 +8,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import ru.practicum.android.diploma.R
 import ru.practicum.android.diploma.favorites.presentation.models.FavoritesState
 import ru.practicum.android.diploma.ui.theme.AppTheme
 
 class FavoritesFragment : Fragment() {
-    private val favoritesViewModel: FavoritesViewModel by viewModels()
+    private val favoritesViewModel: FavoritesViewModel by viewModel()
 
     override fun onCreateView(
         inflater: LayoutInflater,
