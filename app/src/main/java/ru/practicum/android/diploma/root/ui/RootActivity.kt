@@ -21,13 +21,11 @@ class RootActivity : AppCompatActivity() {
             .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
 
         val navController = navHostFragment.navController
+        val bottomNavigation = findViewById<BottomNavigationView>(R.id.bottom_navigation)
 
-        findViewById<BottomNavigationView>(R.id.bottom_navigation)
-            .setupWithNavController(navController)
+        bottomNavigation.setupWithNavController(navController)
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
-            val bottomNavigation = findViewById<BottomNavigationView>(R.id.bottom_navigation)
-
             bottomNavigation.visibility = when (destination.id) {
                 R.id.filterSettingsFragment,
                 R.id.vacancyDetailsFragment -> View.GONE

@@ -64,6 +64,7 @@ dependencies {
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.tooling.preview)
+    debugImplementation(libs.compose.ui.tooling)
     implementation(libs.compose.material3)
     implementation(libs.activity.compose)
     implementation(libs.lifecycle.viewmodel.compose)
@@ -79,6 +80,7 @@ dependencies {
     // Room
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
+    debugImplementation(libs.ui.tooling)
     ksp(libs.room.compiler)
 
     // Navigation

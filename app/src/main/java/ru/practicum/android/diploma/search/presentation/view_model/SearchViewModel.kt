@@ -1,4 +1,4 @@
-package ru.practicum.android.diploma.search.ui
+package ru.practicum.android.diploma.search.presentation.view_model
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import ru.practicum.android.diploma.search.domain.api.SearchInteractor
 import ru.practicum.android.diploma.search.domain.models.Resource
-import ru.practicum.android.diploma.search.ui.models.SearchState
 
 class SearchViewModel(private val searchInteractor: SearchInteractor) : ViewModel() {
 
