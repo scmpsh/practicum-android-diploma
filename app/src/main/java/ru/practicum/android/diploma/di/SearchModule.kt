@@ -20,11 +20,12 @@ import ru.practicum.android.diploma.search.domain.api.VacancyDetailRepository
 import ru.practicum.android.diploma.search.domain.api.VacancyDetailsInteractor
 import ru.practicum.android.diploma.search.domain.impl.SearchInteractorImpl
 import ru.practicum.android.diploma.search.domain.impl.VacancyDetailsInteractorImpl
-import ru.practicum.android.diploma.search.presentation.view_model.SearchViewModel
+import ru.practicum.android.diploma.search.presentation.models.SearchViewModel
 
 const val HEAD_HUNTER_BASE_URL = "https://android-diploma.education-services.ru"
 
 val searchModule = module {
+
     single<HeadHunterApi> {
         Retrofit.Builder()
             .baseUrl(HEAD_HUNTER_BASE_URL)
@@ -42,7 +43,6 @@ val searchModule = module {
     }
 
     factory { VacancyMapper() }
-
     factory { VacancyDetailMapper() }
 
     single<VacancyDetailRepository> {
