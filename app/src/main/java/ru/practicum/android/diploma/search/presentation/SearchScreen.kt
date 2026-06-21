@@ -59,8 +59,14 @@ fun SearchScreen(
 
         SearchTextField(
             value = searchQuery,
-            onValueChange = { searchQuery = it },
-            onClearClick = { searchQuery = "" },
+            onValueChange = {
+                searchQuery = it
+                viewModel.searchDebounce(it)
+            },
+            onClearClick = {
+                searchQuery = ""
+                viewModel.searchDebounce("")
+            },
         )
 
         Box(
