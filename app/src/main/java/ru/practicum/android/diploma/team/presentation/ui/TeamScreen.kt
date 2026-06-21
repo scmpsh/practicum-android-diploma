@@ -63,10 +63,6 @@ fun TeamScreen(
         TeamMemberName(
             name = stringResource(R.string.team_member_4),
         )
-
-        TeamMemberName(
-            name = stringResource(R.string.team_member_5),
-        )
     }
 }
 
