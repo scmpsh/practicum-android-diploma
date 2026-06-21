@@ -32,11 +32,13 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import ru.practicum.android.diploma.R
+import ru.practicum.android.diploma.search.presentation.models.SearchViewModel
 
 @Composable
 fun SearchScreen(
     onNavigateToFilter: () -> Unit,
     @Suppress("UNUSED_PARAMETER") onNavigateToVacancyDetails: () -> Unit = {},
+    @Suppress("UNUSED_PARAMETER") viewModel: SearchViewModel,
 ) {
     var searchQuery by remember { mutableStateOf("") }
 

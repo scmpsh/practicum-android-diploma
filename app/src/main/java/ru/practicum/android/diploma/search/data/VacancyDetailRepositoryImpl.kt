@@ -20,7 +20,7 @@ class VacancyDetailRepositoryImpl(
 
         when (response.resultCode) {
             RetrofitNetworkClient.NO_CONNECTION -> {
-                emit(Resource.Error("Нет интернета"))
+                emit(Resource.Error("Проверьте подключение к интернету"))
             }
 
             RetrofitNetworkClient.HTTP_OK -> {
@@ -29,7 +29,7 @@ class VacancyDetailRepositoryImpl(
             }
 
             else -> {
-                emit(Resource.Error("Ошибка сервера"))
+                emit(Resource.Error("Произошла ошибка"))
             }
         }
     }
