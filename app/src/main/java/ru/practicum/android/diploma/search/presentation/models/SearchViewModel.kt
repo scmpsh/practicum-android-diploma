@@ -11,7 +11,9 @@ import kotlinx.coroutines.launch
 import ru.practicum.android.diploma.search.domain.api.SearchInteractor
 import ru.practicum.android.diploma.search.domain.models.Resource
 
-class SearchViewModel(private val searchInteractor: SearchInteractor) : ViewModel() {
+class SearchViewModel(
+    private val searchInteractor: SearchInteractor
+) : ViewModel() {
 
     private val _state = MutableStateFlow<SearchState>(SearchState.Initial)
     val state: StateFlow<SearchState> = _state
@@ -25,32 +27,50 @@ class SearchViewModel(private val searchInteractor: SearchInteractor) : ViewMode
     private var isNextPageLoading = false
 
     fun searchDebounce(changedText: String) {
-        latestSearchText = changedText
-
-        if (changedText.isBlank()) {
-            _state.value = SearchState.Initial
-            searchJob?.cancel()
-            pagingJob?.cancel()
+        if (latestSearchText == changedText) {
             return
         }
 
+        latestSearchText = changedText
+
         searchJob?.cancel()
 
+        if (changedText.isBlank()) {
+            pagingJob?.cancel()
+            isNextPageLoading = false
+            currentPage = 0
+            maxPages = 0
+            _state.value = SearchState.Initial
+            return
+        }
+
+        pagingJob?.cancel()
+        isNextPageLoading = false
+
         searchJob = viewModelScope.launch {
-            delay(500)
+            delay(SEARCH_DEBOUNCE_DELAY)
             search(changedText)
         }
     }
 
     fun onLastItemReached() {
-        if (currentPage < maxPages - 1 && !isNextPageLoading) {
-            val currentState = _state.value
-            if (currentState is SearchState.Content) {
-                _state.value = currentState.copy(isPaging = true, toastMessage = null)
-                pagingJob = viewModelScope.launch {
-                    loadNextPage()
-                }
-            }
+        if (currentPage >= maxPages - 1 || isNextPageLoading) {
+            return
+        }
+
+        val currentState = _state.value
+        if (currentState !is SearchState.Content) {
+            return
+        }
+
+        _state.value = currentState.copy(
+            isPaging = true,
+            toastMessage = null
+        )
+
+        pagingJob?.cancel()
+        pagingJob = viewModelScope.launch {
+            loadNextPage()
         }
     }
 
@@ -65,45 +85,46 @@ class SearchViewModel(private val searchInteractor: SearchInteractor) : ViewMode
         _state.value = SearchState.Loading
         currentPage = 0
 
-        searchInteractor.searchVacancies(newSearchText, currentPage)
-            .collect { resource ->
-                when (resource) {
+        when (val resource = searchInteractor.searchVacancies(newSearchText, currentPage).first()) {
+            is Resource.Success -> {
+                val searchResult = resource.data
+                if (searchResult == null) {
+                    _state.value = SearchState.Error
+                    return
+                }
 
-                    is Resource.Success -> {
-                        val data = resource.data ?: run {
-                            _state.value = SearchState.Error
-                            return@collect
-                        }
+                maxPages = searchResult.pages
 
-                        maxPages = data.pages
-
-                        _state.value =
-                            if (data.vacancies.isEmpty()) {
-                                SearchState.Empty
-                            } else {
-                                SearchState.Content(
-                                    vacancies = data.vacancies,
-                                    found = data.found
-                                )
-                            }
-                    }
-
-                    is Resource.Error -> {
-                        _state.value = SearchState.Error
-                    }
+                _state.value = if (searchResult.vacancies.isEmpty()) {
+                    SearchState.Empty
+                } else {
+                    SearchState.Content(
+                        vacancies = searchResult.vacancies,
+                        found = searchResult.found,
+                        isPaging = false,
+                        toastMessage = null
+                    )
                 }
             }
+
+            is Resource.Error -> {
+                _state.value = SearchState.Error
+            }
+        }
     }
 
     private suspend fun loadNextPage() {
         isNextPageLoading = true
         val nextPage = currentPage + 1
 
-        when (val resource =
-            searchInteractor.searchVacancies(latestSearchText ?: "", nextPage).first()
-        ) {
+        when (val resource = searchInteractor.searchVacancies(latestSearchText.orEmpty(), nextPage).first()) {
             is Resource.Success -> {
-                val data = resource.data ?: return
+                val data = resource.data
+
+                if (data == null) {
+                    stopPagingWithError("Пустой ответ")
+                    return
+                }
 
                 currentPage = nextPage
                 maxPages = data.pages
@@ -113,22 +134,32 @@ class SearchViewModel(private val searchInteractor: SearchInteractor) : ViewMode
                     _state.value = currentState.copy(
                         vacancies = (currentState.vacancies + data.vacancies)
                             .distinctBy { it.id },
-                        isPaging = false
+                        isPaging = false,
+                        toastMessage = null
                     )
                 }
             }
 
             is Resource.Error -> {
-                val currentState = _state.value
-                if (currentState is SearchState.Content) {
-                    _state.value = currentState.copy(
-                        isPaging = false,
-                        toastMessage = resource.message
-                    )
-                }
+                stopPagingWithError(resource.message)
             }
         }
 
         isNextPageLoading = false
+    }
+
+    private fun stopPagingWithError(message: String?) {
+        val currentState = _state.value
+        if (currentState is SearchState.Content) {
+            _state.value = currentState.copy(
+                isPaging = false,
+                toastMessage = message ?: "Ошибка сервера"
+            )
+        }
+        isNextPageLoading = false
+    }
+
+    companion object {
+        private const val SEARCH_DEBOUNCE_DELAY = 500L
     }
 }

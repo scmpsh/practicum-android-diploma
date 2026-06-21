@@ -31,6 +31,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
+import org.koin.androidx.compose.koinViewModel
 import ru.practicum.android.diploma.R
 import ru.practicum.android.diploma.search.presentation.models.SearchViewModel
 
@@ -38,7 +40,7 @@ import ru.practicum.android.diploma.search.presentation.models.SearchViewModel
 fun SearchScreen(
     onNavigateToFilter: () -> Unit,
     @Suppress("UNUSED_PARAMETER") onNavigateToVacancyDetails: () -> Unit = {},
-    @Suppress("UNUSED_PARAMETER") viewModel: SearchViewModel,
+    @Suppress("UNUSED_PARAMETER") viewModel: SearchViewModel = koinViewModel(),
 ) {
     var searchQuery by remember { mutableStateOf("") }
 
