@@ -12,8 +12,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -30,19 +33,24 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModel
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.androidx.compose.koinViewModel
 import ru.practicum.android.diploma.R
+import ru.practicum.android.diploma.search.presentation.components.VacancyItem
+import ru.practicum.android.diploma.search.presentation.models.SearchState
 import ru.practicum.android.diploma.search.presentation.models.SearchViewModel
 
 @Composable
 fun SearchScreen(
     onNavigateToFilter: () -> Unit,
-    @Suppress("UNUSED_PARAMETER") onNavigateToVacancyDetails: () -> Unit = {},
-    @Suppress("UNUSED_PARAMETER") viewModel: SearchViewModel = koinViewModel(),
+    onNavigateToVacancyDetails: (String) -> Unit = {},
+    viewModel: SearchViewModel = koinViewModel(),
 ) {
     var searchQuery by remember { mutableStateOf("") }
+    val state by viewModel.state.collectAsStateWithLifecycle()
 
     Column(
         modifier = Modifier
@@ -77,17 +85,165 @@ fun SearchScreen(
                 .weight(1f),
             contentAlignment = Alignment.Center,
         ) {
-            if (searchQuery.isBlank()) {
-                Image(
-                    painter = painterResource(R.drawable.ic_search_placeholder),
-                    contentDescription = null,
-                    modifier = Modifier.size(
-                        width = 328.dp,
-                        height = 223.dp,
-                    ),
-                )
+            when (val currentState = state) {
+                SearchState.Initial -> {
+                    if (searchQuery.isBlank()) {
+                        Image(
+                            painter = painterResource(R.drawable.ic_search_placeholder),
+                            contentDescription = null,
+                            modifier = Modifier.size(
+                                width = 328.dp,
+                                height = 223.dp,
+                            ),
+                        )
+                    }
+                }
+
+                SearchState.Loading -> {
+                    CircularProgressIndicator()
+                }
+
+                SearchState.Empty -> {
+                    SearchEmptyPlaceholder()
+                }
+
+                SearchState.NoInternet -> {
+                    SearchNoInternetPlaceholder()
+                }
+
+                SearchState.Error -> {
+                    SearchErrorPlaceholder()
+                }
+
+                is SearchState.Content -> {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        itemsIndexed(
+                            items = currentState.vacancies,
+                            key = { _, vacancy -> vacancy.id }
+                        ) { index, vacancy ->
+
+                            VacancyItem(
+                                vacancy = vacancy,
+                                onClick = {
+                                    onNavigateToVacancyDetails(it.id)
+                                }
+                            )
+
+                            if (index >= currentState.vacancies.lastIndex - 2) {
+                                viewModel.onLastItemReached()
+                            }
+                        }
+                    }
+                }
             }
         }
+    }
+}
+
+@Composable
+private fun SearchEmptyPlaceholder() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(top = 10.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "Таких вакансий нет",
+            modifier = Modifier
+                .background(
+                    color = MaterialTheme.colorScheme.primary,
+                    shape = RoundedCornerShape(12.dp)
+                )
+                .padding(
+                    horizontal = 12.dp,
+                    vertical = 4.dp
+                ),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onPrimary
+        )
+
+        Spacer(modifier = Modifier.height(72.dp))
+
+        Image(
+            painter = painterResource(R.drawable.il_empty_search_result),
+            contentDescription = null,
+            modifier = Modifier.size(
+                width = 328.dp,
+                height = 223.dp
+            )
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            text = stringResource(R.string.no_vacancies_error),
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onBackground,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+@Composable
+private fun SearchNoInternetPlaceholder() {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Spacer(modifier = Modifier.height(82.dp))
+
+        Image(
+            painter = painterResource(R.drawable.il_no_internet),
+            contentDescription = null,
+            modifier = Modifier.size(
+                width = 328.dp,
+                height = 223.dp
+            )
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            text = stringResource(R.string.no_internet_error),
+            style = MaterialTheme.typography.titleLarge.copy(
+                fontWeight = FontWeight.Medium,
+                fontSize = 22.sp,
+                lineHeight = 26.sp
+            ),
+            color = MaterialTheme.colorScheme.onBackground,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+@Composable
+private fun SearchErrorPlaceholder() {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Spacer(modifier = Modifier.height(82.dp))
+
+        Image(
+            painter = painterResource(R.drawable.il_empty_search_result),
+            contentDescription = null,
+            modifier = Modifier.size(
+                width = 328.dp,
+                height = 223.dp
+            )
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            text = stringResource(R.string.no_vacancies_error),
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onBackground,
+            textAlign = TextAlign.Center
+        )
     }
 }
 

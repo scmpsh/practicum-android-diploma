@@ -88,6 +88,7 @@ class SearchViewModel(
         when (val resource = searchInteractor.searchVacancies(newSearchText, currentPage).first()) {
             is Resource.Success -> {
                 val searchResult = resource.data
+
                 if (searchResult == null) {
                     _state.value = SearchState.Error
                     return
@@ -108,7 +109,13 @@ class SearchViewModel(
             }
 
             is Resource.Error -> {
-                _state.value = SearchState.Error
+                _state.value = if (
+                    resource.message?.contains(NO_INTERNET_KEYWORD, ignoreCase = true) == true
+                ) {
+                    SearchState.NoInternet
+                } else {
+                    SearchState.Error
+                }
             }
         }
     }
@@ -150,16 +157,19 @@ class SearchViewModel(
 
     private fun stopPagingWithError(message: String?) {
         val currentState = _state.value
+
         if (currentState is SearchState.Content) {
             _state.value = currentState.copy(
                 isPaging = false,
                 toastMessage = message ?: "Ошибка сервера"
             )
         }
+
         isNextPageLoading = false
     }
 
     companion object {
         private const val SEARCH_DEBOUNCE_DELAY = 500L
+        private const val NO_INTERNET_KEYWORD = "интернет"
     }
 }
