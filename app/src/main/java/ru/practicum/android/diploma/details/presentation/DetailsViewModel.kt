@@ -45,7 +45,13 @@ class DetailsViewModel(
                 }
 
                 is Resource.Error -> {
-                    _state.value = DetailsState.Error
+                    _state.value = if (
+                        result.message?.contains(NO_INTERNET_KEYWORD, ignoreCase = true) == true
+                    ) {
+                        DetailsState.NoInternet
+                    } else {
+                        DetailsState.Error
+                    }
                 }
             }
         }
@@ -75,5 +81,9 @@ class DetailsViewModel(
                 "Уровень зарплаты не указан"
             }
         }
+    }
+
+    companion object {
+        private const val NO_INTERNET_KEYWORD = "интернет"
     }
 }

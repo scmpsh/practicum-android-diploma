@@ -27,11 +27,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil.compose.AsyncImage
+import coil.compose.SubcomposeAsyncImage
+import coil.compose.SubcomposeAsyncImageContent
+import coil.request.ImageRequest
 import ru.practicum.android.diploma.R
 import ru.practicum.android.diploma.details.presentation.components.ContactsSection
 import ru.practicum.android.diploma.details.presentation.components.SkillsSection
@@ -40,6 +44,7 @@ import ru.practicum.android.diploma.details.presentation.components.SkillsSectio
 fun DetailsScreen(
     viewModel: DetailsViewModel,
     vacancyId: String,
+    initialLogoUrl: String,
     onBackClick: () -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -71,24 +76,26 @@ fun DetailsScreen(
                 }
             }
 
+            DetailsState.NoInternet -> {
+                DetailsPlaceholder(
+                    imageRes = R.drawable.il_no_internet,
+                    text = "Нет интернета",
+                    modifier = Modifier.padding(padding)
+                )
+            }
+
             DetailsState.Error -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "Ошибка загрузки",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                }
+                DetailsPlaceholder(
+                    imageRes = R.drawable.il_empty_search_result,
+                    text = "Не удалось получить\nинформацию о вакансии",
+                    modifier = Modifier.padding(padding)
+                )
             }
 
             is DetailsState.Content -> {
                 VacancyDetailsContent(
                     state = currentState,
+                    initialLogoUrl = initialLogoUrl,
                     modifier = Modifier.padding(padding)
                 )
             }
@@ -97,8 +104,45 @@ fun DetailsScreen(
 }
 
 @Composable
+private fun DetailsPlaceholder(
+    imageRes: Int,
+    text: String,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(
+                painter = painterResource(imageRes),
+                contentDescription = null,
+                modifier = Modifier.size(
+                    width = 328.dp,
+                    height = 223.dp
+                )
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = text,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onBackground,
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+@Composable
 private fun VacancyDetailsContent(
     state: DetailsState.Content,
+    initialLogoUrl: String,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -127,7 +171,7 @@ private fun VacancyDetailsContent(
         CompanyCard(
             company = state.company,
             location = state.location,
-            logoUrl = state.logoUrl
+            logoUrl = state.logoUrl.orEmpty().ifBlank { initialLogoUrl }
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -158,9 +202,6 @@ private fun VacancyDetailsContent(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-
-        Spacer(modifier = Modifier.height(16.dp))
-
         HtmlDescription(
             html = state.descriptionHtml
         )
@@ -187,7 +228,7 @@ private fun VacancyDetailsContent(
 private fun CompanyCard(
     company: String,
     location: String,
-    logoUrl: String?
+    logoUrl: String
 ) {
     Row(
         modifier = Modifier
@@ -199,13 +240,9 @@ private fun CompanyCard(
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        AsyncImage(
-            model = logoUrl,
-            contentDescription = company,
-            placeholder = painterResource(R.drawable.ic_company_placeholder_32px),
-            error = painterResource(R.drawable.ic_company_placeholder_32px),
-            modifier = Modifier.size(48.dp),
-            contentScale = ContentScale.Fit
+        CompanyLogo(
+            company = company,
+            logoUrl = logoUrl
         )
 
         Spacer(modifier = Modifier.size(12.dp))
@@ -224,6 +261,56 @@ private fun CompanyCard(
             )
         }
     }
+}
+
+@Composable
+private fun CompanyLogo(
+    company: String,
+    logoUrl: String
+) {
+    val context = LocalContext.current
+
+    if (logoUrl.isBlank()) {
+        Image(
+            painter = painterResource(R.drawable.ic_company_placeholder_32px),
+            contentDescription = company,
+            modifier = Modifier.size(48.dp),
+            contentScale = ContentScale.Fit
+        )
+        return
+    }
+
+    SubcomposeAsyncImage(
+        model = ImageRequest.Builder(context)
+            .data(logoUrl)
+            .addHeader("User-Agent", "Mozilla/5.0")
+            .crossfade(true)
+            .build(),
+        contentDescription = company,
+        modifier = Modifier.size(48.dp),
+        contentScale = ContentScale.Fit,
+        loading = {
+            Box(
+                modifier = Modifier.size(48.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+        },
+        error = {
+            Image(
+                painter = painterResource(R.drawable.ic_company_placeholder_32px),
+                contentDescription = company,
+                modifier = Modifier.size(48.dp),
+                contentScale = ContentScale.Fit
+            )
+        },
+        success = {
+            SubcomposeAsyncImageContent()
+        }
+    )
 }
 
 @Composable

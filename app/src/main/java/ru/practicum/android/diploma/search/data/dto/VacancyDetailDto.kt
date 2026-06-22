@@ -64,7 +64,9 @@ data class EmployerDto(
     val id: String,
     val name: String,
     @SerializedName("logo_urls")
-    val logoUrls: LogoUrlsDto?
+    val logoUrls: LogoUrlsDto?,
+    @SerializedName("logo_url")
+    val logoUrl: String?
 )
 
 data class LogoUrlsDto(

@@ -34,10 +34,13 @@ class SearchFragment : Fragment() {
                                 R.id.action_searchFragment_to_filterSettingsFragment,
                             )
                         },
-                        onNavigateToVacancyDetails = { vacancyId ->
+                        onNavigateToVacancyDetails = { vacancyId, logoUrl ->
                             findNavController().navigate(
                                 R.id.action_searchFragment_to_vacancyDetailsFragment,
-                                bundleOf(DetailsFragment.ARG_VACANCY_ID to vacancyId)
+                                bundleOf(
+                                    DetailsFragment.ARG_VACANCY_ID to vacancyId,
+                                    DetailsFragment.ARG_LOGO_URL to logoUrl
+                                )
                             )
                         },
                         viewModel = viewModel,

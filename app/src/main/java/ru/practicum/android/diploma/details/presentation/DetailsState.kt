@@ -18,5 +18,7 @@ sealed interface DetailsState {
         val contacts: String?
     ) : DetailsState
 
+    object NoInternet : DetailsState
+
     object Error : DetailsState
 }

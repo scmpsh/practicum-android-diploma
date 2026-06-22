@@ -46,7 +46,7 @@ import ru.practicum.android.diploma.search.presentation.models.SearchViewModel
 @Composable
 fun SearchScreen(
     onNavigateToFilter: () -> Unit,
-    onNavigateToVacancyDetails: (String) -> Unit = {},
+    onNavigateToVacancyDetails: (String, String) -> Unit = { _, _ -> },
     viewModel: SearchViewModel = koinViewModel(),
 ) {
     var searchQuery by remember { mutableStateOf("") }
@@ -127,7 +127,10 @@ fun SearchScreen(
                             VacancyItem(
                                 vacancy = vacancy,
                                 onClick = {
-                                    onNavigateToVacancyDetails(it.id)
+                                    onNavigateToVacancyDetails(
+                                        it.id,
+                                        it.logoUrl.orEmpty()
+                                    )
                                 }
                             )
 

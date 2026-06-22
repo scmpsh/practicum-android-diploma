@@ -1,5 +1,6 @@
 package ru.practicum.android.diploma.search.data
 
+import android.util.Log
 import ru.practicum.android.diploma.search.data.dto.VacancyDetailDto
 import ru.practicum.android.diploma.search.domain.models.Address
 import ru.practicum.android.diploma.search.domain.models.Area
@@ -16,6 +17,11 @@ import ru.practicum.android.diploma.search.domain.models.VacancyDetail
 class VacancyDetailMapper {
 
     fun map(dto: VacancyDetailDto): VacancyDetail {
+        Log.d(
+            "DetailsLogoDto",
+            "logoUrls = ${dto.employer.logoUrls}, logoUrl = ${dto.employer.logoUrl}"
+        )
+
         return VacancyDetail(
             id = dto.id,
             name = dto.name,
@@ -49,9 +55,10 @@ class VacancyDetailMapper {
                 id = dto.employer.id,
                 name = dto.employer.name,
                 logo = (
-                    dto.employer.logoUrls?.original
-                        ?: dto.employer.logoUrls?.medium
+                    dto.employer.logoUrls?.medium
+                        ?: dto.employer.logoUrls?.original
                         ?: dto.employer.logoUrls?.small
+                        ?: dto.employer.logoUrl
                     ).orEmpty()
             ),
             area = Area(

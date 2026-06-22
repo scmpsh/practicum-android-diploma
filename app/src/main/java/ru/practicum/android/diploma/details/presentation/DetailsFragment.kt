@@ -15,12 +15,14 @@ class DetailsFragment : Fragment(R.layout.fragment_compose) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val vacancyId = requireArguments().getString(ARG_VACANCY_ID).orEmpty()
+        val logoUrl = requireArguments().getString(ARG_LOGO_URL).orEmpty()
 
         view.findViewById<ComposeView>(R.id.compose_view).setContent {
             AppTheme {
                 DetailsScreen(
                     viewModel = viewModel,
                     vacancyId = vacancyId,
+                    initialLogoUrl = logoUrl,
                     onBackClick = {
                         findNavController().popBackStack()
                     }
@@ -31,5 +33,6 @@ class DetailsFragment : Fragment(R.layout.fragment_compose) {
 
     companion object {
         const val ARG_VACANCY_ID = "vacancyId"
+        const val ARG_LOGO_URL = "logoUrl"
     }
 }
