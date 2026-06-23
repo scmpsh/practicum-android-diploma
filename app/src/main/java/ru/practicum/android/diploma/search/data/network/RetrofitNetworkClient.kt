@@ -1,6 +1,7 @@
 package ru.practicum.android.diploma.search.data.network
 
 import android.util.Log
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import ru.practicum.android.diploma.BuildConfig
@@ -19,23 +20,13 @@ class RetrofitNetworkClient(
         }
 
         return when (dto) {
-            is VacanciesSearchRequest -> {
-                searchVacancies(dto)
-            }
-
-            is VacancyDetailRequest -> {
-                getVacancyDetail(dto)
-            }
-
-            else -> {
-                Response().apply { resultCode = HTTP_BAD_REQUEST }
-            }
+            is VacanciesSearchRequest -> searchVacancies(dto)
+            is VacancyDetailRequest -> getVacancyDetail(dto)
+            else -> Response().apply { resultCode = HTTP_BAD_REQUEST }
         }
     }
 
-    private suspend fun getVacancyDetail(
-        dto: VacancyDetailRequest
-    ): Response {
+    private suspend fun getVacancyDetail(dto: VacancyDetailRequest): Response {
         return withContext(Dispatchers.IO) {
             try {
                 apiService.getVacancy(
@@ -44,6 +35,8 @@ class RetrofitNetworkClient(
                 ).apply {
                     resultCode = HTTP_OK
                 }
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 Log.e("Network", "Request failed", e)
                 Response().apply { resultCode = INNER_SERVER_ERROR }
@@ -51,10 +44,8 @@ class RetrofitNetworkClient(
         }
     }
 
-    private suspend fun searchVacancies(
-        dto: VacanciesSearchRequest
-    ): Response {
-        val options: HashMap<String, String> = HashMap()
+    private suspend fun searchVacancies(dto: VacanciesSearchRequest): Response {
+        val options = HashMap<String, String>()
         options["text"] = dto.expression
         options["page"] = dto.page.toString()
 
@@ -66,6 +57,8 @@ class RetrofitNetworkClient(
                 ).apply {
                     resultCode = HTTP_OK
                 }
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 Log.e("Network", "Request failed", e)
                 Response().apply { resultCode = INNER_SERVER_ERROR }
@@ -79,5 +72,4 @@ class RetrofitNetworkClient(
         const val NO_CONNECTION = -1
         const val INNER_SERVER_ERROR = 500
     }
-
 }

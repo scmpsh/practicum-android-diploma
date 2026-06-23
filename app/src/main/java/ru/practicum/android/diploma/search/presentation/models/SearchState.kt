@@ -8,6 +8,7 @@ sealed interface SearchState {
 
     object Initial : SearchState
     object Loading : SearchState
+
     data class Content(
         val vacancies: List<Vacancy>,
         val found: Int,
@@ -16,6 +17,6 @@ sealed interface SearchState {
     ) : SearchState
 
     object Error : SearchState
-
     object Empty : SearchState
+    object NoInternet : SearchState
 }

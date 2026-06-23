@@ -13,7 +13,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
@@ -23,6 +22,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import ru.practicum.android.diploma.R
 import ru.practicum.android.diploma.search.domain.models.Vacancy
 import ru.practicum.android.diploma.ui.theme.AppTheme
@@ -35,6 +35,8 @@ fun VacancyItem(
     onClick: (Vacancy) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -42,10 +44,15 @@ fun VacancyItem(
             .padding(horizontal = Dimens.Padding16, vertical = Dimens.Padding8),
     ) {
         AsyncImage(
-            model = vacancy.logoUrl,
+            model = ImageRequest.Builder(context)
+                .data(vacancy.logoUrl)
+                .addHeader("User-Agent", "Mozilla/5.0")
+                .crossfade(true)
+                .build(),
             contentDescription = vacancy.company,
             placeholder = painterResource(R.drawable.ic_company_placeholder_32px),
             error = painterResource(R.drawable.ic_company_placeholder_32px),
+            fallback = painterResource(R.drawable.ic_company_placeholder_32px),
             modifier = Modifier
                 .size(Dimens.VacancyCompanyLogoSize)
                 .clip(RoundedCornerShape(Dimens.VacancyCardCornerRadius))
@@ -86,7 +93,7 @@ fun VacancyItem(
 
             Text(
                 text = SalaryFormatter.format(
-                    context = LocalContext.current,
+                    context = context,
                     from = vacancy.salaryFrom,
                     to = vacancy.salaryTo,
                     currency = vacancy.salaryCurrency

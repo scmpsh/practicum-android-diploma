@@ -6,10 +6,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import ru.practicum.android.diploma.R
+import ru.practicum.android.diploma.details.presentation.DetailsFragment
 import ru.practicum.android.diploma.search.presentation.models.SearchViewModel
 import ru.practicum.android.diploma.ui.theme.AppTheme
 
@@ -32,9 +34,13 @@ class SearchFragment : Fragment() {
                                 R.id.action_searchFragment_to_filterSettingsFragment,
                             )
                         },
-                        onNavigateToVacancyDetails = {
+                        onNavigateToVacancyDetails = { vacancyId, logoUrl ->
                             findNavController().navigate(
                                 R.id.action_searchFragment_to_vacancyDetailsFragment,
+                                bundleOf(
+                                    DetailsFragment.ARG_VACANCY_ID to vacancyId,
+                                    DetailsFragment.ARG_LOGO_URL to logoUrl
+                                )
                             )
                         },
                         viewModel = viewModel,

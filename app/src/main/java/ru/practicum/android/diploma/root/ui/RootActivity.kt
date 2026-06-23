@@ -25,12 +25,18 @@ class RootActivity : AppCompatActivity() {
 
         bottomNavigation.setupWithNavController(navController)
 
+        val hideBottomBarDestinations = setOf(
+            R.id.filterSettingsFragment,
+            R.id.vacancyDetailsFragment
+        )
+
         navController.addOnDestinationChangedListener { _, destination, _ ->
-            bottomNavigation.visibility = when (destination.id) {
-                R.id.filterSettingsFragment,
-                R.id.vacancyDetailsFragment -> View.GONE
-                else -> View.VISIBLE
-            }
+            bottomNavigation.visibility =
+                if (destination.id in hideBottomBarDestinations) {
+                    View.GONE
+                } else {
+                    View.VISIBLE
+                }
         }
     }
 }

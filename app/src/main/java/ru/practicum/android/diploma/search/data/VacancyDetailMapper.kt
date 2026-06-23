@@ -1,5 +1,6 @@
 package ru.practicum.android.diploma.search.data
 
+import android.util.Log
 import ru.practicum.android.diploma.search.data.dto.VacancyDetailDto
 import ru.practicum.android.diploma.search.domain.models.Address
 import ru.practicum.android.diploma.search.domain.models.Area
@@ -16,6 +17,11 @@ import ru.practicum.android.diploma.search.domain.models.VacancyDetail
 class VacancyDetailMapper {
 
     fun map(dto: VacancyDetailDto): VacancyDetail {
+        Log.d(
+            "DetailsLogoDto",
+            "logoUrls = ${dto.employer.logoUrls}, logoUrl = ${dto.employer.logoUrl}"
+        )
+
         return VacancyDetail(
             id = dto.id,
             name = dto.name,
@@ -37,28 +43,33 @@ class VacancyDetailMapper {
             },
             contacts = dto.contacts?.let { contacts ->
                 Contacts(
-                    id = contacts.id,
-                    name = contacts.name,
-                    email = contacts.email,
-                    phones = contacts.phones.map {
+                    id = contacts.id.orEmpty(),
+                    name = contacts.name.orEmpty(),
+                    email = contacts.email.orEmpty(),
+                    phones = contacts.phones.orEmpty().map {
                         Phone(it.comment, it.formatted)
                     }
                 )
             },
             employer = Employer(
-                dto.employer.id,
-                dto.employer.name,
-                dto.employer.logo
+                id = dto.employer.id,
+                name = dto.employer.name,
+                logo = (
+                    dto.employer.logoUrls?.medium
+                        ?: dto.employer.logoUrls?.original
+                        ?: dto.employer.logoUrls?.small
+                        ?: dto.employer.logoUrl
+                    ).orEmpty()
             ),
             area = Area(
-                dto.area.id,
-                dto.area.name
+                id = dto.area.id,
+                name = dto.area.name
             ),
             skills = dto.skills ?: emptyList(),
             url = dto.url,
             industry = Industry(
-                dto.industry.id,
-                dto.industry.name
+                id = dto.industry.id,
+                name = dto.industry.name
             )
         )
     }
