@@ -41,7 +41,7 @@ fun VacancyItem(
         modifier = modifier
             .fillMaxWidth()
             .clickable { onClick(vacancy) }
-            .padding(horizontal = Dimens.Padding16, vertical = Dimens.Padding8),
+            .padding(vertical = Dimens.Padding8),
     ) {
         AsyncImage(
             model = ImageRequest.Builder(context)
