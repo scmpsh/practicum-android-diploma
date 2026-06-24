@@ -25,6 +25,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -42,6 +44,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.androidx.compose.koinViewModel
 import ru.practicum.android.diploma.R
+import ru.practicum.android.diploma.search.domain.models.Vacancy
 import ru.practicum.android.diploma.search.presentation.components.VacancyItem
 import ru.practicum.android.diploma.search.presentation.models.SearchState
 import ru.practicum.android.diploma.search.presentation.models.SearchViewModel
@@ -122,32 +125,105 @@ fun SearchScreen(
                     }
 
                     is SearchState.Content -> {
-                        LazyColumn(
-                            modifier = Modifier.fillMaxSize()
-                        ) {
-                            itemsIndexed(
-                                items = currentState.vacancies,
-                                key = { _, vacancy -> vacancy.id }
-                            ) { index, vacancy ->
-
-                                VacancyItem(
-                                    vacancy = vacancy,
-                                    onClick = {
-                                        onNavigateToVacancyDetails(
-                                            it.id,
-                                            it.logoUrl.orEmpty()
-                                        )
-                                    }
-                                )
-
-                                if (index >= currentState.vacancies.lastIndex - 2) {
-                                    viewModel.onLastItemReached()
-                                }
-                            }
-                        }
+                        SearchContent(
+                            currentState = currentState,
+                            onNavigateToDetails = { vacancyId, logoId ->
+                                onNavigateToVacancyDetails(vacancyId, logoId)
+                            },
+                            onLastItemReached = viewModel::onLastItemReached
+                        )
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun SearchContent(
+    currentState: SearchState.Content,
+    onNavigateToDetails: (String, String) -> Unit,
+    onLastItemReached: () -> Unit
+) {
+    Column {
+        SearchResultCounter(currentState.found)
+
+        SearchVacanciesList(
+            vacancies = currentState.vacancies,
+            onNavigateToDetails = onNavigateToDetails,
+            onLastItemReached = onLastItemReached
+        )
+    }
+}
+
+@Composable
+private fun SearchResultCounter(
+    count: Int
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp, bottom = 4.dp)
+    ) {
+        Text(
+            text = pluralStringResource(
+                R.plurals.vacancy_found_count,
+                count,
+                count
+            ),
+            modifier = Modifier
+                .background(
+                    color = MaterialTheme.colorScheme.primary,
+                    shape = RoundedCornerShape(12.dp)
+                )
+                .padding(
+                    horizontal = 12.dp,
+                    vertical = 4.dp
+                ),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onPrimary
+        )
+    }
+}
+
+@Composable
+private fun SearchVacanciesList(
+    vacancies: List<Vacancy>,
+    onNavigateToDetails: (String, String) -> Unit,
+    onLastItemReached: () -> Unit
+) {
+    LazyColumn {
+        itemsIndexed(vacancies) { index, vacancy ->
+
+            CheckPagination(
+                index = index,
+                lastIndex = vacancies.lastIndex,
+                onLastItemReached = onLastItemReached
+            )
+
+            VacancyItem(
+                vacancy = vacancy,
+                onClick = {
+                    onNavigateToDetails(
+                        vacancy.id,
+                        vacancy.logoUrl.orEmpty()
+                    )
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun CheckPagination(
+    index: Int,
+    lastIndex: Int,
+    onLastItemReached: () -> Unit
+) {
+    if (index >= lastIndex - 2) {
+        LaunchedEffect(index) {
+            onLastItemReached()
         }
     }
 }

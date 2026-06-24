@@ -87,7 +87,9 @@ fun FavoritesList(
     list: List<Vacancy>,
     onNavigateToDetails: (vacancyId: String) -> Unit
 ) {
-    LazyColumn {
+    LazyColumn(
+        Modifier.padding(horizontal = 16.dp)
+    ) {
         items(list) { item ->
             VacancyItem(
                 vacancy = item,
