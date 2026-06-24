@@ -56,15 +56,15 @@ fun DetailsScreen(
     Scaffold(
         topBar = {
             DetailsTopBar(
+                isFavorite = (state as? DetailsState.Content)?.isFavorite ?: false,
                 onBackClick = onBackClick,
                 onShareClick = { },
-                onFavoriteClick = { }
+                onFavoriteClick = { viewModel.onFavoriteClick() }
             )
         }
     ) { padding ->
 
         when (val currentState = state) {
-
             DetailsState.Loading -> {
                 Box(
                     modifier = Modifier

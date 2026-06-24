@@ -15,7 +15,8 @@ sealed interface DetailsState {
         val employment: String,
         val descriptionHtml: String,
         val skills: List<String>,
-        val contacts: String?
+        val contacts: String?,
+        val isFavorite: Boolean
     ) : DetailsState
 
     object NoInternet : DetailsState

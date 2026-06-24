@@ -8,9 +8,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -26,29 +30,35 @@ import ru.practicum.android.diploma.favorites.presentation.models.FavoritesState
 import ru.practicum.android.diploma.search.domain.models.Vacancy
 import ru.practicum.android.diploma.search.presentation.components.VacancyItem
 import ru.practicum.android.diploma.ui.theme.AppTheme
-import ru.practicum.android.diploma.ui.theme.AppTypography
-import ru.practicum.android.diploma.ui.theme.Medium22
-
 
 @Composable
 fun FavoritesScreen(
     state: FavoritesState,
     onNavigateToDetails: (vacancyId: String) -> Unit
 ) {
-    Column(
-        Modifier.fillMaxSize()
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background,
+        contentColor = MaterialTheme.colorScheme.onBackground
     ) {
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(vertical = 19.dp, horizontal = 16.dp)
+        Column(
+            Modifier.fillMaxSize()
+                .statusBarsPadding()
+                .imePadding()
         ) {
-            Text(
-                text = "Избранное",
-                style = AppTypography.headlineMedium
-            )
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 19.dp, horizontal = 16.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.favorite_vacancies_title),
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+            }
+            FavoritesContent(state, onNavigateToDetails)
         }
-        FavoritesContent(state, onNavigateToDetails)
     }
 }
 
@@ -58,7 +68,6 @@ fun FavoritesContent(
     onNavigateToDetails: (vacancyId: String) -> Unit
 ) {
     when (state) {
-
         is FavoritesState.Empty -> {
             FavoritesEmpty()
         }
@@ -110,7 +119,8 @@ fun FavoritesEmpty() {
 
         Text(
             text = stringResource(R.string.no_favorite_vacancies),
-            style = Medium22
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onBackground
         )
 //      Поднять картинку чуть выше середины
         Spacer(Modifier.weight(1.3f))
@@ -139,8 +149,9 @@ fun FavoritesError() {
 
         Text(
             text = stringResource(R.string.no_vacancies_error),
-            style = Medium22,
-            textAlign = TextAlign.Center
+            style = MaterialTheme.typography.titleLarge,
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.onBackground
         )
 //      Поднять картинку чуть выше середины
         Spacer(Modifier.weight(1.3f))
@@ -191,7 +202,6 @@ private fun FavoritesEmptyPreview() {
         )
     }
 }
-
 
 @Preview
 @Composable
