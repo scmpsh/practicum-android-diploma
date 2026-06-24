@@ -28,6 +28,10 @@ class VacancyDetailRepositoryImpl(
                 emit(Resource.Success(data))
             }
 
+            404 -> {
+                emit(Resource.Error("404"))
+            }
+
             else -> {
                 emit(Resource.Error("Произошла ошибка"))
             }

@@ -32,6 +32,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import android.content.Intent
+import android.net.Uri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.SubcomposeAsyncImage
 import coil.compose.SubcomposeAsyncImageContent
@@ -48,6 +50,7 @@ fun DetailsScreen(
     onBackClick: () -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val context = LocalContext.current
 
     LaunchedEffect(vacancyId) {
         viewModel.loadVacancy(vacancyId)
@@ -58,7 +61,15 @@ fun DetailsScreen(
             DetailsTopBar(
                 isFavorite = (state as? DetailsState.Content)?.isFavorite ?: false,
                 onBackClick = onBackClick,
-                onShareClick = { },
+                onShareClick = {
+                    (state as? DetailsState.Content)?.let { content ->
+                        val intent = Intent(Intent.ACTION_SEND).apply {
+                            type = "text/plain"
+                            putExtra(Intent.EXTRA_TEXT, content.url)
+                        }
+                        context.startActivity(Intent.createChooser(intent, null))
+                    }
+                },
                 onFavoriteClick = { viewModel.onFavoriteClick() }
             )
         }
@@ -214,11 +225,31 @@ private fun VacancyDetailsContent(
             )
         }
 
-        if (!state.contacts.isNullOrBlank()) {
+        val context = LocalContext.current
+        val hasContacts = !state.contactName.isNullOrBlank() ||
+                !state.contactEmail.isNullOrBlank() ||
+                state.contactPhones.isNotEmpty()
+
+        if (hasContacts) {
             Spacer(modifier = Modifier.height(24.dp))
 
             ContactsSection(
-                contacts = state.contacts
+                contactName = state.contactName,
+                contactEmail = state.contactEmail,
+                contactPhones = state.contactPhones,
+                onEmailClick = { email ->
+                    val intent = Intent(Intent.ACTION_SENDTO).apply {
+                        data = Uri.parse("mailto:")
+                        putExtra(Intent.EXTRA_EMAIL, arrayOf(email))
+                    }
+                    context.startActivity(intent)
+                },
+                onPhoneClick = { phone ->
+                    val intent = Intent(Intent.ACTION_DIAL).apply {
+                        data = Uri.parse("tel:$phone")
+                    }
+                    context.startActivity(intent)
+                }
             )
         }
     }
@@ -290,14 +321,12 @@ private fun CompanyLogo(
         modifier = Modifier.size(48.dp),
         contentScale = ContentScale.Fit,
         loading = {
-            Box(
+            Image(
+                painter = painterResource(R.drawable.ic_company_placeholder_32px),
+                contentDescription = company,
                 modifier = Modifier.size(48.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(24.dp)
-                )
-            }
+                contentScale = ContentScale.Fit
+            )
         },
         error = {
             Image(

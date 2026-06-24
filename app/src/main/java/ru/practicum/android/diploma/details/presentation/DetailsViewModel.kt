@@ -1,5 +1,6 @@
 package ru.practicum.android.diploma.details.presentation
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -9,12 +10,13 @@ import kotlinx.coroutines.launch
 import ru.practicum.android.diploma.favorites.domain.api.FavoritesInteractor
 import ru.practicum.android.diploma.search.domain.api.VacancyDetailsInteractor
 import ru.practicum.android.diploma.search.domain.models.Resource
-import ru.practicum.android.diploma.search.domain.models.Salary
 import ru.practicum.android.diploma.search.domain.models.VacancyDetail
+import ru.practicum.android.diploma.util.SalaryFormatter
 
 class DetailsViewModel(
     private val interactor: VacancyDetailsInteractor,
-    private val favoritesInteractor: FavoritesInteractor
+    private val favoritesInteractor: FavoritesInteractor,
+    private val context: Context
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<DetailsState>(DetailsState.Loading)
@@ -47,13 +49,18 @@ class DetailsViewModel(
 
     private suspend fun handleError(id: String, isFavorite: Boolean, message: String?) {
         if (isFavorite) {
+            if (message == "404") {
+                favoritesInteractor.removeFromFavorites(id)
+                _state.value = DetailsState.Error
+                return
+            }
             try {
                 val data = favoritesInteractor.getVacancyDetail(id)
                 vacancyDetail = data
                 _state.value = mapToContent(data, true)
                 return
             } catch (e: Exception) {
-                // Если не удалось загрузить из БД, показываем ошибку
+                // fallback
             }
         }
 
@@ -67,17 +74,25 @@ class DetailsViewModel(
     private fun mapToContent(data: VacancyDetail, isFavorite: Boolean): DetailsState.Content {
         return DetailsState.Content(
             title = data.name,
-            salary = formatSalary(data.salary),
+            salary = SalaryFormatter.format(
+                context = context,
+                from = data.salary?.from,
+                to = data.salary?.to,
+                currency = data.salary?.currency
+            ),
             company = data.employer.name,
-            location = data.address?.raw ?: data.area.name,
+            location = data.address?.raw.orEmpty().ifBlank { data.area.name },
             logoUrl = data.employer.logo,
             experience = data.experience?.name.orEmpty(),
             schedule = data.schedule?.name.orEmpty(),
             employment = data.employment?.name.orEmpty(),
             descriptionHtml = data.description,
-            skills = data.skills ?: emptyList(),
-            contacts = data.contacts?.email,
-            isFavorite = isFavorite
+            skills = data.skills,
+            contactName = data.contacts?.name,
+            contactEmail = data.contacts?.email,
+            contactPhones = data.contacts?.phones.orEmpty(),
+            url = data.url,
+            isFavorite = isFavorite,
         )
     }
 
@@ -92,32 +107,6 @@ class DetailsViewModel(
                     favoritesInteractor.addToFavorites(vacancy)
                 }
                 _state.value = currentState.copy(isFavorite = !currentState.isFavorite)
-            }
-        }
-    }
-
-    private fun formatSalary(salary: Salary?): String {
-        if (salary == null || salary.from == null && salary.to == null) {
-            return "Уровень зарплаты не указан"
-        }
-
-        val currency = salary.currency.orEmpty()
-
-        return when {
-            salary.from != null && salary.to != null -> {
-                "от ${salary.from} до ${salary.to} $currency"
-            }
-
-            salary.from != null -> {
-                "от ${salary.from} $currency"
-            }
-
-            salary.to != null -> {
-                "до ${salary.to} $currency"
-            }
-
-            else -> {
-                "Уровень зарплаты не указан"
             }
         }
     }
