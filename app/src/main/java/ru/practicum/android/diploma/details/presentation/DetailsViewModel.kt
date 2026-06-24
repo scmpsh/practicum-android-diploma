@@ -6,53 +6,92 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import ru.practicum.android.diploma.favorites.domain.api.FavoritesInteractor
 import ru.practicum.android.diploma.search.domain.api.VacancyDetailsInteractor
 import ru.practicum.android.diploma.search.domain.models.Resource
 import ru.practicum.android.diploma.search.domain.models.Salary
+import ru.practicum.android.diploma.search.domain.models.VacancyDetail
 
 class DetailsViewModel(
-    private val interactor: VacancyDetailsInteractor
+    private val interactor: VacancyDetailsInteractor,
+    private val favoritesInteractor: FavoritesInteractor
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<DetailsState>(DetailsState.Loading)
     val state: StateFlow<DetailsState> = _state
 
+    private var vacancyDetail: VacancyDetail? = null
+
     fun loadVacancy(id: String) {
         viewModelScope.launch {
             _state.value = DetailsState.Loading
 
-            when (val result = interactor.getVacancyDetails(id).first()) {
+            val isFavorite = favoritesInteractor.isFavorite(id)
 
+            when (val result = interactor.getVacancyDetails(id).first()) {
                 is Resource.Success -> {
                     val data = result.data ?: run {
-                        _state.value = DetailsState.Error
+                        handleError(id, isFavorite, null)
                         return@launch
                     }
-
-                    _state.value = DetailsState.Content(
-                        title = data.name,
-                        salary = formatSalary(data.salary),
-                        company = data.employer.name,
-                        location = data.address?.raw ?: data.area.name,
-                        logoUrl = data.employer.logo,
-                        experience = data.experience?.name.orEmpty(),
-                        schedule = data.schedule?.name.orEmpty(),
-                        employment = data.employment?.name.orEmpty(),
-                        descriptionHtml = data.description,
-                        skills = data.skills ?: emptyList(),
-                        contacts = data.contacts?.email
-                    )
+                    vacancyDetail = data
+                    _state.value = mapToContent(data, isFavorite)
                 }
 
                 is Resource.Error -> {
-                    _state.value = if (
-                        result.message?.contains(NO_INTERNET_KEYWORD, ignoreCase = true) == true
-                    ) {
-                        DetailsState.NoInternet
-                    } else {
-                        DetailsState.Error
-                    }
+                    handleError(id, isFavorite, result.message)
                 }
+            }
+        }
+    }
+
+    private suspend fun handleError(id: String, isFavorite: Boolean, message: String?) {
+        if (isFavorite) {
+            try {
+                val data = favoritesInteractor.getVacancyDetail(id)
+                vacancyDetail = data
+                _state.value = mapToContent(data, true)
+                return
+            } catch (e: Exception) {
+                // Если не удалось загрузить из БД, показываем ошибку
+            }
+        }
+
+        _state.value = if (message?.contains(NO_INTERNET_KEYWORD, ignoreCase = true) == true) {
+            DetailsState.NoInternet
+        } else {
+            DetailsState.Error
+        }
+    }
+
+    private fun mapToContent(data: VacancyDetail, isFavorite: Boolean): DetailsState.Content {
+        return DetailsState.Content(
+            title = data.name,
+            salary = formatSalary(data.salary),
+            company = data.employer.name,
+            location = data.address?.raw ?: data.area.name,
+            logoUrl = data.employer.logo,
+            experience = data.experience?.name.orEmpty(),
+            schedule = data.schedule?.name.orEmpty(),
+            employment = data.employment?.name.orEmpty(),
+            descriptionHtml = data.description,
+            skills = data.skills ?: emptyList(),
+            contacts = data.contacts?.email,
+            isFavorite = isFavorite
+        )
+    }
+
+    fun onFavoriteClick() {
+        val currentState = _state.value
+        if (currentState is DetailsState.Content) {
+            val vacancy = vacancyDetail ?: return
+            viewModelScope.launch {
+                if (currentState.isFavorite) {
+                    favoritesInteractor.removeFromFavorites(vacancy.id)
+                } else {
+                    favoritesInteractor.addToFavorites(vacancy)
+                }
+                _state.value = currentState.copy(isFavorite = !currentState.isFavorite)
             }
         }
     }

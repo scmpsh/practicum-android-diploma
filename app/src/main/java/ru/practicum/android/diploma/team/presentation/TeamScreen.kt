@@ -1,4 +1,4 @@
-package ru.practicum.android.diploma.team.presentation.ui
+package ru.practicum.android.diploma.team.presentation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -17,7 +17,6 @@ import androidx.compose.ui.unit.dp
 import ru.practicum.android.diploma.R
 
 @Composable
-
 fun TeamScreen(
     modifier: Modifier = Modifier,
 ) {

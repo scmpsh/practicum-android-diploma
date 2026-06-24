@@ -7,7 +7,8 @@ import ru.practicum.android.diploma.details.presentation.DetailsViewModel
 val detailsModule = module {
     viewModel {
         DetailsViewModel(
-            interactor = get()
+            interactor = get(),
+            favoritesInteractor = get()
         )
     }
 }

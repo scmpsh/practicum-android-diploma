@@ -5,7 +5,7 @@
     android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/background"
+    android:background="?attr/colorSurface"
     android:orientation="vertical"
     tools:context=".root.ui.RootActivity">
 
@@ -18,11 +18,18 @@
         app:defaultNavHost="true"
         app:navGraph="@navigation/nav_graph" />
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?attr/colorOutlineVariant" />
+
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/background"
+        android:background="?attr/colorSurface"
+        app:backgroundTint="?attr/colorSurface"
+        app:elevation="0dp"
         app:itemActiveIndicatorStyle="@style/BottomNavigationActiveIndicator"
         app:itemIconTint="@color/bottom_nav_item_color"
         app:itemRippleColor="@android:color/transparent"

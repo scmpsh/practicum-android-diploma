@@ -39,7 +39,8 @@ class FavoritesFragment : Fragment() {
                                 R.id.action_favoritesFragment_to_vacancyDetailsFragment,
                                 bundle
                             )
-                        })
+                        }
+                    )
                 }
             }
         }
