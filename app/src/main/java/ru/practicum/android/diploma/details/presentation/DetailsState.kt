@@ -1,7 +1,5 @@
 package ru.practicum.android.diploma.details.presentation
 
-import ru.practicum.android.diploma.search.domain.models.Phone
-
 sealed interface DetailsState {
 
     object Loading : DetailsState
@@ -17,10 +15,10 @@ sealed interface DetailsState {
         val employment: String,
         val descriptionHtml: String,
         val skills: List<String>,
-        val contactName: String?,
+        val vacancyUrl: String,
         val contactEmail: String?,
-        val contactPhones: List<Phone>,
-        val url: String,
+        val contactPhone: String?,
+        val contactComment: String?,
         val isFavorite: Boolean
     ) : DetailsState
 
@@ -28,4 +26,3 @@ sealed interface DetailsState {
 
     object Error : DetailsState
 }
-

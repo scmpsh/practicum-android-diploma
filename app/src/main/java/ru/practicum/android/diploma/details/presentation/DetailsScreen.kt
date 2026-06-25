@@ -32,8 +32,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import android.content.Intent
-import android.net.Uri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.SubcomposeAsyncImage
 import coil.compose.SubcomposeAsyncImageContent
@@ -47,10 +45,12 @@ fun DetailsScreen(
     viewModel: DetailsViewModel,
     vacancyId: String,
     initialLogoUrl: String,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onShareClick: (DetailsState.Content) -> Unit,
+    onEmailClick: (DetailsState.Content) -> Unit,
+    onPhoneClick: (DetailsState.Content) -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val context = LocalContext.current
 
     LaunchedEffect(vacancyId) {
         viewModel.loadVacancy(vacancyId)
@@ -58,17 +58,12 @@ fun DetailsScreen(
 
     Scaffold(
         topBar = {
+            val contentState = state as? DetailsState.Content
             DetailsTopBar(
-                isFavorite = (state as? DetailsState.Content)?.isFavorite ?: false,
+                isFavorite = contentState?.isFavorite ?: false,
                 onBackClick = onBackClick,
                 onShareClick = {
-                    (state as? DetailsState.Content)?.let { content ->
-                        val intent = Intent(Intent.ACTION_SEND).apply {
-                            type = "text/plain"
-                            putExtra(Intent.EXTRA_TEXT, content.url)
-                        }
-                        context.startActivity(Intent.createChooser(intent, null))
-                    }
+                    contentState?.let(onShareClick)
                 },
                 onFavoriteClick = { viewModel.onFavoriteClick() }
             )
@@ -107,6 +102,8 @@ fun DetailsScreen(
                 VacancyDetailsContent(
                     state = currentState,
                     initialLogoUrl = initialLogoUrl,
+                    onEmailClick = onEmailClick,
+                    onPhoneClick = onPhoneClick,
                     modifier = Modifier.padding(padding)
                 )
             }
@@ -154,6 +151,8 @@ private fun DetailsPlaceholder(
 private fun VacancyDetailsContent(
     state: DetailsState.Content,
     initialLogoUrl: String,
+    onEmailClick: (DetailsState.Content) -> Unit,
+    onPhoneClick: (DetailsState.Content) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -225,31 +224,15 @@ private fun VacancyDetailsContent(
             )
         }
 
-        val context = LocalContext.current
-        val hasContacts = !state.contactName.isNullOrBlank() ||
-                !state.contactEmail.isNullOrBlank() ||
-                state.contactPhones.isNotEmpty()
-
-        if (hasContacts) {
+        if (!state.contactEmail.isNullOrBlank() || !state.contactPhone.isNullOrBlank()) {
             Spacer(modifier = Modifier.height(24.dp))
 
             ContactsSection(
-                contactName = state.contactName,
-                contactEmail = state.contactEmail,
-                contactPhones = state.contactPhones,
-                onEmailClick = { email ->
-                    val intent = Intent(Intent.ACTION_SENDTO).apply {
-                        data = Uri.parse("mailto:")
-                        putExtra(Intent.EXTRA_EMAIL, arrayOf(email))
-                    }
-                    context.startActivity(intent)
-                },
-                onPhoneClick = { phone ->
-                    val intent = Intent(Intent.ACTION_DIAL).apply {
-                        data = Uri.parse("tel:$phone")
-                    }
-                    context.startActivity(intent)
-                }
+                email = state.contactEmail,
+                phone = state.contactPhone,
+                comment = state.contactComment,
+                onEmailClick = { onEmailClick(state) },
+                onPhoneClick = { onPhoneClick(state) }
             )
         }
     }
@@ -321,12 +304,14 @@ private fun CompanyLogo(
         modifier = Modifier.size(48.dp),
         contentScale = ContentScale.Fit,
         loading = {
-            Image(
-                painter = painterResource(R.drawable.ic_company_placeholder_32px),
-                contentDescription = company,
+            Box(
                 modifier = Modifier.size(48.dp),
-                contentScale = ContentScale.Fit
-            )
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp)
+                )
+            }
         },
         error = {
             Image(
@@ -351,7 +336,7 @@ private fun HtmlDescription(
     AndroidView(
         factory = { context ->
             TextView(context).apply {
-                textSize = 16f
+                textSize = DESCRIPTION_TEXT_SIZE
                 setTextColor(textColor)
                 includeFontPadding = true
             }
@@ -365,3 +350,5 @@ private fun HtmlDescription(
         }
     )
 }
+
+private const val DESCRIPTION_TEXT_SIZE = 16f

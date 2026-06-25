@@ -107,47 +107,60 @@ fun SearchScreen(
                     .weight(1f),
                 contentAlignment = Alignment.Center,
             ) {
-                when (val currentState = state) {
-                    SearchState.Initial -> {
-                        if (searchQuery.isBlank()) {
-                            Image(
-                                painter = painterResource(R.drawable.ic_search_placeholder),
-                                contentDescription = null,
-                                modifier = Modifier.size(
-                                    width = 328.dp,
-                                    height = 223.dp,
-                                ),
-                            )
-                        }
-                    }
-
-                    SearchState.Loading -> {
-                        CircularProgressIndicator()
-                    }
-
-                    SearchState.Empty -> {
-                        SearchEmptyPlaceholder()
-                    }
-
-                    SearchState.NoInternet -> {
-                        SearchNoInternetPlaceholder()
-                    }
-
-                    SearchState.Error -> {
-                        SearchErrorPlaceholder()
-                    }
-
-                    is SearchState.Content -> {
-                        SearchContent(
-                            currentState = currentState,
-                            onNavigateToDetails = { vacancyId, logoId ->
-                                onNavigateToVacancyDetails(vacancyId, logoId)
-                            },
-                            onLastItemReached = viewModel::onLastItemReached
-                        )
-                    }
-                }
+                SearchStateContent(
+                    state = state,
+                    searchQuery = searchQuery,
+                    onNavigateToVacancyDetails = onNavigateToVacancyDetails,
+                    onLastItemReached = viewModel::onLastItemReached
+                )
             }
+        }
+    }
+}
+
+@Composable
+private fun SearchStateContent(
+    state: SearchState,
+    searchQuery: String,
+    onNavigateToVacancyDetails: (String, String) -> Unit,
+    onLastItemReached: () -> Unit
+) {
+    when (val currentState = state) {
+        SearchState.Initial -> {
+            if (searchQuery.isBlank()) {
+                Image(
+                    painter = painterResource(R.drawable.ic_search_placeholder),
+                    contentDescription = null,
+                    modifier = Modifier.size(
+                        width = 328.dp,
+                        height = 223.dp,
+                    ),
+                )
+            }
+        }
+
+        SearchState.Loading -> {
+            CircularProgressIndicator()
+        }
+
+        SearchState.Empty -> {
+            SearchEmptyPlaceholder()
+        }
+
+        SearchState.NoInternet -> {
+            SearchNoInternetPlaceholder()
+        }
+
+        SearchState.Error -> {
+            SearchErrorPlaceholder()
+        }
+
+        is SearchState.Content -> {
+            SearchContent(
+                currentState = currentState,
+                onNavigateToDetails = onNavigateToVacancyDetails,
+                onLastItemReached = onLastItemReached
+            )
         }
     }
 }
@@ -428,26 +441,41 @@ private fun SearchTextField(
             )
         }
 
-        IconButton(
-            modifier = Modifier.size(48.dp),
-            onClick = {
-                if (value.isEmpty()) {
-                    return@IconButton
-                }
+        SearchTextFieldTrailingIcon(
+            value = value,
+            isDark = isDark,
+            contentColor = contentColor,
+            onClearClick = onClearClick
+        )
+    }
+}
+
+@Composable
+private fun SearchTextFieldTrailingIcon(
+    value: String,
+    isDark: Boolean,
+    contentColor: Color,
+    onClearClick: () -> Unit
+) {
+    val isEmpty = value.isEmpty()
+    IconButton(
+        modifier = Modifier.size(48.dp),
+        onClick = {
+            if (!isEmpty) {
                 onClearClick()
-            },
-        ) {
-            Icon(
-                painter = painterResource(
-                    if (value.isEmpty()) {
-                        R.drawable.ic_search
-                    } else {
-                        R.drawable.ic_close
-                    },
-                ),
-                contentDescription = null,
-                tint = if (value.isEmpty() && isDark) Color.Black else contentColor,
-            )
-        }
+            }
+        },
+    ) {
+        Icon(
+            painter = painterResource(
+                if (isEmpty) {
+                    R.drawable.ic_search
+                } else {
+                    R.drawable.ic_close
+                },
+            ),
+            contentDescription = null,
+            tint = if (isEmpty && isDark) Color.Black else contentColor,
+        )
     }
 }

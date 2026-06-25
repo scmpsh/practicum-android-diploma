@@ -1,6 +1,17 @@
 
 import ru.practicum.android.diploma.favorites.data.db.entity.VacancyEntity
-import ru.practicum.android.diploma.search.domain.models.*
+import ru.practicum.android.diploma.search.domain.models.Address
+import ru.practicum.android.diploma.search.domain.models.Area
+import ru.practicum.android.diploma.search.domain.models.Contacts
+import ru.practicum.android.diploma.search.domain.models.Employer
+import ru.practicum.android.diploma.search.domain.models.Employment
+import ru.practicum.android.diploma.search.domain.models.Experience
+import ru.practicum.android.diploma.search.domain.models.Industry
+import ru.practicum.android.diploma.search.domain.models.Phone
+import ru.practicum.android.diploma.search.domain.models.Salary
+import ru.practicum.android.diploma.search.domain.models.Schedule
+import ru.practicum.android.diploma.search.domain.models.Vacancy
+import ru.practicum.android.diploma.search.domain.models.VacancyDetail
 
 object VacancyMapper {
 
@@ -30,7 +41,7 @@ object VacancyMapper {
             contactsName = detail.contacts?.name,
             contactsEmail = detail.contacts?.email,
             contactsPhones = detail.contacts?.phones?.joinToString(";") { it.formatted },
-            contactsComments = null,
+            contactsComments = detail.contacts?.phones?.firstOrNull()?.comment,
 
             keySkills = detail.skills.joinToString(","),
             url = detail.url,
@@ -118,7 +129,7 @@ object VacancyMapper {
             id = "",
             name = entity.contactsName ?: "",
             email = entity.contactsEmail ?: "",
-            phones = parsePhones(entity.contactsPhones)
+            phones = parsePhones(entity.contactsPhones, entity.contactsComments)
         )
     }
 
@@ -145,14 +156,14 @@ object VacancyMapper {
             .filter { it.isNotEmpty() }
     }
 
-    private fun parsePhones(raw: String?): List<Phone> {
-        if (raw.isNullOrBlank()) return emptyList()
+    private fun parsePhones(rawPhones: String?, rawComment: String?): List<Phone> {
+        if (rawPhones.isNullOrBlank()) return emptyList()
 
-        return raw.split(";")
-            .map {
+        return rawPhones.split(";")
+            .mapIndexed { index, phone ->
                 Phone(
-                    comment = null,
-                    formatted = it.trim()
+                    comment = if (index == 0) rawComment else null,
+                    formatted = phone.trim()
                 )
             }
     }
