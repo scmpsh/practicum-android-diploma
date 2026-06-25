@@ -1,6 +1,5 @@
 package ru.practicum.android.diploma.search.data
 
-import android.util.Log
 import ru.practicum.android.diploma.search.data.dto.VacancyDetailDto
 import ru.practicum.android.diploma.search.domain.models.Address
 import ru.practicum.android.diploma.search.domain.models.Area
@@ -17,11 +16,6 @@ import ru.practicum.android.diploma.search.domain.models.VacancyDetail
 class VacancyDetailMapper {
 
     fun map(dto: VacancyDetailDto): VacancyDetail {
-        Log.d(
-            "DetailsLogoDto",
-            "logoUrls = ${dto.employer.logoUrls}, logoUrl = ${dto.employer.logoUrl}"
-        )
-
         return VacancyDetail(
             id = dto.id,
             name = dto.name,
@@ -30,7 +24,12 @@ class VacancyDetailMapper {
                 Salary(it.from, it.to, it.currency)
             },
             address = dto.address?.let {
-                Address(it.city, it.street, it.building, it.raw)
+                Address(
+                    city = it.city.orEmpty(),
+                    street = it.street.orEmpty(),
+                    building = it.building.orEmpty(),
+                    raw = it.raw.orEmpty()
+                )
             },
             experience = dto.experience?.let {
                 Experience(it.id, it.name)
@@ -47,26 +46,21 @@ class VacancyDetailMapper {
                     name = contacts.name.orEmpty(),
                     email = contacts.email.orEmpty(),
                     phones = contacts.phones.orEmpty().map {
-                        Phone(it.comment, it.formatted)
+                        Phone(it.comment, it.formatted.orEmpty())
                     }
                 )
             },
             employer = Employer(
                 id = dto.employer.id,
                 name = dto.employer.name,
-                logo = (
-                    dto.employer.logoUrls?.medium
-                        ?: dto.employer.logoUrls?.original
-                        ?: dto.employer.logoUrls?.small
-                        ?: dto.employer.logoUrl
-                    ).orEmpty()
+                logo = dto.employer.logo.orEmpty()
             ),
             area = Area(
                 id = dto.area.id,
                 name = dto.area.name
             ),
             skills = dto.skills ?: emptyList(),
-            url = dto.url,
+            url = dto.url.orEmpty(),
             industry = Industry(
                 id = dto.industry.id,
                 name = dto.industry.name

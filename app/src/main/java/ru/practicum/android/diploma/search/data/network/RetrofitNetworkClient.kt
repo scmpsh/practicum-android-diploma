@@ -37,6 +37,9 @@ class RetrofitNetworkClient(
                 }
             } catch (e: CancellationException) {
                 throw e
+            } catch (e: retrofit2.HttpException) {
+                Log.e("Network", "HTTP error: ${e.code()}", e)
+                Response().apply { resultCode = e.code() }
             } catch (e: Exception) {
                 Log.e("Network", "Request failed", e)
                 Response().apply { resultCode = INNER_SERVER_ERROR }
