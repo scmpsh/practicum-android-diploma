@@ -1,4 +1,4 @@
-package ru.practicum.android.diploma.search.presentation
+package ru.practicum.android.diploma.details.presentation
 
 import android.content.Context
 import android.content.Intent
@@ -22,12 +22,14 @@ class VacancyDetailsIntentFactory {
         val preparedEmail = email?.trim().orEmpty()
         if (preparedEmail.isBlank()) return null
 
-        return Intent(Intent.ACTION_SENDTO).apply {
+        val emailIntent = Intent(Intent.ACTION_SENDTO).apply {
             data = Uri.fromParts(MAILTO_SCHEME, preparedEmail, null)
             vacancyName?.trim()
                 ?.takeIf { it.isNotBlank() }
                 ?.let { putExtra(Intent.EXTRA_SUBJECT, it) }
         }
+
+        return Intent.createChooser(emailIntent, null)
     }
 
     fun createPhoneIntent(phone: String?): Intent? {
@@ -37,13 +39,15 @@ class VacancyDetailsIntentFactory {
 
         if (preparedPhone.isBlank()) return null
 
-        return Intent(Intent.ACTION_DIAL).apply {
+        val phoneIntent = Intent(Intent.ACTION_DIAL).apply {
             data = Uri.fromParts(TEL_SCHEME, preparedPhone, null)
         }
+
+        return Intent.createChooser(phoneIntent, null)
     }
 
     fun canHandleIntent(context: Context, intent: Intent): Boolean {
-        return intent.resolveActivity(context.packageManager) != null
+        return intent.getChooserTargetIntent().resolveActivity(context.packageManager) != null
     }
 
     private fun buildShareText(vacancyName: String?, vacancyUrl: String?): String {
@@ -53,6 +57,12 @@ class VacancyDetailsIntentFactory {
         return listOf(preparedName, preparedUrl)
             .filter { it.isNotBlank() }
             .joinToString(separator = SHARE_TEXT_SEPARATOR)
+    }
+
+    @Suppress("DEPRECATION")
+    private fun Intent.getChooserTargetIntent(): Intent {
+        if (action != Intent.ACTION_CHOOSER) return this
+        return getParcelableExtra(Intent.EXTRA_INTENT) ?: this
     }
 
     private companion object {
