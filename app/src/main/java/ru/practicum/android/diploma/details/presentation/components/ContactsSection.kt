@@ -1,99 +1,43 @@
 package ru.practicum.android.diploma.details.presentation.components
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import ru.practicum.android.diploma.search.domain.models.Phone
-import ru.practicum.android.diploma.ui.theme.Blue
+import androidx.compose.ui.res.stringResource
+import ru.practicum.android.diploma.R
 
 @Composable
 fun ContactsSection(
-    contactName: String?,
-    contactEmail: String?,
-    contactPhones: List<Phone>,
-    onEmailClick: (String) -> Unit,
-    onPhoneClick: (String) -> Unit,
-    modifier: Modifier = Modifier
+    email: String?,
+    phone: String?,
+    comment: String?,
+    onEmailClick: () -> Unit,
+    onPhoneClick: () -> Unit
 ) {
-    val hasName = !contactName.isNullOrBlank()
-    val hasEmail = !contactEmail.isNullOrBlank()
-    val hasPhones = contactPhones.isNotEmpty()
+    if (email.isNullOrBlank() && phone.isNullOrBlank()) return
 
-    if (!hasName && !hasEmail && !hasPhones) return
-
-    Column(modifier = modifier) {
+    Column {
         Text(
-            text = "Контакты",
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onBackground
+            text = stringResource(R.string.vacancy_contacts_title),
+            style = MaterialTheme.typography.titleMedium
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        if (hasName) {
-            Text(
-                text = "Контактное лицо",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Text(
-                text = contactName.orEmpty(),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-        }
-
-        if (hasEmail) {
-            Text(
-                text = "E-mail",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Text(
-                text = contactEmail.orEmpty(),
-                style = MaterialTheme.typography.bodyMedium,
-                color = Blue,
-                modifier = Modifier.clickable { onEmailClick(contactEmail.orEmpty()) }
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-        }
-
-        if (hasPhones) {
-            contactPhones.forEach { phone ->
-                Text(
-                    text = "Телефон",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = phone.formatted,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Blue,
-                    modifier = Modifier.clickable { onPhoneClick(phone.formatted) }
-                )
-                if (!phone.comment.isNullOrBlank()) {
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "Комментарий",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Text(
-                        text = phone.comment,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                }
-                Spacer(modifier = Modifier.height(16.dp))
+        if (!email.isNullOrBlank()) {
+            TextButton(onClick = onEmailClick) {
+                Text(text = email)
             }
+        }
+
+        if (!phone.isNullOrBlank()) {
+            TextButton(onClick = onPhoneClick) {
+                Text(text = phone)
+            }
+        }
+
+        if (!comment.isNullOrBlank()) {
+            Text(text = comment)
         }
     }
 }
-
