@@ -1,4 +1,4 @@
-package ru.practicum.android.diploma.search.data
+package ru.practicum.android.diploma.search.data.mappers
 
 import kotlinx.collections.immutable.toPersistentList
 import ru.practicum.android.diploma.search.data.dto.AddressDto

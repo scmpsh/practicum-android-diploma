@@ -1,4 +1,4 @@
-package ru.practicum.android.diploma.search.data
+package ru.practicum.android.diploma.search.data.mappers
 
 import ru.practicum.android.diploma.search.data.dto.VacancyDto
 import ru.practicum.android.diploma.search.domain.models.Vacancy

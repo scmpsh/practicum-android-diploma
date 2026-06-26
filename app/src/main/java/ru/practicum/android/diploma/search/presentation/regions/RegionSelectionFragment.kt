@@ -1,4 +1,4 @@
-package ru.practicum.android.diploma.search.presentation.country
+package ru.practicum.android.diploma.search.presentation.regions
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -11,9 +11,8 @@ import androidx.navigation.fragment.findNavController
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import ru.practicum.android.diploma.ui.theme.AppTheme
 
-class CountrySelectionFragment : Fragment() {
-
-    private val viewModel: CountryViewModel by viewModel()
+class RegionSelectionFragment : Fragment() {
+    private val viewModel: RegionsViewModel by viewModel()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -24,13 +23,13 @@ class CountrySelectionFragment : Fragment() {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 AppTheme {
-                    CountrySelectionScreen(
+                    RegionsSelectionScreen(
                         viewModel = viewModel,
                         onNavigateBack = {
                             findNavController().navigateUp()
                         },
                         onCountryClick = { area ->
-                            viewModel.onCountryClick(area)
+                            viewModel.onRegionClick(area)
                             findNavController().navigateUp()
                         }
                     )
