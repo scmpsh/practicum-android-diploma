@@ -27,6 +27,9 @@ class RootActivity : AppCompatActivity() {
 
         val hideBottomBarDestinations = setOf(
             R.id.filterSettingsFragment,
+            R.id.placeOfWorkFragment,
+            R.id.countrySelectionFragment,
+            R.id.industrySelectionFragment,
             R.id.vacancyDetailsFragment
         )
 
