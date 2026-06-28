@@ -5,15 +5,15 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import ru.practicum.android.diploma.search.data.filterstoragetemp.FilterStorage
 import ru.practicum.android.diploma.search.domain.api.AreaInteractor
+import ru.practicum.android.diploma.search.domain.api.FilterInteractor
 import ru.practicum.android.diploma.search.domain.models.FilterArea
 import ru.practicum.android.diploma.search.domain.models.Resource
 import ru.practicum.android.diploma.search.presentation.models.CountriesState
 
 class CountryViewModel(
     private val interactor: AreaInteractor,
-    private val filterStorage: FilterStorage
+    private val filterInteractor: FilterInteractor
 ) : ViewModel() {
     private val _state = MutableStateFlow<CountriesState>(CountriesState.Loading)
     val state: StateFlow<CountriesState> = _state
@@ -35,6 +35,12 @@ class CountryViewModel(
     }
 
     fun onCountryClick(area: FilterArea) {
-        filterStorage.saveCountryId(area.id)
+        val settings = filterInteractor.getFilterSettings()
+        filterInteractor.saveFilterSettings(
+            settings.copy(
+                countryId = area.id,
+                regionId = null
+            )
+        )
     }
 }

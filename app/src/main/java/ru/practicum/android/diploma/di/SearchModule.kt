@@ -8,10 +8,11 @@ import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import ru.practicum.android.diploma.search.data.AreaRepositoryImpl
+import ru.practicum.android.diploma.search.data.FilterPreferences
+import ru.practicum.android.diploma.search.data.FilterRepositoryImpl
 import ru.practicum.android.diploma.search.data.SearchRepositoryImpl
 import ru.practicum.android.diploma.search.data.mappers.VacancyDetailMapper
 import ru.practicum.android.diploma.search.data.VacancyDetailRepositoryImpl
-import ru.practicum.android.diploma.search.data.filterstoragetemp.FilterStorage
 import ru.practicum.android.diploma.search.data.mappers.VacancyMapper
 import ru.practicum.android.diploma.search.data.network.ConnectionChecker
 import ru.practicum.android.diploma.search.data.network.ConnectionCheckerImpl
@@ -20,11 +21,14 @@ import ru.practicum.android.diploma.search.data.network.NetworkClient
 import ru.practicum.android.diploma.search.data.network.RetrofitNetworkClient
 import ru.practicum.android.diploma.search.domain.api.AreaInteractor
 import ru.practicum.android.diploma.search.domain.api.AreaRepository
+import ru.practicum.android.diploma.search.domain.api.FilterInteractor
+import ru.practicum.android.diploma.search.domain.api.FilterRepository
 import ru.practicum.android.diploma.search.domain.api.SearchInteractor
 import ru.practicum.android.diploma.search.domain.api.SearchRepository
 import ru.practicum.android.diploma.search.domain.api.VacancyDetailRepository
 import ru.practicum.android.diploma.search.domain.api.VacancyDetailsInteractor
 import ru.practicum.android.diploma.search.domain.impl.AreaInteractorImpl
+import ru.practicum.android.diploma.search.domain.impl.FilterInteractorImpl
 import ru.practicum.android.diploma.search.domain.impl.SearchInteractorImpl
 import ru.practicum.android.diploma.search.domain.impl.VacancyDetailsInteractorImpl
 import ru.practicum.android.diploma.search.presentation.country.CountryViewModel
@@ -69,6 +73,10 @@ val searchModule = module {
         AreaRepositoryImpl(get())
     }
 
+    single<FilterRepository> {
+        FilterRepositoryImpl(get())
+    }
+
     single<SearchInteractor> {
         SearchInteractorImpl(get())
     }
@@ -81,12 +89,16 @@ val searchModule = module {
         AreaInteractorImpl(get())
     }
 
+    single<FilterInteractor> {
+        FilterInteractorImpl(get())
+    }
+
     viewModel {
         SearchViewModel(get())
     }
 
     viewModel {
-        FilterSettingsViewModel()
+        FilterSettingsViewModel(get())
     }
 
     viewModel {
@@ -101,7 +113,7 @@ val searchModule = module {
     }
 
     single {
-        FilterStorage(get())
+        FilterPreferences(get())
     }
 
     viewModel {
