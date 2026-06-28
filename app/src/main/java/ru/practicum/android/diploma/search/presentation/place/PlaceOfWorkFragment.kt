@@ -53,7 +53,7 @@ class PlaceOfWorkFragment : Fragment() {
                             )
                         },
                         onNavigateToRegion = {
-                            // Экран региона будет отдельной задачей/следующим шагом.
+                            findNavController().navigate(R.id.action_placeOfWorkFragment_to_regionSelectionFragment)
                         },
                         onApplyClick = { placeTitle ->
                             parentFragmentManager.setFragmentResult(

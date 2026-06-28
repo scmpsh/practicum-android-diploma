@@ -30,7 +30,8 @@ class RootActivity : AppCompatActivity() {
             R.id.placeOfWorkFragment,
             R.id.countrySelectionFragment,
             R.id.industrySelectionFragment,
-            R.id.vacancyDetailsFragment
+            R.id.vacancyDetailsFragment,
+            R.id.regionSelectionFragment
         )
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
