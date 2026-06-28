@@ -5,6 +5,8 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import ru.practicum.android.diploma.BuildConfig
+import ru.practicum.android.diploma.search.data.dto.IndustriesRequest
+import ru.practicum.android.diploma.search.data.dto.IndustriesResponseDto
 import ru.practicum.android.diploma.search.data.dto.Response
 import ru.practicum.android.diploma.search.data.dto.VacanciesSearchRequest
 import ru.practicum.android.diploma.search.data.dto.VacancyDetailRequest
@@ -22,6 +24,7 @@ class RetrofitNetworkClient(
         return when (dto) {
             is VacanciesSearchRequest -> searchVacancies(dto)
             is VacancyDetailRequest -> getVacancyDetail(dto)
+            is IndustriesRequest -> getIndustries()
             else -> Response().apply { resultCode = HTTP_BAD_REQUEST }
         }
     }
@@ -32,6 +35,25 @@ class RetrofitNetworkClient(
                 apiService.getVacancy(
                     token = "Bearer ${BuildConfig.API_ACCESS_TOKEN}",
                     id = dto.vacancyId
+                ).apply {
+                    resultCode = HTTP_OK
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.e("Network", "Request failed", e)
+                Response().apply { resultCode = INNER_SERVER_ERROR }
+            }
+        }
+    }
+
+    private suspend fun getIndustries(): Response {
+        return withContext(Dispatchers.IO) {
+            try {
+                IndustriesResponseDto(
+                    industries = apiService.getIndustries(
+                        token = "Bearer ${BuildConfig.API_ACCESS_TOKEN}"
+                    )
                 ).apply {
                     resultCode = HTTP_OK
                 }
