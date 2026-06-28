@@ -8,18 +8,27 @@
         android:id="@+id/searchFragment"
         android:name="ru.practicum.android.diploma.search.presentation.SearchFragment"
         android:label="@string/search_screen_title">
+
         <action
             android:id="@+id/action_searchFragment_to_filterSettingsFragment"
             app:destination="@id/filterSettingsFragment" />
+
         <action
             android:id="@+id/action_searchFragment_to_vacancyDetailsFragment"
             app:destination="@id/vacancyDetailsFragment" />
+
     </fragment>
 
     <fragment
         android:id="@+id/favoritesFragment"
         android:name="ru.practicum.android.diploma.favorites.presentation.FavoritesFragment"
-        android:label="@string/favorite_vacancies_title" />
+        android:label="@string/favorite_vacancies_title">
+
+        <action
+            android:id="@+id/action_favoritesFragment_to_vacancyDetailsFragment"
+            app:destination="@id/vacancyDetailsFragment" />
+
+    </fragment>
 
     <fragment
         android:id="@+id/teamFragment"
@@ -33,7 +42,13 @@
 
     <fragment
         android:id="@+id/vacancyDetailsFragment"
-        android:name="ru.practicum.android.diploma.search.presentation.VacancyDetailsFragment"
-        android:label="@string/vacancy_screen_title" />
+        android:name="ru.practicum.android.diploma.details.presentation.DetailsFragment"
+        android:label="@string/vacancy_screen_title">
+
+        <argument
+            android:name="vacancyId"
+            app:argType="string" />
+
+    </fragment>
 
 </navigation>

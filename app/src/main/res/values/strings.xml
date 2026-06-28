@@ -5,8 +5,9 @@
     <string name="search_screen_title">Поиск вакансий</string>
     <string name="search_input_hint">Введите запрос</string>
     <string name="found">Найдено</string>
-    <string name="from">от</string>
-    <string name="to">до</string>
+    <string name="salary_from">от %1$s %2$s</string>
+    <string name="salary_to">до %1$s %2$s</string>
+    <string name="salary_from_to">от %1$s до %2$s %3$s</string>
     <string name="no_salary">Зарплата не указана</string>
     <string name="salary_level_not_specified">Уровень зарплаты не указан</string>
     <string name="no_company">Компания не указана</string>
@@ -34,6 +35,7 @@
     <string name="no_vacancies_error">Не удалось получить \n список вакансий</string>
 
 
+    <string name="team_screen_subtitle">Над приложением&#10;работали</string>
     <!-- Участники команды разработки -->
     <string name="team_member_1">Никита Мигаль</string>
     <string name="team_member_2">Максим Лищук</string>
@@ -90,4 +92,7 @@
     <string name="place_of_work_country">Страна</string>
     <string name="place_of_work_region">Регион</string>
     <string name="place_of_work_apply">Применить</string>
+
+    <string name="filter">Фильтр</string>
+
 </resources>

@@ -1,5 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
+    <color name="black">#FF1A1B22</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="blue">#FF3772E7</color>
+    <color name="red">#FFF56B6C</color>
+    <color name="grey">#FFAEAFB4</color>
+    <color name="light_grey">#FFE6E8EB</color>
+    <color name="surface_container_light">#FFF1F3F5</color>
+    <color name="surface_variant_dark">#FF2A2C35</color>
+
+    <style name="BottomNavigationActiveIndicator">
+        <item name="android:color">@android:color/transparent</item>
+        <item name="android:width">0dp</item>
+        <item name="android:height">0dp</item>
+    </style>
+
 </resources>

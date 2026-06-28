@@ -13,53 +13,53 @@ data class VacancyDetailDto(
     val employer: EmployerDto,
     val area: FilterAreaDto,
     val skills: List<String>?,
-    val url: String,
+    val url: String?,
     val industry: FilterIndustryDto
-) {
-    data class SalaryDto(
-        val from: Int?,
-        val to: Int?,
-        val currency: String?
-    )
+) : Response()
 
-    data class AddressDto(
-        val id: String,
-        val city: String,
-        val street: String,
-        val building: String,
-        val raw: String
-    )
+data class SalaryDto(
+    val from: Int?,
+    val to: Int?,
+    val currency: String?
+)
 
-    data class ExperienceDto(
-        val id: String,
-        val name: String
-    )
+data class AddressDto(
+    val id: String?,
+    val city: String?,
+    val street: String?,
+    val building: String?,
+    val raw: String?
+)
 
-    data class ScheduleDto(
-        val id: String,
-        val name: String
-    )
+data class ExperienceDto(
+    val id: String,
+    val name: String
+)
 
-    data class EmploymentDto(
-        val id: String,
-        val name: String
-    )
+data class ScheduleDto(
+    val id: String,
+    val name: String
+)
 
-    data class ContactsDto(
-        val id: String,
-        val name: String,
-        val email: String,
-        val phones: List<PhoneDto>
-    )
+data class EmploymentDto(
+    val id: String,
+    val name: String
+)
 
-    data class PhoneDto(
-        val comment: String?,
-        val formatted: String
-    )
+data class ContactsDto(
+    val id: String?,
+    val name: String?,
+    val email: String?,
+    val phones: List<PhoneDto>?
+)
 
-    data class EmployerDto(
-        val id: String,
-        val name: String,
-        val logo: String
-    )
-}
+data class PhoneDto(
+    val comment: String?,
+    val formatted: String?
+)
+
+data class EmployerDto(
+    val id: String,
+    val name: String,
+    val logo: String?
+)
