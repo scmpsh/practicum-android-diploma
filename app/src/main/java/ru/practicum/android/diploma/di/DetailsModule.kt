@@ -12,4 +12,3 @@ val detailsModule = module {
         )
     }
 }
-

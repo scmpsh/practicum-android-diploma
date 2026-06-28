@@ -12,33 +12,40 @@ import ru.practicum.android.diploma.search.data.dto.VacancyDetailDto
 
 interface HeadHunterApi {
 
-    @Headers("HH-User-Agent: Practicum-Android-Diploma (nickitamigal@yandex.ru)")
+    @Headers(USER_AGENT)
     @GET("/areas")
     suspend fun getAreas(
-        @Header("Authorization") token: String,
-        @Header("Content-Type") contentType: String = "application/json"
+        @Header(HEADER_AUTHORIZATION) token: String,
+        @Header(HEADER_CONTENT_TYPE) contentType: String = CONTENT_TYPE_JSON
     ): List<FilterAreaDto>
 
-    @Headers("HH-User-Agent: Practicum-Android-Diploma (nickitamigal@yandex.ru)")
+    @Headers(USER_AGENT)
     @GET("/industries")
     suspend fun getIndustries(
-        @Header("Authorization") token: String,
-        @Header("Content-Type") contentType: String = "application/json"
+        @Header(HEADER_AUTHORIZATION) token: String,
+        @Header(HEADER_CONTENT_TYPE) contentType: String = CONTENT_TYPE_JSON
     ): List<FilterIndustryDto>
 
-    @Headers("HH-User-Agent: Practicum-Android-Diploma (nickitamigal@yandex.ru)")
+    @Headers(USER_AGENT)
     @GET("/vacancies")
     suspend fun searchVacancies(
-        @Header("Authorization") token: String,
-        @Header("Content-Type") contentType: String = "application/json",
+        @Header(HEADER_AUTHORIZATION) token: String,
+        @Header(HEADER_CONTENT_TYPE) contentType: String = CONTENT_TYPE_JSON,
         @QueryMap options: Map<String, String>
     ): VacanciesSearchResponseDto
 
-    @Headers("HH-User-Agent: Practicum-Android-Diploma (nickitamigal@yandex.ru)")
+    @Headers(USER_AGENT)
     @GET("/vacancies/{id}")
     suspend fun getVacancy(
-        @Header("Authorization") token: String,
-        @Header("Content-Type") contentType: String = "application/json",
+        @Header(HEADER_AUTHORIZATION) token: String,
+        @Header(HEADER_CONTENT_TYPE) contentType: String = CONTENT_TYPE_JSON,
         @Path("id") id: String
     ): VacancyDetailDto
+
+    companion object {
+        const val USER_AGENT = "HH-User-Agent: Practicum-Android-Diploma (nickitamigal@yandex.ru)"
+        const val HEADER_AUTHORIZATION = "Authorization"
+        const val HEADER_CONTENT_TYPE = "Content-Type"
+        const val CONTENT_TYPE_JSON = "application/json"
+    }
 }

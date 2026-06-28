@@ -336,7 +336,7 @@ private fun HtmlDescription(
     AndroidView(
         factory = { context ->
             TextView(context).apply {
-                textSize = 16f
+                textSize = DESCRIPTION_TEXT_SIZE
                 setTextColor(textColor)
                 includeFontPadding = true
             }
@@ -350,3 +350,5 @@ private fun HtmlDescription(
         }
     )
 }
+
+private const val DESCRIPTION_TEXT_SIZE = 16f

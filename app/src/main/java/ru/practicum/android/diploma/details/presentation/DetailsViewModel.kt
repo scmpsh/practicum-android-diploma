@@ -30,12 +30,13 @@ class DetailsViewModel(
 
             when (val result = interactor.getVacancyDetails(id).first()) {
                 is Resource.Success -> {
-                    val data = result.data ?: run {
+                    val data = result.data
+                    if (data != null) {
+                        vacancyDetail = data
+                        _state.value = mapToContent(data, isFavorite)
+                    } else {
                         handleError(id, isFavorite, null)
-                        return@launch
                     }
-                    vacancyDetail = data
-                    _state.value = mapToContent(data, isFavorite)
                 }
 
                 is Resource.Error -> {
@@ -45,6 +46,7 @@ class DetailsViewModel(
         }
     }
 
+    @Suppress("TooGenericExceptionCaught", "SwallowedException")
     private suspend fun handleError(id: String, isFavorite: Boolean, message: String?) {
         if (isFavorite) {
             try {

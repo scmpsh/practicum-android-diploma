@@ -1,7 +1,5 @@
 package ru.practicum.android.diploma.search.data.dto
 
-import com.google.gson.annotations.SerializedName
-
 data class VacancyDetailDto(
     val id: String,
     val name: String,
@@ -65,4 +63,3 @@ data class EmployerDto(
     val name: String,
     val logo: String?
 )
-

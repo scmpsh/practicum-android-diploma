@@ -2,6 +2,7 @@ package ru.practicum.android.diploma.search.presentation.models
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -86,37 +87,36 @@ class SearchViewModel(
         currentPage = 0
 
         when (val resource = searchInteractor.searchVacancies(newSearchText, currentPage).first()) {
-            is Resource.Success -> {
-                val searchResult = resource.data
+            is Resource.Success -> handleSearchSuccess(resource.data)
+            is Resource.Error -> handleSearchError(resource.message)
+        }
+    }
 
-                if (searchResult == null) {
-                    _state.value = SearchState.Error
-                    return
-                }
+    private fun handleSearchSuccess(searchResult: ru.practicum.android.diploma.search.domain.models.SearchResult?) {
+        if (searchResult == null) {
+            _state.value = SearchState.Error
+            return
+        }
 
-                maxPages = searchResult.pages
+        maxPages = searchResult.pages
 
-                _state.value = if (searchResult.vacancies.isEmpty()) {
-                    SearchState.Empty
-                } else {
-                    SearchState.Content(
-                        vacancies = searchResult.vacancies,
-                        found = searchResult.found,
-                        isPaging = false,
-                        toastMessage = null
-                    )
-                }
-            }
+        _state.value = if (searchResult.vacancies.isEmpty()) {
+            SearchState.Empty
+        } else {
+            SearchState.Content(
+                vacancies = searchResult.vacancies.toPersistentList(),
+                found = searchResult.found,
+                isPaging = false,
+                toastMessage = null
+            )
+        }
+    }
 
-            is Resource.Error -> {
-                _state.value = if (
-                    resource.message?.contains(NO_INTERNET_KEYWORD, ignoreCase = true) == true
-                ) {
-                    SearchState.NoInternet
-                } else {
-                    SearchState.Error
-                }
-            }
+    private fun handleSearchError(message: String?) {
+        _state.value = if (message?.contains(NO_INTERNET_KEYWORD, ignoreCase = true) == true) {
+            SearchState.NoInternet
+        } else {
+            SearchState.Error
         }
     }
 
@@ -140,7 +140,8 @@ class SearchViewModel(
                 if (currentState is SearchState.Content) {
                     _state.value = currentState.copy(
                         vacancies = (currentState.vacancies + data.vacancies)
-                            .distinctBy { it.id },
+                            .distinctBy { it.id }
+                            .toPersistentList(),
                         isPaging = false,
                         toastMessage = null
                     )

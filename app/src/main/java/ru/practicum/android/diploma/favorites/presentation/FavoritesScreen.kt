@@ -125,7 +125,7 @@ fun FavoritesEmpty() {
             color = MaterialTheme.colorScheme.onBackground
         )
 //      Поднять картинку чуть выше середины
-        Spacer(Modifier.weight(1.3f))
+        Spacer(Modifier.weight(EMPTY_ERROR_SCREEN_BOTTOM_WEIGHT))
     }
 }
 
@@ -156,7 +156,7 @@ fun FavoritesError() {
             color = MaterialTheme.colorScheme.onBackground
         )
 //      Поднять картинку чуть выше середины
-        Spacer(Modifier.weight(1.3f))
+        Spacer(Modifier.weight(EMPTY_ERROR_SCREEN_BOTTOM_WEIGHT))
     }
 }
 
@@ -215,3 +215,5 @@ private fun FavoritesErrorPreview() {
         )
     }
 }
+
+private const val EMPTY_ERROR_SCREEN_BOTTOM_WEIGHT = 1.3f
