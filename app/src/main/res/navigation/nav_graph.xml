@@ -58,6 +58,9 @@
         <action
             android:id="@+id/action_placeOfWorkFragment_to_countrySelectionFragment"
             app:destination="@id/countrySelectionFragment" />
+        <action
+            android:id="@+id/action_placeOfWorkFragment_to_regionSelectionFragment"
+            app:destination="@id/regionSelectionFragment" />
 
     </fragment>
 
@@ -65,6 +68,11 @@
         android:id="@+id/countrySelectionFragment"
         android:name="ru.practicum.android.diploma.search.presentation.country.CountrySelectionFragment"
         android:label="@string/choose_country" />
+
+    <fragment
+        android:id="@+id/regionSelectionFragment"
+        android:name="ru.practicum.android.diploma.search.presentation.regions.RegionSelectionFragment"
+        android:label="@string/choose_region_title" />
 
     <fragment
         android:id="@+id/industrySelectionFragment"

@@ -5,6 +5,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import ru.practicum.android.diploma.BuildConfig
+import ru.practicum.android.diploma.search.data.dto.AreasRequest
 import ru.practicum.android.diploma.search.data.dto.Response
 import ru.practicum.android.diploma.search.data.dto.VacanciesSearchRequest
 import ru.practicum.android.diploma.search.data.dto.VacancyDetailRequest
@@ -24,6 +25,7 @@ class RetrofitNetworkClient(
         return when (dto) {
             is VacanciesSearchRequest -> searchVacancies(dto)
             is VacancyDetailRequest -> getVacancyDetail(dto)
+            is AreasRequest -> getAreas()
             else -> Response().apply { resultCode = HTTP_BAD_REQUEST }
         }
     }
@@ -66,6 +68,33 @@ class RetrofitNetworkClient(
                 }
             } catch (e: CancellationException) {
                 throw e
+            } catch (e: retrofit2.HttpException) {
+                Log.e("Network", "HTTP error: ${e.code()}", e)
+                Response().apply { resultCode = e.code() }
+            } catch (e: Exception) {
+                Log.e("Network", "Request failed", e)
+                Response().apply { resultCode = INNER_SERVER_ERROR }
+            }
+        }
+    }
+
+    private suspend fun getAreas(): Response {
+        return withContext(Dispatchers.IO) {
+            try {
+                val dto = apiService.getAreas(
+                    token = "Bearer ${BuildConfig.API_ACCESS_TOKEN}"
+                )
+
+                Response().apply {
+                    resultCode = HTTP_OK
+                    data = dto
+                }
+
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: retrofit2.HttpException) {
+                Log.e("Network", "HTTP error: ${e.code()}", e)
+                Response().apply { resultCode = e.code() }
             } catch (e: Exception) {
                 Log.e(TAG, MSG_REQUEST_FAILED, e)
                 Response().apply { resultCode = INNER_SERVER_ERROR }

@@ -11,13 +11,21 @@ class PlaceOfWorkViewModel : ViewModel() {
 
     fun onCountrySelected(country: String) {
         _state.value = _state.value.copy(
-            country = country
+            country = country,
+            region = null
         )
     }
 
     fun onCountryClearClick() {
         _state.value = _state.value.copy(
-            country = null
+            country = null,
+            region = null
+        )
+    }
+
+    fun onRegionSelected(region: String) {
+        _state.value = _state.value.copy(
+            region = region
         )
     }
 }
