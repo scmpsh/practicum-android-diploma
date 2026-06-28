@@ -46,11 +46,12 @@ import ru.practicum.android.diploma.ui.theme.White
 
 @Composable
 fun IndustrySelectionScreen(
+    initialIndustry: String?,
     onNavigateBack: () -> Unit,
     onIndustryClick: (String) -> Unit,
 ) {
     var searchQuery by remember { mutableStateOf("") }
-    var selectedIndustry by remember { mutableStateOf<String?>(null) }
+    var selectedIndustry by remember { mutableStateOf<String?>(initialIndustry) }
 
     val industries = listOf(
         "IT",
@@ -221,10 +222,9 @@ private fun IndustrySearchField(
 
         IconButton(
             onClick = {
-                if (value.isBlank()) {
-                    return@IconButton
+                if (value.isNotBlank()) {
+                    onClearClick()
                 }
-                onClearClick()
             }
         ) {
             Icon(

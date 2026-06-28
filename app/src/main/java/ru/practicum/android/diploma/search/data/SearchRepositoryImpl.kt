@@ -26,8 +26,10 @@ class SearchRepositoryImpl(
             VacanciesSearchRequest(
                 expression = expression,
                 page = page,
-                salary = filterSettings.salary,
-                onlyWithSalary = filterSettings.doNotShowWithoutSalary
+                salary = filterSettings.salary?.toString().orEmpty(),
+                onlyWithSalary = filterSettings.onlyWithSalary,
+                area = (filterSettings.regionId ?: filterSettings.countryId)?.toString(),
+                industry = filterSettings.industryId
             )
         )
 

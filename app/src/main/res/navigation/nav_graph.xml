@@ -76,7 +76,7 @@
 
     <fragment
         android:id="@+id/industrySelectionFragment"
-        android:name="ru.practicum.android.diploma.search.presentation.IndustrySelectionFragment"
+        android:name="ru.practicum.android.diploma.search.presentation.industry.IndustrySelectionFragment"
         android:label="@string/industry_choice_title" />
 
     <fragment
