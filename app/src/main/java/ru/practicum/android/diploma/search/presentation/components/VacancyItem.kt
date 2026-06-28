@@ -117,8 +117,8 @@ private fun VacancyItemPreview() {
                 name = "Разработчик на С++ в команду внутренних сервисов",
                 company = "Practicum",
                 city = "Москва",
-                salaryFrom = 100000,
-                salaryTo = 150000,
+                salaryFrom = 100_000,
+                salaryTo = 150_000,
                 salaryCurrency = "RUB",
                 logoUrl = null
             ),

@@ -8,7 +8,7 @@ val detailsModule = module {
     viewModel {
         DetailsViewModel(
             interactor = get(),
-            favoritesInteractor = get()
+            favoritesInteractor = get(),
         )
     }
 }

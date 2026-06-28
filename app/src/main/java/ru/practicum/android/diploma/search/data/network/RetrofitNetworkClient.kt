@@ -16,6 +16,8 @@ class RetrofitNetworkClient(
     private val connectionChecker: ConnectionChecker
 ) : NetworkClient {
 
+    private val authHeader = "Bearer ${BuildConfig.API_ACCESS_TOKEN}"
+
     override suspend fun doRequest(dto: Any): Response {
         if (!connectionChecker.isConnected()) {
             return Response().apply { resultCode = NO_CONNECTION }
@@ -29,19 +31,23 @@ class RetrofitNetworkClient(
         }
     }
 
+    @Suppress("TooGenericExceptionCaught")
     private suspend fun getVacancyDetail(dto: VacancyDetailRequest): Response {
         return withContext(Dispatchers.IO) {
             try {
                 apiService.getVacancy(
-                    token = "Bearer ${BuildConfig.API_ACCESS_TOKEN}",
+                    token = authHeader,
                     id = dto.vacancyId
                 ).apply {
                     resultCode = HTTP_OK
                 }
             } catch (e: CancellationException) {
                 throw e
+            } catch (e: retrofit2.HttpException) {
+                Log.e(TAG, "HTTP error: ${e.code()}", e)
+                Response().apply { resultCode = e.code() }
             } catch (e: Exception) {
-                Log.e("Network", "Request failed", e)
+                Log.e(TAG, MSG_REQUEST_FAILED, e)
                 Response().apply { resultCode = INNER_SERVER_ERROR }
             }
         }
@@ -66,6 +72,7 @@ class RetrofitNetworkClient(
         }
     }
 
+    @Suppress("TooGenericExceptionCaught")
     private suspend fun searchVacancies(dto: VacanciesSearchRequest): Response {
         val options = HashMap<String, String>()
         options["text"] = dto.expression
@@ -74,7 +81,7 @@ class RetrofitNetworkClient(
         return withContext(Dispatchers.IO) {
             try {
                 apiService.searchVacancies(
-                    token = "Bearer ${BuildConfig.API_ACCESS_TOKEN}",
+                    token = authHeader,
                     options = options
                 ).apply {
                     resultCode = HTTP_OK
@@ -82,7 +89,7 @@ class RetrofitNetworkClient(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                Log.e("Network", "Request failed", e)
+                Log.e(TAG, MSG_REQUEST_FAILED, e)
                 Response().apply { resultCode = INNER_SERVER_ERROR }
             }
         }
@@ -93,5 +100,8 @@ class RetrofitNetworkClient(
         const val HTTP_BAD_REQUEST = 400
         const val NO_CONNECTION = -1
         const val INNER_SERVER_ERROR = 500
+
+        private const val TAG = "Network"
+        private const val MSG_REQUEST_FAILED = "Request failed"
     }
 }

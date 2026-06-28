@@ -15,7 +15,10 @@ sealed interface DetailsState {
         val employment: String,
         val descriptionHtml: String,
         val skills: List<String>,
-        val contacts: String?,
+        val vacancyUrl: String,
+        val contactEmail: String?,
+        val contactPhone: String?,
+        val contactComment: String?,
         val isFavorite: Boolean
     ) : DetailsState
 

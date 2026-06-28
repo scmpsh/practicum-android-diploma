@@ -45,7 +45,10 @@ fun DetailsScreen(
     viewModel: DetailsViewModel,
     vacancyId: String,
     initialLogoUrl: String,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onShareClick: (DetailsState.Content) -> Unit,
+    onEmailClick: (DetailsState.Content) -> Unit,
+    onPhoneClick: (DetailsState.Content) -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -55,10 +58,13 @@ fun DetailsScreen(
 
     Scaffold(
         topBar = {
+            val contentState = state as? DetailsState.Content
             DetailsTopBar(
-                isFavorite = (state as? DetailsState.Content)?.isFavorite ?: false,
+                isFavorite = contentState?.isFavorite ?: false,
                 onBackClick = onBackClick,
-                onShareClick = { },
+                onShareClick = {
+                    contentState?.let(onShareClick)
+                },
                 onFavoriteClick = { viewModel.onFavoriteClick() }
             )
         }
@@ -96,6 +102,8 @@ fun DetailsScreen(
                 VacancyDetailsContent(
                     state = currentState,
                     initialLogoUrl = initialLogoUrl,
+                    onEmailClick = onEmailClick,
+                    onPhoneClick = onPhoneClick,
                     modifier = Modifier.padding(padding)
                 )
             }
@@ -143,6 +151,8 @@ private fun DetailsPlaceholder(
 private fun VacancyDetailsContent(
     state: DetailsState.Content,
     initialLogoUrl: String,
+    onEmailClick: (DetailsState.Content) -> Unit,
+    onPhoneClick: (DetailsState.Content) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -214,11 +224,15 @@ private fun VacancyDetailsContent(
             )
         }
 
-        if (!state.contacts.isNullOrBlank()) {
+        if (!state.contactEmail.isNullOrBlank() || !state.contactPhone.isNullOrBlank()) {
             Spacer(modifier = Modifier.height(24.dp))
 
             ContactsSection(
-                contacts = state.contacts
+                email = state.contactEmail,
+                phone = state.contactPhone,
+                comment = state.contactComment,
+                onEmailClick = { onEmailClick(state) },
+                onPhoneClick = { onPhoneClick(state) }
             )
         }
     }
@@ -322,7 +336,7 @@ private fun HtmlDescription(
     AndroidView(
         factory = { context ->
             TextView(context).apply {
-                textSize = 16f
+                textSize = DESCRIPTION_TEXT_SIZE
                 setTextColor(textColor)
                 includeFontPadding = true
             }
@@ -336,3 +350,5 @@ private fun HtmlDescription(
         }
     )
 }
+
+private const val DESCRIPTION_TEXT_SIZE = 16f

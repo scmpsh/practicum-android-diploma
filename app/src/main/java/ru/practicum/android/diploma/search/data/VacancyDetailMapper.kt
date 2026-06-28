@@ -1,6 +1,15 @@
 package ru.practicum.android.diploma.search.data
 
-import android.util.Log
+import kotlinx.collections.immutable.toPersistentList
+import ru.practicum.android.diploma.search.data.dto.AddressDto
+import ru.practicum.android.diploma.search.data.dto.ContactsDto
+import ru.practicum.android.diploma.search.data.dto.EmployerDto
+import ru.practicum.android.diploma.search.data.dto.EmploymentDto
+import ru.practicum.android.diploma.search.data.dto.ExperienceDto
+import ru.practicum.android.diploma.search.data.dto.FilterAreaDto
+import ru.practicum.android.diploma.search.data.dto.FilterIndustryDto
+import ru.practicum.android.diploma.search.data.dto.SalaryDto
+import ru.practicum.android.diploma.search.data.dto.ScheduleDto
 import ru.practicum.android.diploma.search.data.dto.VacancyDetailDto
 import ru.practicum.android.diploma.search.domain.models.Address
 import ru.practicum.android.diploma.search.domain.models.Area
@@ -17,60 +26,76 @@ import ru.practicum.android.diploma.search.domain.models.VacancyDetail
 class VacancyDetailMapper {
 
     fun map(dto: VacancyDetailDto): VacancyDetail {
-        Log.d(
-            "DetailsLogoDto",
-            "logoUrls = ${dto.employer.logoUrls}, logoUrl = ${dto.employer.logoUrl}"
-        )
-
         return VacancyDetail(
             id = dto.id,
             name = dto.name,
             description = dto.description,
-            salary = dto.salary?.let {
-                Salary(it.from, it.to, it.currency)
-            },
-            address = dto.address?.let {
-                Address(it.city, it.street, it.building, it.raw)
-            },
-            experience = dto.experience?.let {
-                Experience(it.id, it.name)
-            },
-            schedule = dto.schedule?.let {
-                Schedule(it.id, it.name)
-            },
-            employment = dto.employment?.let {
-                Employment(it.id, it.name)
-            },
-            contacts = dto.contacts?.let { contacts ->
-                Contacts(
-                    id = contacts.id.orEmpty(),
-                    name = contacts.name.orEmpty(),
-                    email = contacts.email.orEmpty(),
-                    phones = contacts.phones.orEmpty().map {
-                        Phone(it.comment, it.formatted)
-                    }
-                )
-            },
-            employer = Employer(
-                id = dto.employer.id,
-                name = dto.employer.name,
-                logo = (
-                    dto.employer.logoUrls?.medium
-                        ?: dto.employer.logoUrls?.original
-                        ?: dto.employer.logoUrls?.small
-                        ?: dto.employer.logoUrl
-                    ).orEmpty()
-            ),
-            area = Area(
-                id = dto.area.id,
-                name = dto.area.name
-            ),
-            skills = dto.skills ?: emptyList(),
-            url = dto.url,
-            industry = Industry(
-                id = dto.industry.id,
-                name = dto.industry.name
-            )
+            salary = mapSalary(dto.salary),
+            address = mapAddress(dto.address),
+            experience = mapExperience(dto.experience),
+            schedule = mapSchedule(dto.schedule),
+            employment = mapEmployment(dto.employment),
+            contacts = mapContacts(dto.contacts),
+            employer = mapEmployer(dto.employer),
+            area = mapArea(dto.area),
+            skills = dto.skills.orEmpty().toPersistentList(),
+            url = dto.url.orEmpty(),
+            industry = mapIndustry(dto.industry)
         )
     }
+
+    private fun mapSalary(dto: SalaryDto?): Salary? = dto?.let {
+        Salary(it.from, it.to, it.currency)
+    }
+
+    private fun mapAddress(dto: AddressDto?): Address? = dto?.let {
+        Address(
+            city = it.city.orEmpty(),
+            street = it.street.orEmpty(),
+            building = it.building.orEmpty(),
+            raw = it.raw.orEmpty()
+        )
+    }
+
+    private fun mapExperience(dto: ExperienceDto?): Experience? = dto?.let {
+        Experience(it.id, it.name)
+    }
+
+    private fun mapSchedule(dto: ScheduleDto?): Schedule? = dto?.let {
+        Schedule(it.id, it.name)
+    }
+
+    private fun mapEmployment(dto: EmploymentDto?): Employment? = dto?.let {
+        Employment(it.id, it.name)
+    }
+
+    private fun mapContacts(dto: ContactsDto?): Contacts? = dto?.let { contacts ->
+        Contacts(
+            id = contacts.id.orEmpty(),
+            name = contacts.name.orEmpty(),
+            email = contacts.email.orEmpty(),
+            phones = contacts.phones
+                .orEmpty()
+                .map {
+                    Phone(it.comment, it.formatted.orEmpty())
+                }
+                .toPersistentList()
+        )
+    }
+
+    private fun mapEmployer(dto: EmployerDto): Employer = Employer(
+        id = dto.id,
+        name = dto.name,
+        logo = dto.logo.orEmpty()
+    )
+
+    private fun mapArea(dto: FilterAreaDto): Area = Area(
+        id = dto.id,
+        name = dto.name
+    )
+
+    private fun mapIndustry(dto: FilterIndustryDto): Industry = Industry(
+        id = dto.id,
+        name = dto.name
+    )
 }

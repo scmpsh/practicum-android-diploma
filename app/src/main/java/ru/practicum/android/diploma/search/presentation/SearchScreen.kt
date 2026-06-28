@@ -29,7 +29,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,6 +44,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.collections.immutable.ImmutableList
 import org.koin.androidx.compose.koinViewModel
 import ru.practicum.android.diploma.R
 import ru.practicum.android.diploma.search.domain.models.Vacancy
@@ -57,7 +58,7 @@ fun SearchScreen(
     onNavigateToVacancyDetails: (String, String) -> Unit = { _, _ -> },
     viewModel: SearchViewModel = koinViewModel(),
 ) {
-    var searchQuery by remember { mutableStateOf("") }
+    var searchQuery by rememberSaveable { mutableStateOf("") }
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
@@ -107,47 +108,60 @@ fun SearchScreen(
                     .weight(1f),
                 contentAlignment = Alignment.Center,
             ) {
-                when (val currentState = state) {
-                    SearchState.Initial -> {
-                        if (searchQuery.isBlank()) {
-                            Image(
-                                painter = painterResource(R.drawable.ic_search_placeholder),
-                                contentDescription = null,
-                                modifier = Modifier.size(
-                                    width = 328.dp,
-                                    height = 223.dp,
-                                ),
-                            )
-                        }
-                    }
-
-                    SearchState.Loading -> {
-                        CircularProgressIndicator()
-                    }
-
-                    SearchState.Empty -> {
-                        SearchEmptyPlaceholder()
-                    }
-
-                    SearchState.NoInternet -> {
-                        SearchNoInternetPlaceholder()
-                    }
-
-                    SearchState.Error -> {
-                        SearchErrorPlaceholder()
-                    }
-
-                    is SearchState.Content -> {
-                        SearchContent(
-                            currentState = currentState,
-                            onNavigateToDetails = { vacancyId, logoId ->
-                                onNavigateToVacancyDetails(vacancyId, logoId)
-                            },
-                            onLastItemReached = viewModel::onLastItemReached
-                        )
-                    }
-                }
+                SearchStateContent(
+                    state = state,
+                    searchQuery = searchQuery,
+                    onNavigateToVacancyDetails = onNavigateToVacancyDetails,
+                    onLastItemReached = viewModel::onLastItemReached
+                )
             }
+        }
+    }
+}
+
+@Composable
+private fun SearchStateContent(
+    state: SearchState,
+    searchQuery: String,
+    onNavigateToVacancyDetails: (String, String) -> Unit,
+    onLastItemReached: () -> Unit
+) {
+    when (val currentState = state) {
+        SearchState.Initial -> {
+            if (searchQuery.isBlank()) {
+                Image(
+                    painter = painterResource(R.drawable.ic_search_placeholder),
+                    contentDescription = null,
+                    modifier = Modifier.size(
+                        width = 328.dp,
+                        height = 223.dp,
+                    ),
+                )
+            }
+        }
+
+        SearchState.Loading -> {
+            CircularProgressIndicator()
+        }
+
+        SearchState.Empty -> {
+            SearchEmptyPlaceholder()
+        }
+
+        SearchState.NoInternet -> {
+            SearchNoInternetPlaceholder()
+        }
+
+        SearchState.Error -> {
+            SearchErrorPlaceholder()
+        }
+
+        is SearchState.Content -> {
+            SearchContent(
+                currentState = currentState,
+                onNavigateToDetails = onNavigateToVacancyDetails,
+                onLastItemReached = onLastItemReached
+            )
         }
     }
 }
@@ -202,7 +216,7 @@ private fun SearchResultCounter(
 
 @Composable
 private fun SearchVacanciesList(
-    vacancies: List<Vacancy>,
+    vacancies: ImmutableList<Vacancy>,
     onNavigateToDetails: (String, String) -> Unit,
     onLastItemReached: () -> Unit
 ) {
@@ -428,26 +442,42 @@ private fun SearchTextField(
             )
         }
 
-        IconButton(
-            modifier = Modifier.size(48.dp),
-            onClick = {
-                if (value.isEmpty()) {
-                    return@IconButton
-                }
+        SearchTextFieldTrailingIcon(
+            value = value,
+            isDark = isDark,
+            contentColor = contentColor,
+            onClearClick = onClearClick
+        )
+    }
+}
+
+@Composable
+private fun SearchTextFieldTrailingIcon(
+    value: String,
+    isDark: Boolean,
+    contentColor: Color,
+    onClearClick: () -> Unit
+) {
+    val isEmpty = value.isEmpty()
+
+    IconButton(
+        modifier = Modifier.size(48.dp),
+        onClick = {
+            if (!isEmpty) {
                 onClearClick()
-            },
-        ) {
-            Icon(
-                painter = painterResource(
-                    if (value.isEmpty()) {
-                        R.drawable.ic_search
-                    } else {
-                        R.drawable.ic_close
-                    },
-                ),
-                contentDescription = null,
-                tint = if (value.isEmpty() && isDark) Color.Black else contentColor,
-            )
-        }
+            }
+        },
+    ) {
+        Icon(
+            painter = painterResource(
+                if (isEmpty) {
+                    R.drawable.ic_search
+                } else {
+                    R.drawable.ic_close
+                },
+            ),
+            contentDescription = null,
+            tint = if (isEmpty && isDark) Color.Black else contentColor,
+        )
     }
 }

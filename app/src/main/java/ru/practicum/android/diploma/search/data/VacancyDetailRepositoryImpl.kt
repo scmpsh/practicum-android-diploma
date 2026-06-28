@@ -28,9 +28,17 @@ class VacancyDetailRepositoryImpl(
                 emit(Resource.Success(data))
             }
 
+            HTTP_NOT_FOUND -> {
+                emit(Resource.Error("404"))
+            }
+
             else -> {
                 emit(Resource.Error("Произошла ошибка"))
             }
         }
+    }
+
+    companion object {
+        private const val HTTP_NOT_FOUND = 404
     }
 }

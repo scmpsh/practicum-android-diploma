@@ -1,6 +1,20 @@
+package ru.practicum.android.diploma.favorites.data
 
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toPersistentList
 import ru.practicum.android.diploma.favorites.data.db.entity.VacancyEntity
-import ru.practicum.android.diploma.search.domain.models.*
+import ru.practicum.android.diploma.search.domain.models.Address
+import ru.practicum.android.diploma.search.domain.models.Area
+import ru.practicum.android.diploma.search.domain.models.Contacts
+import ru.practicum.android.diploma.search.domain.models.Employer
+import ru.practicum.android.diploma.search.domain.models.Employment
+import ru.practicum.android.diploma.search.domain.models.Experience
+import ru.practicum.android.diploma.search.domain.models.Industry
+import ru.practicum.android.diploma.search.domain.models.Phone
+import ru.practicum.android.diploma.search.domain.models.Salary
+import ru.practicum.android.diploma.search.domain.models.Schedule
+import ru.practicum.android.diploma.search.domain.models.Vacancy
+import ru.practicum.android.diploma.search.domain.models.VacancyDetail
 
 object VacancyMapper {
 
@@ -29,10 +43,10 @@ object VacancyMapper {
 
             contactsName = detail.contacts?.name,
             contactsEmail = detail.contacts?.email,
-            contactsPhones = detail.contacts?.phones?.joinToString(";") { it.formatted },
-            contactsComments = null,
+            contactsPhones = detail.contacts?.phones?.joinToString(PHONES_SEPARATOR) { it.formatted },
+            contactsComments = detail.contacts?.phones?.firstOrNull()?.comment,
 
-            keySkills = detail.skills.joinToString(","),
+            keySkills = detail.skills.joinToString(SKILLS_SEPARATOR),
             url = detail.url,
 
             createdAt = System.currentTimeMillis()
@@ -56,7 +70,7 @@ object VacancyMapper {
         return VacancyDetail(
             id = entity.id,
             name = entity.name,
-            description = entity.description ?: "",
+            description = entity.description.orEmpty(),
             salary = mapSalary(entity),
             address = mapAddress(entity),
             experience = mapExperience(entity),
@@ -66,15 +80,14 @@ object VacancyMapper {
             employer = mapEmployer(entity),
             area = mapArea(entity),
             skills = parseSkills(entity.keySkills),
-            url = entity.url ?: "",
+            url = entity.url.orEmpty(),
             industry = Industry(
-                id = 0,
-                name = ""
+                id = DEFAULT_ID,
+                name = EMPTY_VALUE
             )
         )
     }
 
-    // dividers
     private fun mapSalary(entity: VacancyEntity): Salary {
         return Salary(
             from = entity.salaryFrom,
@@ -85,75 +98,83 @@ object VacancyMapper {
 
     private fun mapAddress(entity: VacancyEntity): Address {
         return Address(
-            city = entity.addressCity ?: "",
-            street = entity.addressStreet ?: "",
-            building = entity.addressBuilding ?: "",
-            raw = entity.addressRaw ?: ""
+            city = entity.addressCity.orEmpty(),
+            street = entity.addressStreet.orEmpty(),
+            building = entity.addressBuilding.orEmpty(),
+            raw = entity.addressRaw.orEmpty()
         )
     }
 
     private fun mapExperience(entity: VacancyEntity): Experience {
         return Experience(
-            id = entity.experience ?: "",
-            name = entity.experience ?: ""
+            id = entity.experience.orEmpty(),
+            name = entity.experience.orEmpty()
         )
     }
 
     private fun mapSchedule(entity: VacancyEntity): Schedule {
         return Schedule(
-            id = entity.schedule ?: "",
-            name = entity.schedule ?: ""
+            id = entity.schedule.orEmpty(),
+            name = entity.schedule.orEmpty()
         )
     }
 
     private fun mapEmployment(entity: VacancyEntity): Employment {
         return Employment(
-            id = entity.employment ?: "",
-            name = entity.employment ?: ""
+            id = entity.employment.orEmpty(),
+            name = entity.employment.orEmpty()
         )
     }
 
     private fun mapContacts(entity: VacancyEntity): Contacts {
         return Contacts(
-            id = "",
-            name = entity.contactsName ?: "",
-            email = entity.contactsEmail ?: "",
-            phones = parsePhones(entity.contactsPhones)
+            id = EMPTY_VALUE,
+            name = entity.contactsName.orEmpty(),
+            email = entity.contactsEmail.orEmpty(),
+            phones = parsePhones(entity.contactsPhones, entity.contactsComments)
         )
     }
 
     private fun mapEmployer(entity: VacancyEntity): Employer {
         return Employer(
-            id = "",
-            name = entity.employerName ?: "",
-            logo = entity.employerLogoUrl ?: ""
+            id = EMPTY_VALUE,
+            name = entity.employerName.orEmpty(),
+            logo = entity.employerLogoUrl.orEmpty()
         )
     }
 
     private fun mapArea(entity: VacancyEntity): Area {
         return Area(
-            id = 0,
-            name = entity.areaName ?: ""
+            id = DEFAULT_ID,
+            name = entity.areaName.orEmpty()
         )
     }
 
-    // helpers
-    private fun parseSkills(raw: String?): List<String> {
-        if (raw.isNullOrBlank()) return emptyList()
-        return raw.split(",")
+    private fun parseSkills(raw: String?): ImmutableList<String> {
+        if (raw.isNullOrBlank()) return emptyList<String>().toPersistentList()
+
+        return raw.split(SKILLS_SEPARATOR)
             .map { it.trim() }
             .filter { it.isNotEmpty() }
+            .toPersistentList()
     }
 
-    private fun parsePhones(raw: String?): List<Phone> {
-        if (raw.isNullOrBlank()) return emptyList()
+    private fun parsePhones(rawPhones: String?, rawComment: String?): ImmutableList<Phone> {
+        if (rawPhones.isNullOrBlank()) return emptyList<Phone>().toPersistentList()
 
-        return raw.split(";")
-            .map {
+        return rawPhones.split(PHONES_SEPARATOR)
+            .mapIndexed { index, phone ->
                 Phone(
-                    comment = null,
-                    formatted = it.trim()
+                    comment = if (index == FIRST_ITEM_INDEX) rawComment else null,
+                    formatted = phone.trim()
                 )
             }
+            .toPersistentList()
     }
+
+    private const val SKILLS_SEPARATOR = ","
+    private const val PHONES_SEPARATOR = ";"
+    private const val EMPTY_VALUE = ""
+    private const val DEFAULT_ID = 0
+    private const val FIRST_ITEM_INDEX = 0
 }
