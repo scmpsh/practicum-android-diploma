@@ -29,7 +29,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,6 +44,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.collections.immutable.ImmutableList
 import org.koin.androidx.compose.koinViewModel
 import ru.practicum.android.diploma.R
 import ru.practicum.android.diploma.search.domain.models.Vacancy
@@ -57,7 +58,7 @@ fun SearchScreen(
     onNavigateToVacancyDetails: (String, String) -> Unit = { _, _ -> },
     viewModel: SearchViewModel = koinViewModel(),
 ) {
-    var searchQuery by remember { mutableStateOf("") }
+    var searchQuery by rememberSaveable { mutableStateOf("") }
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
@@ -215,7 +216,7 @@ private fun SearchResultCounter(
 
 @Composable
 private fun SearchVacanciesList(
-    vacancies: List<Vacancy>,
+    vacancies: ImmutableList<Vacancy>,
     onNavigateToDetails: (String, String) -> Unit,
     onLastItemReached: () -> Unit
 ) {
@@ -458,6 +459,7 @@ private fun SearchTextFieldTrailingIcon(
     onClearClick: () -> Unit
 ) {
     val isEmpty = value.isEmpty()
+
     IconButton(
         modifier = Modifier.size(48.dp),
         onClick = {

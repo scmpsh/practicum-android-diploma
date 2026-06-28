@@ -1,5 +1,6 @@
 package ru.practicum.android.diploma.details.presentation
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -29,13 +30,27 @@ class DetailsFragment : Fragment(R.layout.fragment_compose) {
                         findNavController().popBackStack()
                     },
                     onShareClick = { state ->
-                        launchIntent(intentFactory.createShareIntent(state.title, state.vacancyUrl))
+                        launchIntent(
+                            intentFactory.createShareIntent(
+                                vacancyName = state.title,
+                                vacancyUrl = state.vacancyUrl
+                            )
+                        )
                     },
                     onEmailClick = { state ->
-                        launchIntent(intentFactory.createEmailIntent(state.contactEmail, state.title))
+                        launchIntent(
+                            intentFactory.createEmailIntent(
+                                email = state.contactEmail,
+                                vacancyName = state.title
+                            )
+                        )
                     },
                     onPhoneClick = { state ->
-                        launchIntent(intentFactory.createPhoneIntent(state.contactPhone))
+                        launchIntent(
+                            intentFactory.createPhoneIntent(
+                                phone = state.contactPhone
+                            )
+                        )
                     },
                 )
             }
@@ -43,8 +58,11 @@ class DetailsFragment : Fragment(R.layout.fragment_compose) {
     }
 
     private fun launchIntent(intent: Intent?) {
-        if (intent != null && intentFactory.canHandleIntent(requireContext(), intent)) {
+        if (intent == null) return
+
+        try {
             startActivity(intent)
+        } catch (exception: ActivityNotFoundException) {
         }
     }
 

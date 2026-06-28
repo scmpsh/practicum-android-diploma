@@ -1,5 +1,8 @@
 package ru.practicum.android.diploma.search.domain.models
 
+import androidx.compose.runtime.Immutable
+
+@Immutable
 data class Vacancy(
     val id: String,
     val name: String,

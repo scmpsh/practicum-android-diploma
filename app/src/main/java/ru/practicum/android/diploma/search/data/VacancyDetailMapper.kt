@@ -1,5 +1,6 @@
 package ru.practicum.android.diploma.search.data
 
+import kotlinx.collections.immutable.toPersistentList
 import ru.practicum.android.diploma.search.data.dto.AddressDto
 import ru.practicum.android.diploma.search.data.dto.ContactsDto
 import ru.practicum.android.diploma.search.data.dto.EmployerDto
@@ -37,7 +38,7 @@ class VacancyDetailMapper {
             contacts = mapContacts(dto.contacts),
             employer = mapEmployer(dto.employer),
             area = mapArea(dto.area),
-            skills = dto.skills ?: emptyList(),
+            skills = dto.skills.orEmpty().toPersistentList(),
             url = dto.url.orEmpty(),
             industry = mapIndustry(dto.industry)
         )
@@ -73,9 +74,12 @@ class VacancyDetailMapper {
             id = contacts.id.orEmpty(),
             name = contacts.name.orEmpty(),
             email = contacts.email.orEmpty(),
-            phones = contacts.phones.orEmpty().map {
-                Phone(it.comment, it.formatted.orEmpty())
-            }
+            phones = contacts.phones
+                .orEmpty()
+                .map {
+                    Phone(it.comment, it.formatted.orEmpty())
+                }
+                .toPersistentList()
         )
     }
 

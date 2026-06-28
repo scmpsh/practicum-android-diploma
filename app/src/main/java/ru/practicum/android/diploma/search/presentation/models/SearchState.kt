@@ -1,5 +1,6 @@
 package ru.practicum.android.diploma.search.presentation.models
 
+import kotlinx.collections.immutable.ImmutableList
 import ru.practicum.android.diploma.search.domain.models.Vacancy
 
 sealed interface SearchState {
@@ -10,7 +11,7 @@ sealed interface SearchState {
     object Loading : SearchState
 
     data class Content(
-        val vacancies: List<Vacancy>,
+        val vacancies: ImmutableList<Vacancy>,
         val found: Int,
         val isPaging: Boolean = false,
         override val toastMessage: String? = null

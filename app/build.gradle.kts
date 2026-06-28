@@ -94,6 +94,9 @@ dependencies {
     // Coroutines
     implementation(libs.kotlinx.coroutines.android)
 
+    // Immutable collections
+    implementation(libs.kotlinx.collections.immutable)
+
     // Testing
     testImplementation(libs.junit4)
     androidTestImplementation(libs.junit.ext)
