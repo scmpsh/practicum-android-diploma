@@ -10,9 +10,11 @@ import retrofit2.converter.gson.GsonConverterFactory
 import ru.practicum.android.diploma.search.data.AreaRepositoryImpl
 import ru.practicum.android.diploma.search.data.FilterPreferences
 import ru.practicum.android.diploma.search.data.FilterRepositoryImpl
+import ru.practicum.android.diploma.search.data.IndustriesRepositoryImpl
+import ru.practicum.android.diploma.search.data.IndustryFilterMapper
 import ru.practicum.android.diploma.search.data.SearchRepositoryImpl
-import ru.practicum.android.diploma.search.data.mappers.VacancyDetailMapper
 import ru.practicum.android.diploma.search.data.VacancyDetailRepositoryImpl
+import ru.practicum.android.diploma.search.data.mappers.VacancyDetailMapper
 import ru.practicum.android.diploma.search.data.mappers.VacancyMapper
 import ru.practicum.android.diploma.search.data.network.ConnectionChecker
 import ru.practicum.android.diploma.search.data.network.ConnectionCheckerImpl
@@ -23,17 +25,21 @@ import ru.practicum.android.diploma.search.domain.api.AreaInteractor
 import ru.practicum.android.diploma.search.domain.api.AreaRepository
 import ru.practicum.android.diploma.search.domain.api.FilterInteractor
 import ru.practicum.android.diploma.search.domain.api.FilterRepository
+import ru.practicum.android.diploma.search.domain.api.IndustriesInteractor
+import ru.practicum.android.diploma.search.domain.api.IndustriesRepository
 import ru.practicum.android.diploma.search.domain.api.SearchInteractor
 import ru.practicum.android.diploma.search.domain.api.SearchRepository
 import ru.practicum.android.diploma.search.domain.api.VacancyDetailRepository
 import ru.practicum.android.diploma.search.domain.api.VacancyDetailsInteractor
 import ru.practicum.android.diploma.search.domain.impl.AreaInteractorImpl
 import ru.practicum.android.diploma.search.domain.impl.FilterInteractorImpl
+import ru.practicum.android.diploma.search.domain.impl.IndustriesInteractorImpl
 import ru.practicum.android.diploma.search.domain.impl.SearchInteractorImpl
 import ru.practicum.android.diploma.search.domain.impl.VacancyDetailsInteractorImpl
 import ru.practicum.android.diploma.search.presentation.country.CountryViewModel
-import ru.practicum.android.diploma.search.presentation.models.SearchViewModel
 import ru.practicum.android.diploma.search.presentation.filter.FilterSettingsViewModel
+import ru.practicum.android.diploma.search.presentation.models.IndustriesViewModel
+import ru.practicum.android.diploma.search.presentation.models.SearchViewModel
 import ru.practicum.android.diploma.search.presentation.place.PlaceOfWorkViewModel
 import ru.practicum.android.diploma.search.presentation.regions.RegionsViewModel
 
@@ -57,20 +63,35 @@ val searchModule = module {
         ConnectionCheckerImpl(androidContext())
     }
 
-    factory { VacancyMapper() }
-
-    factory { VacancyDetailMapper() }
-
-    single<VacancyDetailRepository> {
-        VacancyDetailRepositoryImpl(get(), get())
+    single<SharedPreferences> {
+        androidContext().getSharedPreferences(
+            "filter_prefs",
+            Context.MODE_PRIVATE
+        )
     }
+
+    single {
+        FilterPreferences(get())
+    }
+
+    factory { VacancyMapper() }
+    factory { VacancyDetailMapper() }
+    factory { IndustryFilterMapper() }
 
     single<SearchRepository> {
         SearchRepositoryImpl(get(), get())
     }
 
+    single<VacancyDetailRepository> {
+        VacancyDetailRepositoryImpl(get(), get())
+    }
+
     single<AreaRepository> {
         AreaRepositoryImpl(get())
+    }
+
+    single<IndustriesRepository> {
+        IndustriesRepositoryImpl(get(), get())
     }
 
     single<FilterRepository> {
@@ -89,6 +110,10 @@ val searchModule = module {
         AreaInteractorImpl(get())
     }
 
+    single<IndustriesInteractor> {
+        IndustriesInteractorImpl(get())
+    }
+
     single<FilterInteractor> {
         FilterInteractorImpl(get())
     }
@@ -98,22 +123,15 @@ val searchModule = module {
     }
 
     viewModel {
+        IndustriesViewModel(get())
+    }
+
+    viewModel {
         FilterSettingsViewModel(get())
     }
 
     viewModel {
         PlaceOfWorkViewModel()
-    }
-
-    single<SharedPreferences> {
-        androidContext().getSharedPreferences(
-            "filter_prefs",
-            Context.MODE_PRIVATE
-        )
-    }
-
-    single {
-        FilterPreferences(get())
     }
 
     viewModel {

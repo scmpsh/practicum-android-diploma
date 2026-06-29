@@ -6,6 +6,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import ru.practicum.android.diploma.BuildConfig
 import ru.practicum.android.diploma.search.data.dto.AreasRequest
+import ru.practicum.android.diploma.search.data.dto.IndustriesRequest
+import ru.practicum.android.diploma.search.data.dto.IndustriesResponseDto
 import ru.practicum.android.diploma.search.data.dto.Response
 import ru.practicum.android.diploma.search.data.dto.VacanciesSearchRequest
 import ru.practicum.android.diploma.search.data.dto.VacancyDetailRequest
@@ -25,6 +27,7 @@ class RetrofitNetworkClient(
         return when (dto) {
             is VacanciesSearchRequest -> searchVacancies(dto)
             is VacancyDetailRequest -> getVacancyDetail(dto)
+            is IndustriesRequest -> getIndustries()
             is AreasRequest -> getAreas()
             else -> Response().apply { resultCode = HTTP_BAD_REQUEST }
         }
@@ -37,6 +40,29 @@ class RetrofitNetworkClient(
                 apiService.getVacancy(
                     token = authHeader,
                     id = dto.vacancyId
+                ).apply {
+                    resultCode = HTTP_OK
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: retrofit2.HttpException) {
+                Log.e(TAG, "HTTP error: ${e.code()}", e)
+                Response().apply { resultCode = e.code() }
+            } catch (e: Exception) {
+                Log.e(TAG, MSG_REQUEST_FAILED, e)
+                Response().apply { resultCode = INNER_SERVER_ERROR }
+            }
+        }
+    }
+
+    @Suppress("TooGenericExceptionCaught")
+    private suspend fun getIndustries(): Response {
+        return withContext(Dispatchers.IO) {
+            try {
+                IndustriesResponseDto(
+                    industries = apiService.getIndustries(
+                        token = authHeader
+                    )
                 ).apply {
                     resultCode = HTTP_OK
                 }
@@ -69,31 +95,31 @@ class RetrofitNetworkClient(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: retrofit2.HttpException) {
-                Log.e("Network", "HTTP error: ${e.code()}", e)
+                Log.e(TAG, "HTTP error: ${e.code()}", e)
                 Response().apply { resultCode = e.code() }
             } catch (e: Exception) {
-                Log.e("Network", "Request failed", e)
+                Log.e(TAG, MSG_REQUEST_FAILED, e)
                 Response().apply { resultCode = INNER_SERVER_ERROR }
             }
         }
     }
 
+    @Suppress("TooGenericExceptionCaught")
     private suspend fun getAreas(): Response {
         return withContext(Dispatchers.IO) {
             try {
                 val dto = apiService.getAreas(
-                    token = "Bearer ${BuildConfig.API_ACCESS_TOKEN}"
+                    token = authHeader
                 )
 
                 Response().apply {
                     resultCode = HTTP_OK
                     data = dto
                 }
-
             } catch (e: CancellationException) {
                 throw e
             } catch (e: retrofit2.HttpException) {
-                Log.e("Network", "HTTP error: ${e.code()}", e)
+                Log.e(TAG, "HTTP error: ${e.code()}", e)
                 Response().apply { resultCode = e.code() }
             } catch (e: Exception) {
                 Log.e(TAG, MSG_REQUEST_FAILED, e)
