@@ -51,6 +51,8 @@ fun FilterSettingsScreen(
     onNavigateBack: () -> Unit,
     onNavigateToPlaceOfWork: () -> Unit,
     onNavigateToIndustry: () -> Unit,
+    onApplyClick: () -> Unit,
+    onResetAppliedClick: () -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -62,7 +64,9 @@ fun FilterSettingsScreen(
         onSalaryChange = viewModel::onSalaryChange,
         onSalaryClearClick = viewModel::onSalaryClearClick,
         onDoNotShowWithoutSalaryChange = viewModel::onDoNotShowWithoutSalaryChange,
-        onResetClick = viewModel::onResetClick
+        onResetClick = viewModel::onResetClick,
+        onApplyClick = onApplyClick,
+        onResetAppliedClick = onResetAppliedClick
     )
 }
 
@@ -76,6 +80,8 @@ private fun FilterSettingsContent(
     onSalaryClearClick: () -> Unit,
     onDoNotShowWithoutSalaryChange: (Boolean) -> Unit,
     onResetClick: () -> Unit,
+    onApplyClick: () -> Unit,
+    onResetAppliedClick: () -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -113,7 +119,7 @@ private fun FilterSettingsContent(
 
         if (state.hasAnyFilter) {
             Button(
-                onClick = onNavigateBack,
+                onClick = onApplyClick,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
@@ -131,7 +137,10 @@ private fun FilterSettingsContent(
             Spacer(modifier = Modifier.height(8.dp))
 
             TextButton(
-                onClick = onResetClick,
+                onClick = {
+                    onResetClick()
+                    onResetAppliedClick()
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)

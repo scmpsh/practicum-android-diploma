@@ -55,8 +55,16 @@ class RetrofitNetworkClient(
     @Suppress("TooGenericExceptionCaught")
     private suspend fun searchVacancies(dto: VacanciesSearchRequest): Response {
         val options = HashMap<String, String>()
-        options["text"] = dto.expression
-        options["page"] = dto.page.toString()
+        options[QUERY_TEXT] = dto.expression
+        options[QUERY_PAGE] = dto.page.toString()
+
+        if (dto.salary.isNotBlank()) {
+            options[QUERY_SALARY] = dto.salary
+        }
+
+        if (dto.onlyWithSalary) {
+            options[QUERY_ONLY_WITH_SALARY] = true.toString()
+        }
 
         return withContext(Dispatchers.IO) {
             try {
@@ -69,31 +77,31 @@ class RetrofitNetworkClient(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: retrofit2.HttpException) {
-                Log.e("Network", "HTTP error: ${e.code()}", e)
+                Log.e(TAG, "HTTP error: ${e.code()}", e)
                 Response().apply { resultCode = e.code() }
             } catch (e: Exception) {
-                Log.e("Network", "Request failed", e)
+                Log.e(TAG, MSG_REQUEST_FAILED, e)
                 Response().apply { resultCode = INNER_SERVER_ERROR }
             }
         }
     }
 
+    @Suppress("TooGenericExceptionCaught")
     private suspend fun getAreas(): Response {
         return withContext(Dispatchers.IO) {
             try {
                 val dto = apiService.getAreas(
-                    token = "Bearer ${BuildConfig.API_ACCESS_TOKEN}"
+                    token = authHeader
                 )
 
                 Response().apply {
                     resultCode = HTTP_OK
                     data = dto
                 }
-
             } catch (e: CancellationException) {
                 throw e
             } catch (e: retrofit2.HttpException) {
-                Log.e("Network", "HTTP error: ${e.code()}", e)
+                Log.e(TAG, "HTTP error: ${e.code()}", e)
                 Response().apply { resultCode = e.code() }
             } catch (e: Exception) {
                 Log.e(TAG, MSG_REQUEST_FAILED, e)
@@ -110,5 +118,10 @@ class RetrofitNetworkClient(
 
         private const val TAG = "Network"
         private const val MSG_REQUEST_FAILED = "Request failed"
+
+        private const val QUERY_TEXT = "text"
+        private const val QUERY_PAGE = "page"
+        private const val QUERY_SALARY = "salary"
+        private const val QUERY_ONLY_WITH_SALARY = "only_with_salary"
     }
 }

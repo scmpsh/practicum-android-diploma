@@ -55,19 +55,26 @@ class FilterSettingsFragment : Fragment() {
                             findNavController().popBackStack()
                         },
                         onNavigateToPlaceOfWork = {
-                            findNavController().navigate(
-                                R.id.action_filterSettingsFragment_to_placeOfWorkFragment
-                            )
+                            findNavController().navigate(R.id.action_filterSettingsFragment_to_placeOfWorkFragment)
                         },
                         onNavigateToIndustry = {
-                            findNavController().navigate(
-                                R.id.action_filterSettingsFragment_to_industrySelectionFragment
-                            )
+                            findNavController().navigate(R.id.action_filterSettingsFragment_to_industrySelectionFragment)
+                        },
+                        onApplyClick = {
+                            sendFilterAppliedResult()
+                        },
+                        onResetAppliedClick = {
+                            sendFilterAppliedResult()
                         }
                     )
                 }
             }
         }
+    }
+
+    private fun sendFilterAppliedResult() {
+        parentFragmentManager.setFragmentResult(FILTER_APPLIED_RESULT_KEY, Bundle.EMPTY)
+        findNavController().popBackStack()
     }
 
     companion object {
@@ -76,5 +83,7 @@ class FilterSettingsFragment : Fragment() {
 
         const val INDUSTRY_RESULT_KEY = "industryResultKey"
         const val INDUSTRY_BUNDLE_KEY = "industryBundleKey"
+
+        const val FILTER_APPLIED_RESULT_KEY = "filterAppliedResultKey"
     }
 }
