@@ -6,9 +6,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import ru.practicum.android.diploma.search.presentation.place.PlaceOfWorkFragment.Companion.REGION_BUNDLE_KEY
+import ru.practicum.android.diploma.search.presentation.place.PlaceOfWorkFragment.Companion.REGION_RESULT_KEY
 import ru.practicum.android.diploma.ui.theme.AppTheme
 
 class RegionSelectionFragment : Fragment() {
@@ -30,6 +33,10 @@ class RegionSelectionFragment : Fragment() {
                         },
                         onCountryClick = { area ->
                             viewModel.onRegionClick(area)
+                            parentFragmentManager.setFragmentResult(
+                                REGION_RESULT_KEY,
+                                bundleOf(REGION_BUNDLE_KEY to area.name)
+                            )
                             findNavController().navigateUp()
                         }
                     )

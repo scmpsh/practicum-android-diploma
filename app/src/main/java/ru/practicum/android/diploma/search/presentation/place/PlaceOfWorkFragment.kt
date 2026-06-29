@@ -31,6 +31,16 @@ class PlaceOfWorkFragment : Fragment() {
                 viewModel.onCountrySelected(country)
             }
         }
+
+        parentFragmentManager.setFragmentResultListener(
+            REGION_RESULT_KEY,
+            this
+        ) { _, bundle ->
+            val region = bundle.getString(REGION_BUNDLE_KEY).orEmpty()
+            if (region.isNotBlank()) {
+                viewModel.onRegionSelected(region)
+            }
+        }
     }
 
     override fun onCreateView(
@@ -71,5 +81,7 @@ class PlaceOfWorkFragment : Fragment() {
     companion object {
         const val COUNTRY_RESULT_KEY = "countryResultKey"
         const val COUNTRY_BUNDLE_KEY = "countryBundleKey"
+        const val REGION_RESULT_KEY = "regionResultKey"
+        const val REGION_BUNDLE_KEY = "regionBundleKey"
     }
 }
