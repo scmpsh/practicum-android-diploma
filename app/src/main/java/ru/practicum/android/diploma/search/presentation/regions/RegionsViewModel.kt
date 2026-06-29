@@ -5,15 +5,15 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import ru.practicum.android.diploma.search.data.filterstoragetemp.FilterStorage
 import ru.practicum.android.diploma.search.domain.api.AreaInteractor
+import ru.practicum.android.diploma.search.domain.api.FilterInteractor
 import ru.practicum.android.diploma.search.domain.models.FilterArea
 import ru.practicum.android.diploma.search.domain.models.Resource
 import ru.practicum.android.diploma.search.presentation.models.RegionsState
 
 class RegionsViewModel(
     private val areaInteractor: AreaInteractor,
-    private val filterStorage: FilterStorage
+    private val filterInteractor: FilterInteractor
 ) : ViewModel() {
     private val _state = MutableStateFlow<RegionsState>(RegionsState.Loading)
     val state: StateFlow<RegionsState> = _state
@@ -27,7 +27,7 @@ class RegionsViewModel(
     }
 
     private fun loadRegions() {
-        val countryId = filterStorage.getCountryId()
+        val countryId = filterInteractor.getFilterSettings().countryId
 
         viewModelScope.launch {
             areaInteractor.getAreas().collect { result ->
@@ -72,7 +72,12 @@ class RegionsViewModel(
     }
 
     fun onRegionClick(area: FilterArea) {
-        filterStorage.saveRegionId(area.id)
+        val settings = filterInteractor.getFilterSettings()
+        filterInteractor.saveFilterSettings(
+            settings.copy(
+                regionId = area.id
+            )
+        )
     }
 
     private fun flatten(areas: List<FilterArea>): List<FilterArea> =
