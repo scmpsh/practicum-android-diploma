@@ -1,5 +1,6 @@
 package ru.practicum.android.diploma.search.presentation.industry
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -13,6 +14,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -22,22 +25,26 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ru.practicum.android.diploma.R
+import ru.practicum.android.diploma.search.domain.models.IndustryFilter
+import ru.practicum.android.diploma.search.presentation.models.IndustriesState
+import ru.practicum.android.diploma.search.presentation.models.IndustriesViewModel
 import ru.practicum.android.diploma.ui.theme.Black
 import ru.practicum.android.diploma.ui.theme.Blue
 import ru.practicum.android.diploma.ui.theme.Grey
@@ -46,47 +53,13 @@ import ru.practicum.android.diploma.ui.theme.White
 
 @Composable
 fun IndustrySelectionScreen(
+    viewModel: IndustriesViewModel,
     onNavigateBack: () -> Unit,
-    onIndustryClick: (String) -> Unit,
+    onIndustryClick: (IndustryFilter) -> Unit,
 ) {
-    var searchQuery by remember { mutableStateOf("") }
-    var selectedIndustry by remember { mutableStateOf<String?>(null) }
-
-    val industries = listOf(
-        "IT",
-        "Автомобильный бизнес",
-        "Административный персонал",
-        "Безопасность",
-        "Высший менеджмент",
-        "Добыча сырья",
-        "Домашний персонал",
-        "Закупки",
-        "Инсталляция и сервис",
-        "Искусство, развлечения, массмедиа",
-        "Консультирование",
-        "Маркетинг, реклама, PR",
-        "Медицина, фармацевтика",
-        "Наука, образование",
-        "Продажи",
-        "Производство, сервисное обслуживание",
-        "Рабочий персонал",
-        "Строительство, недвижимость",
-        "Транспорт, логистика",
-        "Туризм, гостиницы, рестораны",
-        "Управление персоналом",
-        "Финансы, бухгалтерия",
-        "Юристы"
-    )
-
-    val filteredIndustries = remember(searchQuery) {
-        if (searchQuery.isBlank()) {
-            industries
-        } else {
-            industries.filter {
-                it.contains(searchQuery, ignoreCase = true)
-            }
-        }
-    }
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    val searchQuery by viewModel.searchText.collectAsStateWithLifecycle()
+    val selectedIndustry by viewModel.selectedIndustry.collectAsStateWithLifecycle()
 
     Column(
         modifier = Modifier
@@ -99,32 +72,52 @@ fun IndustrySelectionScreen(
 
         IndustrySearchField(
             value = searchQuery,
-            onValueChange = {
-                searchQuery = it
-            },
+            onValueChange = viewModel::onSearchTextChanged,
             onClearClick = {
-                searchQuery = ""
+                viewModel.onSearchTextChanged("")
             }
         )
 
-        Column(
-            modifier = Modifier.weight(1f)
-        ) {
-            filteredIndustries.forEach { industry ->
-                IndustryItem(
-                    title = industry,
-                    selected = selectedIndustry == industry,
-                    onClick = {
-                        selectedIndustry = industry
-                    }
+        val selectedIndustryItem = when (val currentState = state) {
+            is IndustriesState.Content -> {
+                IndustryList(
+                    industries = currentState.industries,
+                    selectedIndustry = selectedIndustry,
+                    onClick = viewModel::onIndustryClick,
+                    modifier = Modifier.weight(1f)
                 )
+
+                currentState.industries.firstOrNull { it.name == selectedIndustry }
+            }
+
+            IndustriesState.Empty -> {
+                IndustryEmptyPlaceholder(
+                    modifier = Modifier.weight(1f)
+                )
+                null
+            }
+
+            IndustriesState.Error,
+            IndustriesState.NoInternet -> {
+                IndustryErrorPlaceholder(
+                    modifier = Modifier.weight(1f)
+                )
+                null
+            }
+
+            IndustriesState.Initial,
+            IndustriesState.Loading -> {
+                IndustryLoadingPlaceholder(
+                    modifier = Modifier.weight(1f)
+                )
+                null
             }
         }
 
-        if (!selectedIndustry.isNullOrBlank()) {
+        if (selectedIndustryItem != null) {
             Button(
                 onClick = {
-                    onIndustryClick(selectedIndustry.orEmpty())
+                    onIndustryClick(selectedIndustryItem)
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -141,6 +134,28 @@ fun IndustrySelectionScreen(
             }
 
             Spacer(modifier = Modifier.height(16.dp))
+        }
+    }
+}
+
+@Composable
+private fun IndustryList(
+    industries: List<IndustryFilter>,
+    selectedIndustry: String?,
+    onClick: (IndustryFilter) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    LazyColumn(
+        modifier = modifier
+    ) {
+        items(industries) { industry ->
+            IndustryItem(
+                title = industry.name,
+                selected = selectedIndustry == industry.name,
+                onClick = {
+                    onClick(industry)
+                }
+            )
         }
     }
 }
@@ -201,7 +216,7 @@ private fun IndustrySearchField(
         ) {
             if (value.isBlank()) {
                 Text(
-                    text = "Введите отрасль",
+                    text = stringResource(R.string.region_search_placeholder_text),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Grey
                 )
@@ -237,6 +252,78 @@ private fun IndustrySearchField(
                 tint = Black
             )
         }
+    }
+}
+
+@Composable
+private fun IndustryLoadingPlaceholder(
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier.fillMaxWidth(),
+        contentAlignment = Alignment.Center
+    ) {
+        CircularProgressIndicator()
+    }
+}
+
+@Composable
+private fun IndustryEmptyPlaceholder(
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(top = 82.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Image(
+            painter = painterResource(R.drawable.il_empty_search_result),
+            contentDescription = null,
+            modifier = Modifier.size(
+                width = 328.dp,
+                height = 223.dp
+            )
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            text = stringResource(R.string.industry_not_found),
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onBackground,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+@Composable
+private fun IndustryErrorPlaceholder(
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(top = 82.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Image(
+            painter = painterResource(R.drawable.img_regions_error),
+            contentDescription = null,
+            modifier = Modifier.size(
+                width = 328.dp,
+                height = 223.dp
+            )
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            text = stringResource(R.string.industry_server_error),
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onBackground,
+            textAlign = TextAlign.Center
+        )
     }
 }
 

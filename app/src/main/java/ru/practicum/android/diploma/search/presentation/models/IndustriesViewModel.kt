@@ -6,28 +6,39 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import ru.practicum.android.diploma.search.domain.api.FilterInteractor
 import ru.practicum.android.diploma.search.domain.api.IndustriesInteractor
+import ru.practicum.android.diploma.search.domain.models.IndustryFilter
 import ru.practicum.android.diploma.search.domain.models.Resource
 
 class IndustriesViewModel(
-    private val interactor: IndustriesInteractor
+    private val industriesInteractor: IndustriesInteractor,
+    private val filterInteractor: FilterInteractor
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<IndustriesState>(IndustriesState.Initial)
     val state: StateFlow<IndustriesState> = _state
 
+    private val _searchText = MutableStateFlow("")
+    val searchText: StateFlow<String> = _searchText
+
+    private val _selectedIndustry = MutableStateFlow(filterInteractor.getFilterSettings().industry)
+    val selectedIndustry: StateFlow<String?> = _selectedIndustry
+
+    private var allIndustries: List<IndustryFilter> = emptyList()
+
+    init {
+        loadIndustries()
+    }
+
     fun loadIndustries() {
         viewModelScope.launch {
             _state.value = IndustriesState.Loading
 
-            when (val result = interactor.getIndustries().first()) {
+            when (val result = industriesInteractor.getIndustries().first()) {
                 is Resource.Success -> {
-                    val data = result.data.orEmpty()
-                    _state.value = if (data.isEmpty()) {
-                        IndustriesState.Empty
-                    } else {
-                        IndustriesState.Content(data)
-                    }
+                    allIndustries = result.data.orEmpty()
+                    applySearchFilter()
                 }
 
                 is Resource.Error -> {
@@ -40,6 +51,42 @@ class IndustriesViewModel(
                     }
                 }
             }
+        }
+    }
+
+    fun onSearchTextChanged(text: String) {
+        _searchText.value = text
+        applySearchFilter()
+    }
+
+    fun onIndustryClick(industry: IndustryFilter) {
+        _selectedIndustry.value = industry.name
+    }
+
+    fun onIndustrySelected(industry: IndustryFilter) {
+        _selectedIndustry.value = industry.name
+        val settings = filterInteractor.getFilterSettings()
+        filterInteractor.saveFilterSettings(
+            settings.copy(
+                industry = industry.name
+            )
+        )
+    }
+
+    private fun applySearchFilter() {
+        val query = _searchText.value
+        val filteredIndustries = if (query.isBlank()) {
+            allIndustries
+        } else {
+            allIndustries.filter {
+                it.name.contains(query, ignoreCase = true)
+            }
+        }
+
+        _state.value = if (filteredIndustries.isEmpty()) {
+            IndustriesState.Empty
+        } else {
+            IndustriesState.Content(filteredIndustries)
         }
     }
 
