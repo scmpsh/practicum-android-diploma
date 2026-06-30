@@ -9,35 +9,35 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import org.koin.android.ext.android.inject
-import ru.practicum.android.diploma.search.domain.api.FilterInteractor
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import ru.practicum.android.diploma.search.presentation.filter.FilterSettingsFragment.Companion.INDUSTRY_BUNDLE_KEY
 import ru.practicum.android.diploma.search.presentation.filter.FilterSettingsFragment.Companion.INDUSTRY_RESULT_KEY
+import ru.practicum.android.diploma.search.presentation.models.IndustriesViewModel
 import ru.practicum.android.diploma.ui.theme.AppTheme
 
 class IndustrySelectionFragment : Fragment() {
 
-    private val filterInteractor: FilterInteractor by inject()
+    private val viewModel: IndustriesViewModel by viewModel()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
-        val currentIndustry = filterInteractor.getFilterSettings().industryName
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 AppTheme {
                     IndustrySelectionScreen(
-                        initialIndustry = currentIndustry,
+                        viewModel = viewModel,
                         onNavigateBack = {
                             findNavController().popBackStack()
                         },
                         onIndustryClick = { industry ->
+                            viewModel.onIndustrySelected(industry)
                             parentFragmentManager.setFragmentResult(
                                 INDUSTRY_RESULT_KEY,
-                                bundleOf(INDUSTRY_BUNDLE_KEY to industry)
+                                bundleOf(INDUSTRY_BUNDLE_KEY to industry.name)
                             )
                             findNavController().popBackStack()
                         }

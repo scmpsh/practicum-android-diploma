@@ -123,7 +123,7 @@ val searchModule = module {
     }
 
     viewModel {
-        IndustriesViewModel(get())
+        IndustriesViewModel(get(), get())
     }
 
     viewModel {
