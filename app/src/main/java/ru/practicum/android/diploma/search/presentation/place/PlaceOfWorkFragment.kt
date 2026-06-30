@@ -19,28 +19,9 @@ class PlaceOfWorkFragment : Fragment() {
 
     private val viewModel: PlaceOfWorkViewModel by viewModel()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        parentFragmentManager.setFragmentResultListener(
-            COUNTRY_RESULT_KEY,
-            this
-        ) { _, bundle ->
-            val country = bundle.getString(COUNTRY_BUNDLE_KEY).orEmpty()
-            if (country.isNotBlank()) {
-                viewModel.onCountrySelected(country)
-            }
-        }
-
-        parentFragmentManager.setFragmentResultListener(
-            REGION_RESULT_KEY,
-            this
-        ) { _, bundle ->
-            val region = bundle.getString(REGION_BUNDLE_KEY).orEmpty()
-            if (region.isNotBlank()) {
-                viewModel.onRegionSelected(region)
-            }
-        }
+    override fun onResume() {
+        super.onResume()
+        viewModel.loadSettings()
     }
 
     override fun onCreateView(

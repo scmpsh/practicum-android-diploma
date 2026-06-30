@@ -25,7 +25,7 @@ class FilterSettingsFragment : Fragment() {
         ) { _, bundle ->
             val placeOfWork = bundle.getString(PLACE_OF_WORK_BUNDLE_KEY).orEmpty()
             if (placeOfWork.isNotBlank()) {
-                viewModel.onPlaceOfWorkSelected(placeOfWork)
+                viewModel.onPlaceOfWorkSelected()
             }
         }
 
@@ -38,6 +38,11 @@ class FilterSettingsFragment : Fragment() {
                 viewModel.onIndustrySelected(industry)
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.loadSettings()
     }
 
     override fun onCreateView(
@@ -55,19 +60,28 @@ class FilterSettingsFragment : Fragment() {
                             findNavController().popBackStack()
                         },
                         onNavigateToPlaceOfWork = {
-                            findNavController().navigate(
-                                R.id.action_filterSettingsFragment_to_placeOfWorkFragment
-                            )
+                            findNavController().navigate(R.id.action_filterSettingsFragment_to_placeOfWorkFragment)
                         },
                         onNavigateToIndustry = {
                             findNavController().navigate(
                                 R.id.action_filterSettingsFragment_to_industrySelectionFragment
                             )
+                        },
+                        onApplyClick = {
+                            sendFilterAppliedResult()
+                        },
+                        onResetAppliedClick = {
+                            sendFilterAppliedResult()
                         }
                     )
                 }
             }
         }
+    }
+
+    private fun sendFilterAppliedResult() {
+        parentFragmentManager.setFragmentResult(FILTER_APPLIED_RESULT_KEY, Bundle.EMPTY)
+        findNavController().popBackStack()
     }
 
     companion object {
@@ -76,5 +90,7 @@ class FilterSettingsFragment : Fragment() {
 
         const val INDUSTRY_RESULT_KEY = "industryResultKey"
         const val INDUSTRY_BUNDLE_KEY = "industryBundleKey"
+
+        const val FILTER_APPLIED_RESULT_KEY = "filterAppliedResultKey"
     }
 }

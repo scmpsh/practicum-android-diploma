@@ -22,7 +22,7 @@ class IndustriesViewModel(
     private val _searchText = MutableStateFlow("")
     val searchText: StateFlow<String> = _searchText
 
-    private val _selectedIndustry = MutableStateFlow(filterInteractor.getFilterSettings().industry)
+    private val _selectedIndustry = MutableStateFlow(filterInteractor.getFilterSettings().industryName)
     val selectedIndustry: StateFlow<String?> = _selectedIndustry
 
     private var allIndustries: List<IndustryFilter> = emptyList()
@@ -68,7 +68,8 @@ class IndustriesViewModel(
         val settings = filterInteractor.getFilterSettings()
         filterInteractor.saveFilterSettings(
             settings.copy(
-                industry = industry.name
+                industryId = industry.id.toString(),
+                industryName = industry.name
             )
         )
     }

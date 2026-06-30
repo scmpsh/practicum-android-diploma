@@ -46,10 +46,10 @@ class RetrofitNetworkClient(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: retrofit2.HttpException) {
-                Log.e(TAG, "HTTP error: ${e.code()}", e)
+                logHttpError(e)
                 Response().apply { resultCode = e.code() }
             } catch (e: Exception) {
-                Log.e(TAG, MSG_REQUEST_FAILED, e)
+                logGeneralError(e)
                 Response().apply { resultCode = INNER_SERVER_ERROR }
             }
         }
@@ -69,10 +69,10 @@ class RetrofitNetworkClient(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: retrofit2.HttpException) {
-                Log.e(TAG, "HTTP error: ${e.code()}", e)
+                logHttpError(e)
                 Response().apply { resultCode = e.code() }
             } catch (e: Exception) {
-                Log.e(TAG, MSG_REQUEST_FAILED, e)
+                logGeneralError(e)
                 Response().apply { resultCode = INNER_SERVER_ERROR }
             }
         }
@@ -80,9 +80,7 @@ class RetrofitNetworkClient(
 
     @Suppress("TooGenericExceptionCaught")
     private suspend fun searchVacancies(dto: VacanciesSearchRequest): Response {
-        val options = HashMap<String, String>()
-        options["text"] = dto.expression
-        options["page"] = dto.page.toString()
+        val options = buildSearchOptions(dto)
 
         return withContext(Dispatchers.IO) {
             try {
@@ -95,13 +93,37 @@ class RetrofitNetworkClient(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: retrofit2.HttpException) {
-                Log.e(TAG, "HTTP error: ${e.code()}", e)
+                logHttpError(e)
                 Response().apply { resultCode = e.code() }
             } catch (e: Exception) {
-                Log.e(TAG, MSG_REQUEST_FAILED, e)
+                logGeneralError(e)
                 Response().apply { resultCode = INNER_SERVER_ERROR }
             }
         }
+    }
+
+    private fun buildSearchOptions(dto: VacanciesSearchRequest): Map<String, String> {
+        val options = HashMap<String, String>()
+        options[QUERY_TEXT] = dto.expression
+        options[QUERY_PAGE] = dto.page.toString()
+
+        if (dto.salary.isNotBlank()) {
+            options[QUERY_SALARY] = dto.salary
+        }
+
+        if (dto.onlyWithSalary) {
+            options[QUERY_ONLY_WITH_SALARY] = true.toString()
+        }
+
+        if (!dto.area.isNullOrBlank()) {
+            options[QUERY_AREA] = dto.area
+        }
+
+        if (!dto.industry.isNullOrBlank()) {
+            options[QUERY_INDUSTRY] = dto.industry
+        }
+
+        return options
     }
 
     @Suppress("TooGenericExceptionCaught")
@@ -119,13 +141,21 @@ class RetrofitNetworkClient(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: retrofit2.HttpException) {
-                Log.e(TAG, "HTTP error: ${e.code()}", e)
+                logHttpError(e)
                 Response().apply { resultCode = e.code() }
             } catch (e: Exception) {
-                Log.e(TAG, MSG_REQUEST_FAILED, e)
+                logGeneralError(e)
                 Response().apply { resultCode = INNER_SERVER_ERROR }
             }
         }
+    }
+
+    private fun logHttpError(e: retrofit2.HttpException) {
+        Log.e(TAG, "HTTP error: ${e.code()}", e)
+    }
+
+    private fun logGeneralError(e: Exception) {
+        Log.e(TAG, MSG_REQUEST_FAILED, e)
     }
 
     companion object {
@@ -136,5 +166,12 @@ class RetrofitNetworkClient(
 
         private const val TAG = "Network"
         private const val MSG_REQUEST_FAILED = "Request failed"
+
+        private const val QUERY_TEXT = "text"
+        private const val QUERY_PAGE = "page"
+        private const val QUERY_SALARY = "salary"
+        private const val QUERY_ONLY_WITH_SALARY = "only_with_salary"
+        private const val QUERY_AREA = "area"
+        private const val QUERY_INDUSTRY = "industry"
     }
 }

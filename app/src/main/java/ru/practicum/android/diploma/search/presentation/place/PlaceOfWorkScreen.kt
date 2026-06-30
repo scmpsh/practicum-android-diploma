@@ -62,7 +62,8 @@ fun PlaceOfWorkScreen(
         PlaceOfWorkMenuItem(
             title = stringResource(R.string.place_of_work_region),
             value = state.region,
-            onClick = onNavigateToRegion
+            onClick = onNavigateToRegion,
+            onClearClick = viewModel::onRegionClearClick
         )
 
         Spacer(modifier = Modifier.weight(1f))
@@ -191,7 +192,8 @@ private fun CountryMenuItem(
 private fun PlaceOfWorkMenuItem(
     title: String,
     value: String?,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onClearClick: (() -> Unit)? = null
 ) {
     Row(
         modifier = Modifier
@@ -231,10 +233,22 @@ private fun PlaceOfWorkMenuItem(
             }
         }
 
-        Icon(
-            imageVector = Icons.Default.KeyboardArrowRight,
-            contentDescription = null,
-            tint = Black
-        )
+        if (!value.isNullOrBlank() && onClearClick != null) {
+            IconButton(
+                onClick = onClearClick
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = stringResource(R.string.search_clear_description),
+                    tint = Black
+                )
+            }
+        } else {
+            Icon(
+                imageVector = Icons.Default.KeyboardArrowRight,
+                contentDescription = null,
+                tint = Black
+            )
+        }
     }
 }

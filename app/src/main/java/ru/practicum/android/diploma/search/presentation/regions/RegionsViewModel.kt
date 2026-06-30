@@ -20,35 +20,49 @@ class RegionsViewModel(
 
     private val _searchText = MutableStateFlow("")
     val searchText: StateFlow<String> = _searchText
+
     private var allRegions: List<FilterArea> = emptyList()
+    private var rootCountries: List<FilterArea> = emptyList()
+    private var selectedCountryId: Int? = null
 
     init {
+        selectedCountryId = filterInteractor.getFilterSettings().countryId
         loadRegions()
     }
 
     private fun loadRegions() {
-        val countryId = filterInteractor.getFilterSettings().countryId
-
         viewModelScope.launch {
             areaInteractor.getAreas().collect { result ->
                 when (result) {
                     is Resource.Success -> {
-                        allRegions = if (countryId != null) {
-                            val country = result.data?.firstOrNull { it.id == countryId }
-                            country?.areas.orEmpty()
-                        } else {
-                            val allAreas = flatten(result.data.orEmpty())
-                            allAreas.filter { it.parentId != null }
-                        }
+                        val countries = result.data ?: emptyList()
+                        rootCountries = countries
+                        allRegions = extractRegions(countries, selectedCountryId).sortedBy { it.name }
 
-                        _state.value = RegionsState.Content(allRegions)
+                        _state.value = if (allRegions.isEmpty()) {
+                            RegionsState.Empty
+                        } else {
+                            RegionsState.Content(allRegions)
+                        }
                     }
 
                     is Resource.Error -> {
-                        _state.value =
-                            RegionsState.Error(result.message ?: "Ошибка")
+                        _state.value = RegionsState.Error(result.message ?: "Ошибка")
                     }
                 }
+            }
+        }
+    }
+
+    private fun extractRegions(countries: List<FilterArea>, countryId: Int?): List<FilterArea> {
+        return if (countryId == null) {
+            flatten(countries).filter { it.parentId != null }
+        } else {
+            val country = countries.firstOrNull { it.id == countryId }
+            if (country != null) {
+                flatten(country.areas).filter { it.parentId != null }
+            } else {
+                emptyList()
             }
         }
     }
@@ -73,11 +87,25 @@ class RegionsViewModel(
 
     fun onRegionClick(area: FilterArea) {
         val settings = filterInteractor.getFilterSettings()
+
+        // Find which country root contains this region
+        val parentCountry = rootCountries.firstOrNull { country ->
+            country.id == area.id || isDescendant(country, area.id)
+        }
+
         filterInteractor.saveFilterSettings(
             settings.copy(
-                regionId = area.id
+                regionId = area.id,
+                regionName = area.name,
+                countryId = parentCountry?.id ?: settings.countryId,
+                countryName = parentCountry?.name ?: settings.countryName
             )
         )
+    }
+
+    private fun isDescendant(parent: FilterArea, targetId: Int): Boolean {
+        if (parent.areas.any { it.id == targetId }) return true
+        return parent.areas.any { isDescendant(it, targetId) }
     }
 
     private fun flatten(areas: List<FilterArea>): List<FilterArea> =

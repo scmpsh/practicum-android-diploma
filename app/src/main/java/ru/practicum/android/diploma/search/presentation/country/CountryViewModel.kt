@@ -23,7 +23,21 @@ class CountryViewModel(
             interactor.getAreas().collect { result ->
                 when (result) {
                     is Resource.Success -> {
-                        _state.value = CountriesState.Content(result.data ?: emptyList())
+                        val countryNames = listOf(
+                            "Россия",
+                            "Украина",
+                            "Казахстан",
+                            "Азербайджан",
+                            "Беларусь",
+                            "Грузия",
+                            "Кыргызстан",
+                            "Узбекистан",
+                            "Другие регионы"
+                        )
+                        val countries = result.data?.filter { it.parentId == null }
+                            ?.filter { it.name in countryNames }
+                            ?.sortedBy { countryNames.indexOf(it.name) } ?: emptyList()
+                        _state.value = CountriesState.Content(countries)
                     }
 
                     is Resource.Error -> {
@@ -36,10 +50,13 @@ class CountryViewModel(
 
     fun onCountryClick(area: FilterArea) {
         val settings = filterInteractor.getFilterSettings()
+        val isDifferent = settings.countryId != area.id
         filterInteractor.saveFilterSettings(
             settings.copy(
                 countryId = area.id,
-                regionId = null
+                countryName = area.name,
+                regionId = if (isDifferent) null else settings.regionId,
+                regionName = if (isDifferent) null else settings.regionName
             )
         )
     }

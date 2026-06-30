@@ -10,77 +10,102 @@ class FilterSettingsViewModel(
     private val filterInteractor: FilterInteractor
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(filterInteractor.getFilterSettings().toState())
+    private val _state = MutableStateFlow(FilterSettingsState())
     val state: StateFlow<FilterSettingsState> = _state
 
-    fun onSalaryChange(value: String) {
-        updateState(
-            _state.value.copy(
-                salary = value.filter { it.isDigit() }
-            )
+    init {
+        loadSettings()
+    }
+
+    fun loadSettings() {
+        val settings = filterInteractor.getFilterSettings()
+        val placeOfWorkText = when {
+            settings.countryName != null && settings.regionName != null ->
+                "${settings.countryName}, ${settings.regionName}"
+            settings.countryName != null -> settings.countryName
+            settings.regionName != null -> settings.regionName
+            else -> null
+        }
+
+        _state.value = FilterSettingsState(
+            placeOfWork = placeOfWorkText,
+            industry = settings.industryName,
+            salary = settings.salary?.toString() ?: "",
+            doNotShowWithoutSalary = settings.onlyWithSalary ?: false
         )
+    }
+
+    fun onSalaryChange(value: String) {
+        val cleanValue = value.filter { it.isDigit() }
+        _state.value = _state.value.copy(
+            salary = cleanValue
+        )
+        saveCurrentFilters()
     }
 
     fun onSalaryClearClick() {
-        updateState(
-            _state.value.copy(
-                salary = ""
-            )
+        _state.value = _state.value.copy(
+            salary = ""
         )
+        saveCurrentFilters()
     }
 
     fun onDoNotShowWithoutSalaryChange(value: Boolean) {
-        updateState(
-            _state.value.copy(
-                doNotShowWithoutSalary = value
+        _state.value = _state.value.copy(
+            doNotShowWithoutSalary = value
+        )
+        saveCurrentFilters()
+    }
+
+    private fun saveCurrentFilters() {
+        val currentState = _state.value
+        val currentSaved = filterInteractor.getFilterSettings()
+        filterInteractor.saveFilterSettings(
+            currentSaved.copy(
+                salary = currentState.salary.toIntOrNull(),
+                onlyWithSalary = currentState.doNotShowWithoutSalary
             )
         )
     }
 
-    fun onPlaceOfWorkSelected(value: String) {
-        updateState(
-            _state.value.copy(
-                placeOfWork = value
-            )
-        )
+    fun onPlaceOfWorkSelected() {
+        loadSettings()
     }
 
     fun onIndustrySelected(value: String) {
-        updateState(
-            _state.value.copy(
-                industry = value
+        val currentSaved = filterInteractor.getFilterSettings()
+        filterInteractor.saveFilterSettings(
+            currentSaved.copy(industryName = value)
+        )
+        loadSettings()
+    }
+
+    fun onPlaceOfWorkClearClick() {
+        val currentSaved = filterInteractor.getFilterSettings()
+        filterInteractor.saveFilterSettings(
+            currentSaved.copy(
+                countryId = null,
+                countryName = null,
+                regionId = null,
+                regionName = null
             )
         )
+        loadSettings()
+    }
+
+    fun onIndustryClearClick() {
+        val currentSaved = filterInteractor.getFilterSettings()
+        filterInteractor.saveFilterSettings(
+            currentSaved.copy(
+                industryId = null,
+                industryName = null
+            )
+        )
+        loadSettings()
     }
 
     fun onResetClick() {
-        filterInteractor.clearFilterSettings()
+        filterInteractor.saveFilterSettings(FilterSettings())
         _state.value = FilterSettingsState()
-    }
-
-    private fun updateState(newState: FilterSettingsState) {
-        _state.value = newState
-        filterInteractor.saveFilterSettings(newState.toFilterSettings())
-    }
-
-    private fun FilterSettings.toState(): FilterSettingsState {
-        return FilterSettingsState(
-            placeOfWork = placeOfWork,
-            industry = industry,
-            salary = salary,
-            doNotShowWithoutSalary = doNotShowWithoutSalary
-        )
-    }
-
-    private fun FilterSettingsState.toFilterSettings(): FilterSettings {
-        val currentSettings = filterInteractor.getFilterSettings()
-        return FilterSettings(
-            placeOfWork = placeOfWork,
-            industry = industry,
-            salary = salary,
-            doNotShowWithoutSalary = doNotShowWithoutSalary,
-            countryId = currentSettings.countryId,
-            regionId = currentSettings.regionId
-        )
     }
 }

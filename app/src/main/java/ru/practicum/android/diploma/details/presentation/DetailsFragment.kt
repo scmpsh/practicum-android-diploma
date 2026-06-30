@@ -62,7 +62,8 @@ class DetailsFragment : Fragment(R.layout.fragment_compose) {
 
         try {
             startActivity(intent)
-        } catch (exception: ActivityNotFoundException) {
+        } catch (ignored: ActivityNotFoundException) {
+            // Safe to ignore if no matching application is found on the device
         }
     }
 

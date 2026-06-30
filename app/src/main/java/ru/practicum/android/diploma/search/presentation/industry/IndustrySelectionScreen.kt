@@ -236,10 +236,9 @@ private fun IndustrySearchField(
 
         IconButton(
             onClick = {
-                if (value.isBlank()) {
-                    return@IconButton
+                if (value.isNotBlank()) {
+                    onClearClick()
                 }
-                onClearClick()
             }
         ) {
             Icon(

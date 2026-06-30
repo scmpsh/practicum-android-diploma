@@ -12,12 +12,24 @@ import androidx.navigation.fragment.findNavController
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import ru.practicum.android.diploma.R
 import ru.practicum.android.diploma.details.presentation.DetailsFragment
+import ru.practicum.android.diploma.search.presentation.filter.FilterSettingsFragment
 import ru.practicum.android.diploma.search.presentation.models.SearchViewModel
 import ru.practicum.android.diploma.ui.theme.AppTheme
 
 class SearchFragment : Fragment() {
 
     private val viewModel: SearchViewModel by viewModel()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        parentFragmentManager.setFragmentResultListener(
+            FilterSettingsFragment.FILTER_APPLIED_RESULT_KEY,
+            this
+        ) { _, _ ->
+            viewModel.onFilterApplied()
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -48,5 +60,10 @@ class SearchFragment : Fragment() {
                 }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.onFilterApplied()
     }
 }
