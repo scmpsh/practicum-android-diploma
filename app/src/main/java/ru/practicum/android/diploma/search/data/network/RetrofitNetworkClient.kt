@@ -81,8 +81,16 @@ class RetrofitNetworkClient(
     @Suppress("TooGenericExceptionCaught")
     private suspend fun searchVacancies(dto: VacanciesSearchRequest): Response {
         val options = HashMap<String, String>()
-        options["text"] = dto.expression
-        options["page"] = dto.page.toString()
+        options[QUERY_TEXT] = dto.expression
+        options[QUERY_PAGE] = dto.page.toString()
+
+        if (dto.salary.isNotBlank()) {
+            options[QUERY_SALARY] = dto.salary
+        }
+
+        if (dto.onlyWithSalary) {
+            options[QUERY_ONLY_WITH_SALARY] = true.toString()
+        }
 
         return withContext(Dispatchers.IO) {
             try {
@@ -136,5 +144,10 @@ class RetrofitNetworkClient(
 
         private const val TAG = "Network"
         private const val MSG_REQUEST_FAILED = "Request failed"
+
+        private const val QUERY_TEXT = "text"
+        private const val QUERY_PAGE = "page"
+        private const val QUERY_SALARY = "salary"
+        private const val QUERY_ONLY_WITH_SALARY = "only_with_salary"
     }
 }

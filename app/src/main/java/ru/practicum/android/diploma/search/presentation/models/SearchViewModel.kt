@@ -9,11 +9,15 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import ru.practicum.android.diploma.search.domain.api.FilterInteractor
 import ru.practicum.android.diploma.search.domain.api.SearchInteractor
+import ru.practicum.android.diploma.search.domain.models.FilterSettings
 import ru.practicum.android.diploma.search.domain.models.Resource
+import ru.practicum.android.diploma.search.domain.models.SearchResult
 
 class SearchViewModel(
-    private val searchInteractor: SearchInteractor
+    private val searchInteractor: SearchInteractor,
+    private val filterInteractor: FilterInteractor
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<SearchState>(SearchState.Initial)
@@ -22,6 +26,7 @@ class SearchViewModel(
     private var latestSearchText: String? = null
     private var searchJob: Job? = null
     private var pagingJob: Job? = null
+    private var currentFilterSettings = FilterSettings()
 
     private var currentPage = 0
     private var maxPages = 0
@@ -33,7 +38,6 @@ class SearchViewModel(
         }
 
         latestSearchText = changedText
-
         searchJob?.cancel()
 
         if (changedText.isBlank()) {
@@ -51,6 +55,21 @@ class SearchViewModel(
         searchJob = viewModelScope.launch {
             delay(SEARCH_DEBOUNCE_DELAY)
             search(changedText)
+        }
+    }
+
+    fun onFilterApplied() {
+        val searchText = latestSearchText.orEmpty()
+        if (searchText.isBlank()) {
+            return
+        }
+
+        searchJob?.cancel()
+        pagingJob?.cancel()
+        isNextPageLoading = false
+
+        searchJob = viewModelScope.launch {
+            search(searchText)
         }
     }
 
@@ -85,14 +104,21 @@ class SearchViewModel(
     private suspend fun search(newSearchText: String) {
         _state.value = SearchState.Loading
         currentPage = 0
+        currentFilterSettings = filterInteractor.getFilterSettings()
 
-        when (val resource = searchInteractor.searchVacancies(newSearchText, currentPage).first()) {
+        when (
+            val resource = searchInteractor.searchVacancies(
+                expression = newSearchText,
+                page = currentPage,
+                filterSettings = currentFilterSettings
+            ).first()
+        ) {
             is Resource.Success -> handleSearchSuccess(resource.data)
             is Resource.Error -> handleSearchError(resource.message)
         }
     }
 
-    private fun handleSearchSuccess(searchResult: ru.practicum.android.diploma.search.domain.models.SearchResult?) {
+    private fun handleSearchSuccess(searchResult: SearchResult?) {
         if (searchResult == null) {
             _state.value = SearchState.Error
             return
@@ -113,7 +139,9 @@ class SearchViewModel(
     }
 
     private fun handleSearchError(message: String?) {
-        _state.value = if (message?.contains(NO_INTERNET_KEYWORD, ignoreCase = true) == true) {
+        _state.value = if (
+            message?.contains(NO_INTERNET_KEYWORD, ignoreCase = true) == true
+        ) {
             SearchState.NoInternet
         } else {
             SearchState.Error
@@ -124,7 +152,13 @@ class SearchViewModel(
         isNextPageLoading = true
         val nextPage = currentPage + 1
 
-        when (val resource = searchInteractor.searchVacancies(latestSearchText.orEmpty(), nextPage).first()) {
+        when (
+            val resource = searchInteractor.searchVacancies(
+                expression = latestSearchText.orEmpty(),
+                page = nextPage,
+                filterSettings = currentFilterSettings
+            ).first()
+        ) {
             is Resource.Success -> {
                 val data = resource.data
 
