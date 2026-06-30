@@ -25,7 +25,7 @@ class FilterSettingsFragment : Fragment() {
         ) { _, bundle ->
             val placeOfWork = bundle.getString(PLACE_OF_WORK_BUNDLE_KEY).orEmpty()
             if (placeOfWork.isNotBlank()) {
-                viewModel.onPlaceOfWorkSelected(placeOfWork)
+                viewModel.onPlaceOfWorkSelected()
             }
         }
 
@@ -38,6 +38,11 @@ class FilterSettingsFragment : Fragment() {
                 viewModel.onIndustrySelected(industry)
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.loadSettings()
     }
 
     override fun onCreateView(
@@ -58,7 +63,9 @@ class FilterSettingsFragment : Fragment() {
                             findNavController().navigate(R.id.action_filterSettingsFragment_to_placeOfWorkFragment)
                         },
                         onNavigateToIndustry = {
-                            findNavController().navigate(R.id.action_filterSettingsFragment_to_industrySelectionFragment)
+                            findNavController().navigate(
+                                R.id.action_filterSettingsFragment_to_industrySelectionFragment
+                            )
                         },
                         onApplyClick = {
                             sendFilterAppliedResult()

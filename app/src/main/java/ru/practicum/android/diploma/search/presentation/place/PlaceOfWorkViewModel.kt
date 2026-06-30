@@ -3,29 +3,48 @@ package ru.practicum.android.diploma.search.presentation.place
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import ru.practicum.android.diploma.search.domain.api.FilterInteractor
 
-class PlaceOfWorkViewModel : ViewModel() {
+class PlaceOfWorkViewModel(
+    private val filterInteractor: FilterInteractor
+) : ViewModel() {
 
     private val _state = MutableStateFlow(PlaceOfWorkState())
     val state: StateFlow<PlaceOfWorkState> = _state
 
-    fun onCountrySelected(country: String) {
-        _state.value = _state.value.copy(
-            country = country,
-            region = null
+    init {
+        loadSettings()
+    }
+
+    fun loadSettings() {
+        val settings = filterInteractor.getFilterSettings()
+        _state.value = PlaceOfWorkState(
+            country = settings.countryName,
+            region = settings.regionName
         )
     }
 
     fun onCountryClearClick() {
-        _state.value = _state.value.copy(
-            country = null,
-            region = null
+        val settings = filterInteractor.getFilterSettings()
+        filterInteractor.saveFilterSettings(
+            settings.copy(
+                countryId = null,
+                countryName = null,
+                regionId = null,
+                regionName = null
+            )
         )
+        loadSettings()
     }
 
-    fun onRegionSelected(region: String) {
-        _state.value = _state.value.copy(
-            region = region
+    fun onRegionClearClick() {
+        val settings = filterInteractor.getFilterSettings()
+        filterInteractor.saveFilterSettings(
+            settings.copy(
+                regionId = null,
+                regionName = null
+            )
         )
+        loadSettings()
     }
 }

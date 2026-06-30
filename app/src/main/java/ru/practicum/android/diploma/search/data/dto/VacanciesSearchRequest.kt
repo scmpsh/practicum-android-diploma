@@ -4,5 +4,7 @@ data class VacanciesSearchRequest(
     val expression: String,
     val page: Int = 0,
     val salary: String = "",
-    val onlyWithSalary: Boolean = false
+    val onlyWithSalary: Boolean = false,
+    val area: String? = null,
+    val industry: String? = null
 )

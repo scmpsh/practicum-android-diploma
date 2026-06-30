@@ -131,7 +131,7 @@ val searchModule = module {
     }
 
     viewModel {
-        PlaceOfWorkViewModel()
+        PlaceOfWorkViewModel(get())
     }
 
     viewModel {

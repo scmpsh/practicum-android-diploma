@@ -9,39 +9,50 @@ class FilterPreferences(
 
     fun getFilterSettings(): FilterSettings {
         return FilterSettings(
-            placeOfWork = sharedPreferences.getNullableString(KEY_PLACE_OF_WORK),
-            industry = sharedPreferences.getNullableString(KEY_INDUSTRY),
-            salary = sharedPreferences.getString(KEY_SALARY, "").orEmpty(),
-            doNotShowWithoutSalary = sharedPreferences.getBoolean(KEY_DO_NOT_SHOW_WITHOUT_SALARY, false),
             countryId = sharedPreferences.getNullableInt(KEY_COUNTRY_ID),
-            regionId = sharedPreferences.getNullableInt(KEY_REGION_ID)
+            countryName = sharedPreferences.getNullableString(KEY_COUNTRY_NAME),
+            regionId = sharedPreferences.getNullableInt(KEY_REGION_ID),
+            regionName = sharedPreferences.getNullableString(KEY_REGION_NAME),
+            industryId = sharedPreferences.getNullableString(KEY_INDUSTRY_ID),
+            industryName = sharedPreferences.getNullableString(KEY_INDUSTRY_NAME),
+            salary = sharedPreferences.getNullableInt(KEY_SALARY),
+            onlyWithSalary = sharedPreferences.getBoolean(KEY_ONLY_WITH_SALARY, false)
         )
     }
 
     fun saveFilterSettings(settings: FilterSettings) {
         sharedPreferences.edit()
-            .putNullableString(KEY_PLACE_OF_WORK, settings.placeOfWork)
-            .putNullableString(KEY_INDUSTRY, settings.industry)
-            .putString(KEY_SALARY, settings.salary)
-            .putBoolean(KEY_DO_NOT_SHOW_WITHOUT_SALARY, settings.doNotShowWithoutSalary)
             .putNullableInt(KEY_COUNTRY_ID, settings.countryId)
+            .putNullableString(KEY_COUNTRY_NAME, settings.countryName)
             .putNullableInt(KEY_REGION_ID, settings.regionId)
+            .putNullableString(KEY_REGION_NAME, settings.regionName)
+            .putNullableString(KEY_INDUSTRY_ID, settings.industryId)
+            .putNullableString(KEY_INDUSTRY_NAME, settings.industryName)
+            .putNullableInt(KEY_SALARY, settings.salary)
+            .putBoolean(KEY_ONLY_WITH_SALARY, settings.onlyWithSalary)
             .apply()
     }
 
     fun clearFilterSettings() {
         sharedPreferences.edit()
-            .remove(KEY_PLACE_OF_WORK)
-            .remove(KEY_INDUSTRY)
-            .remove(KEY_SALARY)
-            .remove(KEY_DO_NOT_SHOW_WITHOUT_SALARY)
             .remove(KEY_COUNTRY_ID)
+            .remove(KEY_COUNTRY_NAME)
             .remove(KEY_REGION_ID)
+            .remove(KEY_REGION_NAME)
+            .remove(KEY_INDUSTRY_ID)
+            .remove(KEY_INDUSTRY_NAME)
+            .remove(KEY_SALARY)
+            .remove(KEY_ONLY_WITH_SALARY)
             .apply()
     }
 
     private fun SharedPreferences.getNullableString(key: String): String? {
-        return getString(key, null)?.takeIf { it.isNotBlank() }
+        val value = try {
+            getString(key, null)
+        } catch (ignored: ClassCastException) {
+            all[key]?.toString()
+        }
+        return value?.takeIf { it.isNotBlank() }
     }
 
     private fun SharedPreferences.Editor.putNullableString(
@@ -56,8 +67,12 @@ class FilterPreferences(
     }
 
     private fun SharedPreferences.getNullableInt(key: String): Int? {
-        val value = getInt(key, UNKNOWN_ID)
-        return if (value == UNKNOWN_ID) null else value
+        return try {
+            val value = getInt(key, UNKNOWN_ID)
+            if (value == UNKNOWN_ID) null else value
+        } catch (ignored: ClassCastException) {
+            all[key]?.toString()?.toIntOrNull()
+        }
     }
 
     private fun SharedPreferences.Editor.putNullableInt(
@@ -72,12 +87,14 @@ class FilterPreferences(
     }
 
     private companion object {
-        const val KEY_PLACE_OF_WORK = "place_of_work"
-        const val KEY_INDUSTRY = "industry"
-        const val KEY_SALARY = "salary"
-        const val KEY_DO_NOT_SHOW_WITHOUT_SALARY = "do_not_show_without_salary"
         const val KEY_COUNTRY_ID = "country_id"
+        const val KEY_COUNTRY_NAME = "country_name"
         const val KEY_REGION_ID = "region_id"
+        const val KEY_REGION_NAME = "region_name"
+        const val KEY_INDUSTRY_ID = "industry_id"
+        const val KEY_INDUSTRY_NAME = "industry_name"
+        const val KEY_SALARY = "salary"
+        const val KEY_ONLY_WITH_SALARY = "only_with_salary"
         const val UNKNOWN_ID = -1
     }
 }
