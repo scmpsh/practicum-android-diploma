@@ -32,7 +32,6 @@ import androidx.compose.ui.unit.dp
 import ru.practicum.android.diploma.R
 import ru.practicum.android.diploma.search.domain.models.FilterArea
 import ru.practicum.android.diploma.search.presentation.models.CountriesState
-import ru.practicum.android.diploma.ui.theme.Black
 
 @Composable
 fun CountrySelectionScreen(
@@ -64,6 +63,7 @@ fun CountrySelectionScreen(
                     CircularProgressIndicator()
                 }
             }
+
             is CountriesState.Content -> {
                 val areas = (state as CountriesState.Content).data
                 CountriesList(
@@ -72,8 +72,7 @@ fun CountrySelectionScreen(
                 )
             }
 
-            is CountriesState.Error -> {
-            }
+            is CountriesState.Error -> Unit
         }
     }
 }
@@ -113,13 +112,14 @@ private fun CountrySelectionTopBar(
             Icon(
                 imageVector = Icons.Default.ArrowBack,
                 contentDescription = stringResource(R.string.back),
-                tint = Black
+                tint = MaterialTheme.colorScheme.onBackground
             )
         }
+
         Text(
             text = stringResource(R.string.choose_country),
             style = MaterialTheme.typography.headlineMedium,
-            color = Black,
+            color = MaterialTheme.colorScheme.onBackground,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
@@ -142,7 +142,7 @@ private fun AreaItem(
         Text(
             text = area.name,
             style = MaterialTheme.typography.bodyMedium,
-            color = Black,
+            color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier.weight(1f),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
@@ -151,7 +151,7 @@ private fun AreaItem(
         Icon(
             imageVector = Icons.Default.KeyboardArrowRight,
             contentDescription = null,
-            tint = Black
+            tint = MaterialTheme.colorScheme.onBackground
         )
     }
 }

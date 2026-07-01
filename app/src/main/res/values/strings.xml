@@ -33,6 +33,7 @@
     <string name="no_internet_error">Нет интернета</string>
     <string name="no_vacancies">Таких вакансий нет</string>
     <string name="no_vacancies_error">Не удалось получить \n список вакансий</string>
+    <string name="search_server_error">Ошибка сервера</string>
 
 
     <string name="team_screen_subtitle">Над приложением&#10;работали</string>
@@ -58,7 +59,7 @@
     <string name="send_email">Написать на почту</string>
     <string name="make_call">Позвонить</string>
     <string name="share_link">Поделиться ссылкой</string>
-
+    <string name="industry_search_hint">Введите отрасль</string>
     <!-- Экран избранных вакансий-->
     <string name="favorite_vacancies_title">Избранное</string>
     <string name="no_favorite_vacancies">Список пуст</string>
@@ -94,5 +95,6 @@
     <string name="place_of_work_apply">Применить</string>
 
     <string name="filter">Фильтр</string>
+
 
 </resources>

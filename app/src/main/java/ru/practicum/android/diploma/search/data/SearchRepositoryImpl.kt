@@ -28,7 +28,7 @@ class SearchRepositoryImpl(
                 page = page,
                 salary = filterSettings.salary?.toString().orEmpty(),
                 onlyWithSalary = filterSettings.onlyWithSalary,
-                area = (filterSettings.regionId ?: filterSettings.countryId)?.toString(),
+                area = filterSettings.regionId?.toString(),
                 industry = filterSettings.industryId
             )
         )

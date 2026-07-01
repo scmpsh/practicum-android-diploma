@@ -31,7 +31,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -42,6 +41,10 @@ import ru.practicum.android.diploma.R
 import ru.practicum.android.diploma.search.domain.models.FilterArea
 import ru.practicum.android.diploma.search.presentation.models.RegionsState
 import ru.practicum.android.diploma.ui.theme.Black
+import ru.practicum.android.diploma.ui.theme.Blue
+import ru.practicum.android.diploma.ui.theme.Grey
+import ru.practicum.android.diploma.ui.theme.LightGrey
+import ru.practicum.android.diploma.ui.theme.White
 
 @Composable
 fun RegionsSelectionScreen(
@@ -55,7 +58,6 @@ fun RegionsSelectionScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp)
             .background(MaterialTheme.colorScheme.background)
     ) {
         RegionsSelectionTopBar(
@@ -67,7 +69,8 @@ fun RegionsSelectionScreen(
             onValueChange = viewModel::onSearchTextChanged,
             onClearClick = {
                 viewModel.onSearchTextChanged("")
-            }
+            },
+            modifier = Modifier.padding(horizontal = 16.dp)
         )
 
         when (state) {
@@ -135,14 +138,14 @@ private fun RegionsSelectionTopBar(
             Icon(
                 imageVector = Icons.Default.ArrowBack,
                 contentDescription = stringResource(R.string.back),
-                tint = Black
+                tint = MaterialTheme.colorScheme.onBackground
             )
         }
 
         Text(
             text = stringResource(R.string.choose_region_title),
             style = MaterialTheme.typography.headlineMedium,
-            color = Black,
+            color = MaterialTheme.colorScheme.onBackground,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
@@ -158,13 +161,14 @@ private fun AreaItem(
         modifier = Modifier
             .fillMaxWidth()
             .height(60.dp)
-            .clickable { onClick(area) },
+            .clickable { onClick(area) }
+            .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
             text = area.name,
             style = MaterialTheme.typography.bodyMedium,
-            color = Black,
+            color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier.weight(1f),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
@@ -173,7 +177,7 @@ private fun AreaItem(
         Icon(
             imageVector = Icons.Default.KeyboardArrowRight,
             contentDescription = null,
-            tint = Black
+            tint = MaterialTheme.colorScheme.onBackground
         )
     }
 }
@@ -183,62 +187,38 @@ fun SearchTextField(
     value: String,
     onValueChange: (String) -> Unit,
     onClearClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    val isDark = isSystemInDarkTheme()
+    val isDarkTheme = isSystemInDarkTheme()
 
-    val colors = rememberSearchFieldColors(isDark)
-
-    SearchTextFieldContent(
-        value = value,
-        onValueChange = onValueChange,
-        onClearClick = onClearClick,
-        colors = colors
-    )
-}
-
-private data class SearchFieldColors(
-    val barColor: Color,
-    val hintColor: Color,
-    val contentColor: Color,
-    val iconTint: Color
-)
-
-@Composable
-private fun rememberSearchFieldColors(isDark: Boolean): SearchFieldColors {
-    return if (isDark) {
-        SearchFieldColors(
-            barColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            hintColor = Color.White,
-            contentColor = Color.Black,
-            iconTint = Color.Black
-        )
+    val searchFieldBackground = if (isDarkTheme) {
+        Grey
     } else {
-        SearchFieldColors(
-            barColor = MaterialTheme.colorScheme.surfaceVariant,
-            hintColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.45f),
-            contentColor = MaterialTheme.colorScheme.onSurface,
-            iconTint = MaterialTheme.colorScheme.onSurface
-        )
+        LightGrey
     }
-}
 
-@Composable
-private fun SearchTextFieldContent(
-    value: String,
-    onValueChange: (String) -> Unit,
-    onClearClick: () -> Unit,
-    colors: SearchFieldColors
-) {
+    val searchFieldTextColor = if (isDarkTheme) {
+        White
+    } else {
+        Black
+    }
+
+    val searchFieldHintColor = if (isDarkTheme) {
+        White
+    } else {
+        Grey
+    }
+
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(56.dp)
             .background(
-                color = colors.barColor,
+                color = searchFieldBackground,
                 shape = RoundedCornerShape(12.dp),
             )
             .padding(
-                start = 8.dp,
+                start = 16.dp,
                 top = 4.dp,
                 end = 4.dp,
                 bottom = 4.dp,
@@ -246,16 +226,14 @@ private fun SearchTextFieldContent(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(
-            modifier = Modifier
-                .weight(1f)
-                .padding(start = 8.dp),
+            modifier = Modifier.weight(1f),
             contentAlignment = Alignment.CenterStart,
         ) {
             if (value.isEmpty()) {
                 Text(
                     text = stringResource(R.string.choose_region_search_hint),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = colors.hintColor,
+                    color = searchFieldHintColor,
                 )
             }
 
@@ -264,9 +242,9 @@ private fun SearchTextFieldContent(
                 onValueChange = onValueChange,
                 singleLine = true,
                 textStyle = MaterialTheme.typography.bodyMedium.copy(
-                    color = colors.contentColor,
+                    color = searchFieldTextColor,
                 ),
-                cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                cursorBrush = SolidColor(Blue),
                 modifier = Modifier.fillMaxWidth(),
             )
         }
@@ -288,7 +266,7 @@ private fun SearchTextFieldContent(
                     },
                 ),
                 contentDescription = null,
-                tint = colors.iconTint,
+                tint = Black,
             )
         }
     }
@@ -333,7 +311,7 @@ fun RegionErrorPlaceholder() {
         Spacer(modifier = Modifier.height(82.dp))
 
         Image(
-            painter = painterResource(R.drawable.img_regions_error),
+            painter = painterResource(R.drawable.il_regions_error),
             contentDescription = null,
             modifier = Modifier.size(
                 width = 328.dp,

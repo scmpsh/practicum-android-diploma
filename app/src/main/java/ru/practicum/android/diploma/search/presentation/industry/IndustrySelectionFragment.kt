@@ -10,34 +10,43 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import ru.practicum.android.diploma.search.domain.api.FilterInteractor
 import ru.practicum.android.diploma.search.presentation.filter.FilterSettingsFragment.Companion.INDUSTRY_BUNDLE_KEY
+import ru.practicum.android.diploma.search.presentation.filter.FilterSettingsFragment.Companion.INDUSTRY_ID_BUNDLE_KEY
 import ru.practicum.android.diploma.search.presentation.filter.FilterSettingsFragment.Companion.INDUSTRY_RESULT_KEY
+import ru.practicum.android.diploma.search.presentation.models.IndustriesViewModel
 import ru.practicum.android.diploma.ui.theme.AppTheme
 
 class IndustrySelectionFragment : Fragment() {
 
     private val filterInteractor: FilterInteractor by inject()
+    private val viewModel: IndustriesViewModel by viewModel()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
-        val currentIndustry = filterInteractor.getFilterSettings().industryName
+        val currentIndustryId = filterInteractor.getFilterSettings().industryId
+
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 AppTheme {
                     IndustrySelectionScreen(
-                        initialIndustry = currentIndustry,
+                        viewModel = viewModel,
+                        initialIndustryId = currentIndustryId,
                         onNavigateBack = {
                             findNavController().popBackStack()
                         },
                         onIndustryClick = { industry ->
                             parentFragmentManager.setFragmentResult(
                                 INDUSTRY_RESULT_KEY,
-                                bundleOf(INDUSTRY_BUNDLE_KEY to industry)
+                                bundleOf(
+                                    INDUSTRY_ID_BUNDLE_KEY to industry.id.toString(),
+                                    INDUSTRY_BUNDLE_KEY to industry.name
+                                )
                             )
                             findNavController().popBackStack()
                         }

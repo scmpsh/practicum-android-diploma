@@ -20,18 +20,26 @@ class FilterSettingsViewModel(
     fun loadSettings() {
         val settings = filterInteractor.getFilterSettings()
         val placeOfWorkText = when {
-            settings.countryName != null && settings.regionName != null ->
+            settings.countryName != null && settings.regionName != null -> {
                 "${settings.countryName}, ${settings.regionName}"
-            settings.countryName != null -> settings.countryName
-            settings.regionName != null -> settings.regionName
+            }
+
+            settings.countryName != null -> {
+                settings.countryName
+            }
+
+            settings.regionName != null -> {
+                settings.regionName
+            }
+
             else -> null
         }
 
         _state.value = FilterSettingsState(
             placeOfWork = placeOfWorkText,
             industry = settings.industryName,
-            salary = settings.salary?.toString() ?: "",
-            doNotShowWithoutSalary = settings.onlyWithSalary ?: false
+            salary = settings.salary?.toString().orEmpty(),
+            doNotShowWithoutSalary = settings.onlyWithSalary
         )
     }
 
@@ -57,25 +65,20 @@ class FilterSettingsViewModel(
         saveCurrentFilters()
     }
 
-    private fun saveCurrentFilters() {
-        val currentState = _state.value
-        val currentSaved = filterInteractor.getFilterSettings()
-        filterInteractor.saveFilterSettings(
-            currentSaved.copy(
-                salary = currentState.salary.toIntOrNull(),
-                onlyWithSalary = currentState.doNotShowWithoutSalary
-            )
-        )
-    }
-
     fun onPlaceOfWorkSelected() {
         loadSettings()
     }
 
-    fun onIndustrySelected(value: String) {
+    fun onIndustrySelected(
+        industryId: String,
+        industryName: String
+    ) {
         val currentSaved = filterInteractor.getFilterSettings()
         filterInteractor.saveFilterSettings(
-            currentSaved.copy(industryName = value)
+            currentSaved.copy(
+                industryId = industryId,
+                industryName = industryName
+            )
         )
         loadSettings()
     }
@@ -107,5 +110,16 @@ class FilterSettingsViewModel(
     fun onResetClick() {
         filterInteractor.saveFilterSettings(FilterSettings())
         _state.value = FilterSettingsState()
+    }
+
+    private fun saveCurrentFilters() {
+        val currentState = _state.value
+        val currentSaved = filterInteractor.getFilterSettings()
+        filterInteractor.saveFilterSettings(
+            currentSaved.copy(
+                salary = currentState.salary.toIntOrNull(),
+                onlyWithSalary = currentState.doNotShowWithoutSalary
+            )
+        )
     }
 }

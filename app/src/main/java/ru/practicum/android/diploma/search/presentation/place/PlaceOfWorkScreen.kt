@@ -3,13 +3,16 @@ package ru.practicum.android.diploma.search.presentation.place
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
@@ -29,7 +32,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ru.practicum.android.diploma.R
-import ru.practicum.android.diploma.ui.theme.Black
 import ru.practicum.android.diploma.ui.theme.Blue
 import ru.practicum.android.diploma.ui.theme.Grey
 import ru.practicum.android.diploma.ui.theme.White
@@ -69,25 +71,35 @@ fun PlaceOfWorkScreen(
         Spacer(modifier = Modifier.weight(1f))
 
         if (state.hasSelectedPlace) {
-            Button(
-                onClick = {
-                    onApplyClick(state.placeTitle)
-                },
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Blue,
-                    contentColor = White
-                )
+                    .navigationBarsPadding()
+                    .padding(start = 17.dp, end = 17.dp, bottom = 24.dp)
             ) {
-                Text(
-                    text = stringResource(R.string.choose_button_text),
-                    style = MaterialTheme.typography.labelLarge
-                )
+                Button(
+                    onClick = {
+                        onApplyClick(state.placeTitle)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(59.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    contentPadding = PaddingValues(
+                        horizontal = 8.dp,
+                        vertical = 20.dp
+                    ),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Blue,
+                        contentColor = White
+                    )
+                ) {
+                    Text(
+                        text = stringResource(R.string.choose_button_text),
+                        style = MaterialTheme.typography.labelLarge
+                    )
+                }
             }
-
-            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
@@ -110,14 +122,14 @@ private fun PlaceOfWorkTopBar(
             Icon(
                 imageVector = Icons.Default.ArrowBack,
                 contentDescription = stringResource(R.string.back),
-                tint = Black
+                tint = MaterialTheme.colorScheme.onBackground
             )
         }
 
         Text(
             text = stringResource(R.string.place_of_work),
             style = MaterialTheme.typography.headlineMedium,
-            color = Black,
+            color = MaterialTheme.colorScheme.onBackground,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
@@ -153,7 +165,7 @@ private fun CountryMenuItem(
                 Text(
                     text = stringResource(R.string.place_of_work_country),
                     style = MaterialTheme.typography.bodySmall,
-                    color = Black,
+                    color = MaterialTheme.colorScheme.onBackground,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -161,7 +173,7 @@ private fun CountryMenuItem(
                 Text(
                     text = country,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Black,
+                    color = MaterialTheme.colorScheme.onBackground,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -175,14 +187,14 @@ private fun CountryMenuItem(
                 Icon(
                     imageVector = Icons.Default.Close,
                     contentDescription = stringResource(R.string.search_clear_description),
-                    tint = Black
+                    tint = MaterialTheme.colorScheme.onBackground
                 )
             }
         } else {
             Icon(
                 imageVector = Icons.Default.KeyboardArrowRight,
                 contentDescription = null,
-                tint = Black
+                tint = MaterialTheme.colorScheme.onBackground
             )
         }
     }
@@ -218,7 +230,7 @@ private fun PlaceOfWorkMenuItem(
                 Text(
                     text = title,
                     style = MaterialTheme.typography.bodySmall,
-                    color = Black,
+                    color = MaterialTheme.colorScheme.onBackground,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -226,7 +238,7 @@ private fun PlaceOfWorkMenuItem(
                 Text(
                     text = value,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Black,
+                    color = MaterialTheme.colorScheme.onBackground,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -240,14 +252,14 @@ private fun PlaceOfWorkMenuItem(
                 Icon(
                     imageVector = Icons.Default.Close,
                     contentDescription = stringResource(R.string.search_clear_description),
-                    tint = Black
+                    tint = MaterialTheme.colorScheme.onBackground
                 )
             }
         } else {
             Icon(
                 imageVector = Icons.Default.KeyboardArrowRight,
                 contentDescription = null,
-                tint = Black
+                tint = MaterialTheme.colorScheme.onBackground
             )
         }
     }
