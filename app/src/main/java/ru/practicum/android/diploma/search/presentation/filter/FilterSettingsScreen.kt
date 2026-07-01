@@ -3,13 +3,16 @@ package ru.practicum.android.diploma.search.presentation.filter
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -30,8 +33,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -118,41 +125,56 @@ private fun FilterSettingsContent(
         Spacer(modifier = Modifier.weight(1f))
 
         if (state.hasAnyFilter) {
-            Button(
-                onClick = onApplyClick,
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Blue,
-                    contentColor = White
-                )
+                    .navigationBarsPadding()
+                    .padding(start = 17.dp, end = 17.dp, bottom = 24.dp)
             ) {
-                Text(
-                    text = stringResource(R.string.apply_button_text),
-                    style = MaterialTheme.typography.labelLarge
-                )
+                Button(
+                    onClick = onApplyClick,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(59.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    contentPadding = PaddingValues(
+                        horizontal = 8.dp,
+                        vertical = 20.dp
+                    ),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Blue,
+                        contentColor = White
+                    )
+                ) {
+                    Text(
+                        text = stringResource(R.string.apply_button_text),
+                        style = MaterialTheme.typography.labelLarge
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                TextButton(
+                    onClick = {
+                        onResetClick()
+                        onResetAppliedClick()
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(59.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    contentPadding = PaddingValues(
+                        horizontal = 8.dp,
+                        vertical = 20.dp
+                    )
+                ) {
+                    Text(
+                        text = stringResource(R.string.cancel_button_text),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
             }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            TextButton(
-                onClick = {
-                    onResetClick()
-                    onResetAppliedClick()
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.cancel_button_text),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.error
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
@@ -175,14 +197,14 @@ private fun FilterTopBar(
             Icon(
                 imageVector = Icons.Default.ArrowBack,
                 contentDescription = stringResource(R.string.back),
-                tint = Black
+                tint = MaterialTheme.colorScheme.onBackground
             )
         }
 
         Text(
             text = stringResource(R.string.filter_settings_title),
             style = MaterialTheme.typography.headlineMedium,
-            color = Black,
+            color = MaterialTheme.colorScheme.onBackground,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
@@ -209,7 +231,11 @@ private fun FilterMenuItem(
             Text(
                 text = title,
                 style = MaterialTheme.typography.bodyMedium,
-                color = Grey,
+                color = if (value.isNullOrBlank()) {
+                    Grey
+                } else {
+                    MaterialTheme.colorScheme.onBackground
+                },
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -220,7 +246,7 @@ private fun FilterMenuItem(
                 Text(
                     text = value,
                     style = MaterialTheme.typography.bodySmall,
-                    color = Black,
+                    color = MaterialTheme.colorScheme.onBackground,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -230,7 +256,7 @@ private fun FilterMenuItem(
         Icon(
             imageVector = Icons.Default.KeyboardArrowRight,
             contentDescription = null,
-            tint = Black
+            tint = MaterialTheme.colorScheme.onBackground
         )
     }
 }
@@ -241,14 +267,44 @@ private fun SalaryInput(
     onSalaryChange: (String) -> Unit,
     onClearClick: () -> Unit
 ) {
+    val isDarkTheme = isSystemInDarkTheme()
+
+    var isFocused by remember {
+        mutableStateOf(false)
+    }
+
+    val salaryBackgroundColor = if (isDarkTheme) {
+        Grey
+    } else {
+        LightGrey
+    }
+
+    val salaryTextColor = if (isDarkTheme) {
+        White
+    } else {
+        Black
+    }
+
+    val salaryHintColor = if (isDarkTheme) {
+        White
+    } else {
+        Grey
+    }
+
+    val salaryTitleColor = if (isFocused) {
+        Blue
+    } else {
+        salaryHintColor
+    }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-            .padding(top = 12.dp)
-            .height(60.dp)
+            .padding(top = 20.dp)
+            .height(52.dp)
             .background(
-                color = LightGrey,
+                color = salaryBackgroundColor,
                 shape = RoundedCornerShape(12.dp)
             )
             .padding(start = 16.dp, end = 4.dp),
@@ -260,7 +316,7 @@ private fun SalaryInput(
             Text(
                 text = stringResource(R.string.filter_settings_salary_title),
                 style = MaterialTheme.typography.bodySmall,
-                color = Grey,
+                color = salaryTitleColor,
                 maxLines = 1
             )
 
@@ -274,7 +330,7 @@ private fun SalaryInput(
                     Text(
                         text = stringResource(R.string.input_amount_hint),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = Grey
+                        color = salaryHintColor
                     )
                 }
 
@@ -282,14 +338,18 @@ private fun SalaryInput(
                     value = salary,
                     onValueChange = onSalaryChange,
                     textStyle = MaterialTheme.typography.bodyMedium.copy(
-                        color = Black
+                        color = salaryTextColor
                     ),
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Number
                     ),
                     cursorBrush = SolidColor(Blue),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .onFocusChanged { focusState ->
+                            isFocused = focusState.isFocused
+                        }
                 )
             }
         }
@@ -301,7 +361,7 @@ private fun SalaryInput(
                 Icon(
                     imageVector = Icons.Default.Close,
                     contentDescription = stringResource(R.string.search_clear_description),
-                    tint = Black
+                    tint = salaryTextColor
                 )
             }
         } else {
@@ -326,7 +386,7 @@ private fun DoNotShowWithoutSalaryCheckbox(
         Text(
             text = stringResource(R.string.do_not_show_without_salary_title),
             style = MaterialTheme.typography.bodyMedium,
-            color = Black,
+            color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier.weight(1f)
         )
 

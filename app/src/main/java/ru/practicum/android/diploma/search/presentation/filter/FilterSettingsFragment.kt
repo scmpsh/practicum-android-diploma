@@ -33,9 +33,14 @@ class FilterSettingsFragment : Fragment() {
             INDUSTRY_RESULT_KEY,
             this
         ) { _, bundle ->
-            val industry = bundle.getString(INDUSTRY_BUNDLE_KEY).orEmpty()
-            if (industry.isNotBlank()) {
-                viewModel.onIndustrySelected(industry)
+            val industryId = bundle.getString(INDUSTRY_ID_BUNDLE_KEY).orEmpty()
+            val industryName = bundle.getString(INDUSTRY_BUNDLE_KEY).orEmpty()
+
+            if (industryId.isNotBlank() && industryName.isNotBlank()) {
+                viewModel.onIndustrySelected(
+                    industryId = industryId,
+                    industryName = industryName
+                )
             }
         }
     }
@@ -60,7 +65,9 @@ class FilterSettingsFragment : Fragment() {
                             findNavController().popBackStack()
                         },
                         onNavigateToPlaceOfWork = {
-                            findNavController().navigate(R.id.action_filterSettingsFragment_to_placeOfWorkFragment)
+                            findNavController().navigate(
+                                R.id.action_filterSettingsFragment_to_placeOfWorkFragment
+                            )
                         },
                         onNavigateToIndustry = {
                             findNavController().navigate(
@@ -71,7 +78,7 @@ class FilterSettingsFragment : Fragment() {
                             sendFilterAppliedResult()
                         },
                         onResetAppliedClick = {
-                            sendFilterAppliedResult()
+                            // После сброса остаёмся на экране фильтра
                         }
                     )
                 }
@@ -89,6 +96,7 @@ class FilterSettingsFragment : Fragment() {
         const val PLACE_OF_WORK_BUNDLE_KEY = "placeOfWorkBundleKey"
 
         const val INDUSTRY_RESULT_KEY = "industryResultKey"
+        const val INDUSTRY_ID_BUNDLE_KEY = "industryIdBundleKey"
         const val INDUSTRY_BUNDLE_KEY = "industryBundleKey"
 
         const val FILTER_APPLIED_RESULT_KEY = "filterAppliedResultKey"

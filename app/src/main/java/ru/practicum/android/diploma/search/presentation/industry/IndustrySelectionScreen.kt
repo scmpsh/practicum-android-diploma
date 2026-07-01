@@ -3,16 +3,20 @@ package ru.practicum.android.diploma.search.presentation.industry
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -27,6 +31,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,56 +42,64 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ru.practicum.android.diploma.R
+import ru.practicum.android.diploma.search.domain.models.IndustryFilter
+import ru.practicum.android.diploma.search.presentation.models.IndustriesState
+import ru.practicum.android.diploma.search.presentation.models.IndustriesViewModel
 import ru.practicum.android.diploma.ui.theme.Black
 import ru.practicum.android.diploma.ui.theme.Blue
 import ru.practicum.android.diploma.ui.theme.Grey
 import ru.practicum.android.diploma.ui.theme.LightGrey
 import ru.practicum.android.diploma.ui.theme.White
+import java.text.Collator
+import java.util.Locale
 
 @Composable
 fun IndustrySelectionScreen(
-    initialIndustry: String?,
+    viewModel: IndustriesViewModel,
+    initialIndustryId: String?,
     onNavigateBack: () -> Unit,
-    onIndustryClick: (String) -> Unit,
+    onIndustryClick: (IndustryFilter) -> Unit,
 ) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
+
     var searchQuery by remember { mutableStateOf("") }
-    var selectedIndustry by remember { mutableStateOf<String?>(initialIndustry) }
+    var selectedIndustryId by remember(initialIndustryId) {
+        mutableStateOf(initialIndustryId)
+    }
 
-    val industries = listOf(
-        "IT",
-        "Автомобильный бизнес",
-        "Административный персонал",
-        "Безопасность",
-        "Высший менеджмент",
-        "Добыча сырья",
-        "Домашний персонал",
-        "Закупки",
-        "Инсталляция и сервис",
-        "Искусство, развлечения, массмедиа",
-        "Консультирование",
-        "Маркетинг, реклама, PR",
-        "Медицина, фармацевтика",
-        "Наука, образование",
-        "Продажи",
-        "Производство, сервисное обслуживание",
-        "Рабочий персонал",
-        "Строительство, недвижимость",
-        "Транспорт, логистика",
-        "Туризм, гостиницы, рестораны",
-        "Управление персоналом",
-        "Финансы, бухгалтерия",
-        "Юристы"
-    )
+    LaunchedEffect(Unit) {
+        viewModel.loadIndustries()
+    }
 
-    val filteredIndustries = remember(searchQuery) {
-        if (searchQuery.isBlank()) {
+    val russianCollator = remember {
+        Collator.getInstance(Locale("ru", "RU"))
+    }
+
+    val industries = remember(state) {
+        (state as? IndustriesState.Content)
+            ?.industries
+            .orEmpty()
+            .sortedWith { first, second ->
+                russianCollator.compare(first.name, second.name)
+            }
+    }
+
+    val filteredIndustries = remember(searchQuery, industries) {
+        val query = searchQuery.trim().lowercase()
+
+        if (query.isBlank()) {
             industries
         } else {
-            industries.filter {
-                it.contains(searchQuery, ignoreCase = true)
+            industries.filter { industry ->
+                industry.matchesQuery(query)
             }
         }
+    }
+
+    val selectedIndustry = industries.firstOrNull { industry ->
+        industry.id.toString() == selectedIndustryId
     }
 
     Column(
@@ -108,40 +121,88 @@ fun IndustrySelectionScreen(
             }
         )
 
-        Column(
+        Box(
             modifier = Modifier.weight(1f)
         ) {
-            filteredIndustries.forEach { industry ->
-                IndustryItem(
-                    title = industry,
-                    selected = selectedIndustry == industry,
-                    onClick = {
-                        selectedIndustry = industry
+            when (state) {
+                is IndustriesState.Content -> {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        items(
+                            items = filteredIndustries,
+                            key = { industry -> industry.id }
+                        ) { industry ->
+                            IndustryItem(
+                                title = industry.name,
+                                selected = selectedIndustryId == industry.id.toString(),
+                                onClick = {
+                                    val clickedIndustryId = industry.id.toString()
+                                    selectedIndustryId = if (selectedIndustryId == clickedIndustryId) {
+                                        null
+                                    } else {
+                                        clickedIndustryId
+                                    }
+                                }
+                            )
+                        }
                     }
-                )
+                }
+
+                IndustriesState.Empty -> {
+                    Text(
+                        text = stringResource(R.string.choose_region_not_found),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Grey,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
+
+                IndustriesState.Error,
+                IndustriesState.NoInternet -> {
+                    Text(
+                        text = stringResource(R.string.industry_server_error),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Grey,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
+
+                IndustriesState.Initial,
+                IndustriesState.Loading -> Unit
             }
         }
 
-        if (!selectedIndustry.isNullOrBlank()) {
-            Button(
-                onClick = {
-                    onIndustryClick(selectedIndustry.orEmpty())
-                },
+        if (selectedIndustry != null) {
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Blue,
-                    contentColor = White
-                )
+                    .navigationBarsPadding()
+                    .padding(start = 17.dp, end = 17.dp, bottom = 24.dp)
             ) {
-                Text(
-                    text = stringResource(R.string.choose_button_text),
-                    style = MaterialTheme.typography.labelLarge
-                )
+                Button(
+                    onClick = {
+                        onIndustryClick(selectedIndustry)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(59.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    contentPadding = PaddingValues(
+                        horizontal = 8.dp,
+                        vertical = 20.dp
+                    ),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Blue,
+                        contentColor = White
+                    )
+                ) {
+                    Text(
+                        text = stringResource(R.string.choose_button_text),
+                        style = MaterialTheme.typography.labelLarge
+                    )
+                }
             }
-
-            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
@@ -164,14 +225,14 @@ private fun IndustrySelectionTopBar(
             Icon(
                 imageVector = Icons.Default.ArrowBack,
                 contentDescription = stringResource(R.string.back),
-                tint = Black
+                tint = MaterialTheme.colorScheme.onBackground
             )
         }
 
         Text(
             text = stringResource(R.string.industry_choice_title),
             style = MaterialTheme.typography.headlineMedium,
-            color = Black,
+            color = MaterialTheme.colorScheme.onBackground,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
@@ -184,13 +245,33 @@ private fun IndustrySearchField(
     onValueChange: (String) -> Unit,
     onClearClick: () -> Unit
 ) {
+    val isDarkTheme = isSystemInDarkTheme()
+
+    val searchFieldBackground = if (isDarkTheme) {
+        Grey
+    } else {
+        LightGrey
+    }
+
+    val searchFieldTextColor = if (isDarkTheme) {
+        White
+    } else {
+        Black
+    }
+
+    val searchFieldHintColor = if (isDarkTheme) {
+        White
+    } else {
+        Grey
+    }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-            .height(48.dp)
+            .height(56.dp)
             .background(
-                color = LightGrey,
+                color = searchFieldBackground,
                 shape = RoundedCornerShape(12.dp)
             )
             .padding(start = 16.dp, end = 4.dp),
@@ -202,9 +283,9 @@ private fun IndustrySearchField(
         ) {
             if (value.isBlank()) {
                 Text(
-                    text = "Введите отрасль",
+                    text = stringResource(R.string.industry_search_hint),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Grey
+                    color = searchFieldHintColor
                 )
             }
 
@@ -212,7 +293,7 @@ private fun IndustrySearchField(
                 value = value,
                 onValueChange = onValueChange,
                 textStyle = MaterialTheme.typography.bodyMedium.copy(
-                    color = Black
+                    color = searchFieldTextColor
                 ),
                 singleLine = true,
                 cursorBrush = SolidColor(Blue),
@@ -221,6 +302,7 @@ private fun IndustrySearchField(
         }
 
         IconButton(
+            modifier = Modifier.size(48.dp),
             onClick = {
                 if (value.isNotBlank()) {
                     onClearClick()
@@ -257,7 +339,7 @@ private fun IndustryItem(
         Text(
             text = title,
             style = MaterialTheme.typography.bodyMedium,
-            color = Black,
+            color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier.weight(1f),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
@@ -295,3 +377,23 @@ private fun IndustryRadioButton(
         }
     }
 }
+
+private fun IndustryFilter.matchesQuery(query: String): Boolean {
+    val normalizedName = name.lowercase()
+
+    if (normalizedName.contains(query)) {
+        return true
+    }
+
+    val isItQuery = query == IT_QUERY || query == IT_QUERY_CYRILLIC
+
+    return isItQuery && (
+        normalizedName.contains("информацион") ||
+            normalizedName.contains("интернет") ||
+            normalizedName.contains("программ") ||
+            normalizedName.contains("software")
+        )
+}
+
+private const val IT_QUERY = "it"
+private const val IT_QUERY_CYRILLIC = "ит"

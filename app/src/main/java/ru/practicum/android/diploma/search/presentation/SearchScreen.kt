@@ -130,7 +130,7 @@ private fun SearchStateContent(
         SearchState.Initial -> {
             if (searchQuery.isBlank()) {
                 Image(
-                    painter = painterResource(R.drawable.ic_search_placeholder),
+                    painter = painterResource(R.drawable.ii_search_placeholder),
                     contentDescription = null,
                     modifier = Modifier.size(
                         width = 328.dp,
