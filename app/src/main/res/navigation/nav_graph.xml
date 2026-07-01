@@ -37,8 +37,47 @@
 
     <fragment
         android:id="@+id/filterSettingsFragment"
-        android:name="ru.practicum.android.diploma.search.presentation.FilterSettingsFragment"
-        android:label="@string/filter_settings_title" />
+        android:name="ru.practicum.android.diploma.search.presentation.filter.FilterSettingsFragment"
+        android:label="@string/filter_settings_title">
+
+        <action
+            android:id="@+id/action_filterSettingsFragment_to_placeOfWorkFragment"
+            app:destination="@id/placeOfWorkFragment" />
+
+        <action
+            android:id="@+id/action_filterSettingsFragment_to_industrySelectionFragment"
+            app:destination="@id/industrySelectionFragment" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/placeOfWorkFragment"
+        android:name="ru.practicum.android.diploma.search.presentation.place.PlaceOfWorkFragment"
+        android:label="@string/place_of_work">
+
+        <action
+            android:id="@+id/action_placeOfWorkFragment_to_countrySelectionFragment"
+            app:destination="@id/countrySelectionFragment" />
+        <action
+            android:id="@+id/action_placeOfWorkFragment_to_regionSelectionFragment"
+            app:destination="@id/regionSelectionFragment" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/countrySelectionFragment"
+        android:name="ru.practicum.android.diploma.search.presentation.country.CountrySelectionFragment"
+        android:label="@string/choose_country" />
+
+    <fragment
+        android:id="@+id/regionSelectionFragment"
+        android:name="ru.practicum.android.diploma.search.presentation.regions.RegionSelectionFragment"
+        android:label="@string/choose_region_title" />
+
+    <fragment
+        android:id="@+id/industrySelectionFragment"
+        android:name="ru.practicum.android.diploma.search.presentation.industry.IndustrySelectionFragment"
+        android:label="@string/industry_choice_title" />
 
     <fragment
         android:id="@+id/vacancyDetailsFragment"
@@ -48,6 +87,11 @@
         <argument
             android:name="vacancyId"
             app:argType="string" />
+
+        <argument
+            android:name="logoUrl"
+            app:argType="string"
+            android:defaultValue="" />
 
     </fragment>
 

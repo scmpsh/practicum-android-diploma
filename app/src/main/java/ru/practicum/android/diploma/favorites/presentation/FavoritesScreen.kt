@@ -109,7 +109,7 @@ fun FavoritesEmpty() {
         Spacer(Modifier.weight(1f))
 
         Image(
-            painter = painterResource(R.drawable.img_favorites_empty),
+            painter = painterResource(R.drawable.il_favorites_empty),
             contentDescription = null,
             modifier = Modifier
                 .fillMaxWidth()
@@ -139,7 +139,7 @@ fun FavoritesError() {
         Spacer(Modifier.weight(1f))
 
         Image(
-            painter = painterResource(R.drawable.img_favorites_error),
+            painter = painterResource(R.drawable.il_favorites_error),
             contentDescription = null,
             modifier = Modifier
                 .fillMaxWidth()

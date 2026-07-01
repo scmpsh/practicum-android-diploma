@@ -1,5 +1,6 @@
 package ru.practicum.android.diploma.details.presentation
 
+import android.content.res.Configuration
 import android.text.Html
 import android.widget.TextView
 import androidx.compose.foundation.Image
@@ -30,6 +31,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -39,6 +41,7 @@ import coil.request.ImageRequest
 import ru.practicum.android.diploma.R
 import ru.practicum.android.diploma.details.presentation.components.ContactsSection
 import ru.practicum.android.diploma.details.presentation.components.SkillsSection
+import ru.practicum.android.diploma.ui.theme.AppTheme
 
 @Composable
 fun DetailsScreen(
@@ -56,6 +59,27 @@ fun DetailsScreen(
         viewModel.loadVacancy(vacancyId)
     }
 
+    DetailsScreenContent(
+        state = state,
+        initialLogoUrl = initialLogoUrl,
+        onBackClick = onBackClick,
+        onFavoriteClick = { viewModel.onFavoriteClick() },
+        onShareClick = onShareClick,
+        onEmailClick = onEmailClick,
+        onPhoneClick = onPhoneClick
+    )
+}
+
+@Composable
+private fun DetailsScreenContent(
+    state: DetailsState,
+    initialLogoUrl: String,
+    onBackClick: () -> Unit,
+    onFavoriteClick: () -> Unit,
+    onShareClick: (DetailsState.Content) -> Unit,
+    onEmailClick: (DetailsState.Content) -> Unit,
+    onPhoneClick: (DetailsState.Content) -> Unit
+) {
     Scaffold(
         topBar = {
             val contentState = state as? DetailsState.Content
@@ -65,7 +89,7 @@ fun DetailsScreen(
                 onShareClick = {
                     contentState?.let(onShareClick)
                 },
-                onFavoriteClick = { viewModel.onFavoriteClick() }
+                onFavoriteClick = onFavoriteClick
             )
         }
     ) { padding ->
@@ -349,6 +373,41 @@ private fun HtmlDescription(
             )
         }
     )
+}
+
+@Preview(name = "Light Mode", showBackground = true)
+@Preview(name = "Dark Mode", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun DetailsScreenPreview() {
+    AppTheme {
+        DetailsScreenContent(
+            state = DetailsState.Content(
+                title = "Android Developer",
+                salary = "100 000 – 150 000 ₽",
+                company = "Яндекс",
+                location = "Москва",
+                logoUrl = null,
+                experience = "От 1 года до 3 лет",
+                schedule = "Полный день",
+                employment = "Полная занятость",
+                descriptionHtml = "<h3>Обязанности:</h3><ul>" +
+                    "<li>Разработка мобильного приложения</li>" +
+                    "<li>Участие в проектировании архитектуры</li></ul>",
+                skills = listOf("Kotlin", "Jetpack Compose", "Coroutines", "Dagger/Hilt"),
+                vacancyUrl = "https://example.com",
+                contactEmail = "hr@yandex.ru",
+                contactPhone = "+7 (999) 000-00-00",
+                contactComment = "Звонить с 10:00 до 18:00",
+                isFavorite = true
+            ),
+            initialLogoUrl = "",
+            onBackClick = {},
+            onFavoriteClick = {},
+            onShareClick = {},
+            onEmailClick = {},
+            onPhoneClick = {}
+        )
+    }
 }
 
 private const val DESCRIPTION_TEXT_SIZE = 16f

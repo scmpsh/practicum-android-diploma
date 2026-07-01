@@ -27,7 +27,11 @@ class RootActivity : AppCompatActivity() {
 
         val hideBottomBarDestinations = setOf(
             R.id.filterSettingsFragment,
-            R.id.vacancyDetailsFragment
+            R.id.placeOfWorkFragment,
+            R.id.countrySelectionFragment,
+            R.id.industrySelectionFragment,
+            R.id.vacancyDetailsFragment,
+            R.id.regionSelectionFragment
         )
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
