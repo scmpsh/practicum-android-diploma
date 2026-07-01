@@ -341,7 +341,7 @@ private fun SearchErrorPlaceholder() {
         Spacer(modifier = Modifier.height(82.dp))
 
         Image(
-            painter = painterResource(R.drawable.il_empty_search_result),
+            painter = painterResource(R.drawable.il_vacanc_error),
             contentDescription = null,
             modifier = Modifier.size(
                 width = 328.dp,
@@ -352,7 +352,7 @@ private fun SearchErrorPlaceholder() {
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = stringResource(R.string.no_vacancies_error),
+            text = stringResource(R.string.search_server_error),
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onBackground,
             textAlign = TextAlign.Center
@@ -396,9 +396,21 @@ private fun SearchTextField(
     onClearClick: () -> Unit,
 ) {
     val isDark = isSystemInDarkTheme()
-    val barColor = if (isDark) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.surfaceVariant
-    val hintColor = if (isDark) Color.White else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.45f)
-    val contentColor = if (isDark) Color.Black else MaterialTheme.colorScheme.onSurface
+    val barColor = if (isDark) {
+        MaterialTheme.colorScheme.onSurfaceVariant
+    } else {
+        MaterialTheme.colorScheme.surfaceVariant
+    }
+    val hintColor = if (isDark) {
+        Color.White
+    } else {
+        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.45f)
+    }
+    val contentColor = if (isDark) {
+        Color.Black
+    } else {
+        MaterialTheme.colorScheme.onSurface
+    }
 
     Row(
         modifier = Modifier
