@@ -51,6 +51,7 @@ import ru.practicum.android.diploma.search.domain.models.Vacancy
 import ru.practicum.android.diploma.search.presentation.components.VacancyItem
 import ru.practicum.android.diploma.search.presentation.models.SearchState
 import ru.practicum.android.diploma.search.presentation.models.SearchViewModel
+import ru.practicum.android.diploma.ui.theme.Blue
 
 @Composable
 fun SearchScreen(
@@ -60,8 +61,13 @@ fun SearchScreen(
 ) {
     var searchQuery by rememberSaveable { mutableStateOf("") }
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val hasActiveFilters by viewModel.hasActiveFilters.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        viewModel.updateFilterIndicator()
+    }
 
     LaunchedEffect(state) {
         if (state is SearchState.Content) {
@@ -85,6 +91,7 @@ fun SearchScreen(
                 .padding(horizontal = 16.dp),
         ) {
             SearchToolbar(
+                hasActiveFilters = hasActiveFilters,
                 onFilterClick = onNavigateToFilter,
             )
 
@@ -278,7 +285,7 @@ private fun SearchEmptyPlaceholder() {
             color = MaterialTheme.colorScheme.onPrimary
         )
 
-        Spacer(modifier = Modifier.height(72.dp))
+        Spacer(modifier = Modifier.height(110.dp))
 
         Image(
             painter = painterResource(R.drawable.il_empty_search_result),
@@ -306,7 +313,7 @@ private fun SearchNoInternetPlaceholder() {
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.height(82.dp))
+        Spacer(modifier = Modifier.height(72.dp))
 
         Image(
             painter = painterResource(R.drawable.il_no_internet),
@@ -338,7 +345,7 @@ private fun SearchErrorPlaceholder() {
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.height(82.dp))
+        Spacer(modifier = Modifier.height(72.dp))
 
         Image(
             painter = painterResource(R.drawable.il_vacanc_error),
@@ -362,6 +369,7 @@ private fun SearchErrorPlaceholder() {
 
 @Composable
 private fun SearchToolbar(
+    hasActiveFilters: Boolean,
     onFilterClick: () -> Unit,
 ) {
     Row(
@@ -383,7 +391,11 @@ private fun SearchToolbar(
             Icon(
                 painter = painterResource(R.drawable.ic_filter),
                 contentDescription = stringResource(R.string.filter),
-                tint = MaterialTheme.colorScheme.onBackground,
+                tint = if (hasActiveFilters) {
+                    Blue
+                } else {
+                    MaterialTheme.colorScheme.onBackground
+                },
             )
         }
     }

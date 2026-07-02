@@ -23,6 +23,9 @@ class SearchViewModel(
     private val _state = MutableStateFlow<SearchState>(SearchState.Initial)
     val state: StateFlow<SearchState> = _state
 
+    private val _hasActiveFilters = MutableStateFlow(false)
+    val hasActiveFilters: StateFlow<Boolean> = _hasActiveFilters
+
     private var latestSearchText: String? = null
     private var searchJob: Job? = null
     private var pagingJob: Job? = null
@@ -31,6 +34,10 @@ class SearchViewModel(
     private var currentPage = 0
     private var maxPages = 0
     private var isNextPageLoading = false
+
+    init {
+        updateFilterIndicator()
+    }
 
     fun searchDebounce(changedText: String) {
         if (latestSearchText == changedText) {
@@ -46,6 +53,7 @@ class SearchViewModel(
             currentPage = 0
             maxPages = 0
             _state.value = SearchState.Initial
+            updateFilterIndicator()
             return
         }
 
@@ -59,6 +67,8 @@ class SearchViewModel(
     }
 
     fun onFilterApplied() {
+        updateFilterIndicator()
+
         val searchText = latestSearchText.orEmpty()
         if (searchText.isBlank()) {
             return
@@ -71,6 +81,19 @@ class SearchViewModel(
         searchJob = viewModelScope.launch {
             search(searchText)
         }
+    }
+
+    fun updateFilterIndicator() {
+        val settings = filterInteractor.getFilterSettings()
+        _hasActiveFilters.value =
+            settings.countryId != null ||
+                !settings.countryName.isNullOrBlank() ||
+                settings.regionId != null ||
+                !settings.regionName.isNullOrBlank() ||
+                !settings.industryId.isNullOrBlank() ||
+                !settings.industryName.isNullOrBlank() ||
+                settings.salary != null ||
+                settings.onlyWithSalary
     }
 
     fun onLastItemReached() {
@@ -105,6 +128,7 @@ class SearchViewModel(
         _state.value = SearchState.Loading
         currentPage = 0
         currentFilterSettings = filterInteractor.getFilterSettings()
+        updateFilterIndicator()
 
         when (
             val resource = searchInteractor.searchVacancies(
