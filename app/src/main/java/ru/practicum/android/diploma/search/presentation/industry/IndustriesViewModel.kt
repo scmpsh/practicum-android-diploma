@@ -1,4 +1,4 @@
-package ru.practicum.android.diploma.search.presentation.models
+package ru.practicum.android.diploma.search.presentation.industry
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import ru.practicum.android.diploma.search.domain.api.IndustriesInteractor
 import ru.practicum.android.diploma.search.domain.models.Resource
+import ru.practicum.android.diploma.search.presentation.models.IndustriesState
 
 class IndustriesViewModel(
     private val interactor: IndustriesInteractor

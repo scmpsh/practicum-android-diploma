@@ -70,6 +70,8 @@ class RegionsViewModel(
     fun onSearchTextChanged(text: String) {
         _searchText.value = text
 
+        if (allRegions.isEmpty()) return
+
         val filtered = if (text.isBlank()) {
             allRegions
         } else {

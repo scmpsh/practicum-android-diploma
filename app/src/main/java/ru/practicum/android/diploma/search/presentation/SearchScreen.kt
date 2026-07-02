@@ -50,7 +50,8 @@ import ru.practicum.android.diploma.R
 import ru.practicum.android.diploma.search.domain.models.Vacancy
 import ru.practicum.android.diploma.search.presentation.components.VacancyItem
 import ru.practicum.android.diploma.search.presentation.models.SearchState
-import ru.practicum.android.diploma.search.presentation.models.SearchViewModel
+import ru.practicum.android.diploma.search.presentation.SearchViewModel
+import ru.practicum.android.diploma.ui.theme.Blue
 
 @Composable
 fun SearchScreen(
@@ -60,8 +61,13 @@ fun SearchScreen(
 ) {
     var searchQuery by rememberSaveable { mutableStateOf("") }
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val hasActiveFilters by viewModel.hasActiveFilters.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        viewModel.updateFilterIndicator()
+    }
 
     LaunchedEffect(state) {
         if (state is SearchState.Content) {
@@ -85,6 +91,7 @@ fun SearchScreen(
                 .padding(horizontal = 16.dp),
         ) {
             SearchToolbar(
+                hasActiveFilters = hasActiveFilters,
                 onFilterClick = onNavigateToFilter,
             )
 
@@ -126,7 +133,7 @@ private fun SearchStateContent(
     onNavigateToVacancyDetails: (String, String) -> Unit,
     onLastItemReached: () -> Unit
 ) {
-    when (val currentState = state) {
+    when (state) {
         SearchState.Initial -> {
             if (searchQuery.isBlank()) {
                 Image(
@@ -158,7 +165,7 @@ private fun SearchStateContent(
 
         is SearchState.Content -> {
             SearchContent(
-                currentState = currentState,
+                currentState = state,
                 onNavigateToDetails = onNavigateToVacancyDetails,
                 onLastItemReached = onLastItemReached
             )
@@ -178,7 +185,8 @@ fun SearchContent(
         SearchVacanciesList(
             vacancies = currentState.vacancies,
             onNavigateToDetails = onNavigateToDetails,
-            onLastItemReached = onLastItemReached
+            onLastItemReached = onLastItemReached,
+            isPaging = currentState.isPaging
         )
     }
 }
@@ -218,7 +226,8 @@ private fun SearchResultCounter(
 private fun SearchVacanciesList(
     vacancies: ImmutableList<Vacancy>,
     onNavigateToDetails: (String, String) -> Unit,
-    onLastItemReached: () -> Unit
+    onLastItemReached: () -> Unit,
+    isPaging: Boolean // 👈ДОБАВИЛИ
 ) {
     LazyColumn {
         itemsIndexed(vacancies) { index, vacancy ->
@@ -232,12 +241,26 @@ private fun SearchVacanciesList(
             VacancyItem(
                 vacancy = vacancy,
                 onClick = {
-                    onNavigateToDetails(
-                        vacancy.id,
-                        vacancy.logoUrl.orEmpty()
-                    )
+                    onNavigateToDetails(vacancy.id, vacancy.logoUrl.orEmpty())
                 }
             )
+        }
+
+        if (isPaging) {
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(80.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(36.dp),
+                        color = Blue,
+                        strokeWidth = 3.dp
+                    )
+                }
+            }
         }
     }
 }
@@ -278,7 +301,7 @@ private fun SearchEmptyPlaceholder() {
             color = MaterialTheme.colorScheme.onPrimary
         )
 
-        Spacer(modifier = Modifier.height(72.dp))
+        Spacer(modifier = Modifier.height(110.dp))
 
         Image(
             painter = painterResource(R.drawable.il_empty_search_result),
@@ -306,7 +329,7 @@ private fun SearchNoInternetPlaceholder() {
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.height(82.dp))
+        Spacer(modifier = Modifier.height(72.dp))
 
         Image(
             painter = painterResource(R.drawable.il_no_internet),
@@ -338,7 +361,7 @@ private fun SearchErrorPlaceholder() {
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.height(82.dp))
+        Spacer(modifier = Modifier.height(72.dp))
 
         Image(
             painter = painterResource(R.drawable.il_vacanc_error),
@@ -362,8 +385,22 @@ private fun SearchErrorPlaceholder() {
 
 @Composable
 private fun SearchToolbar(
+    hasActiveFilters: Boolean,
     onFilterClick: () -> Unit,
 ) {
+    // для правильного отображения иконки фильтра ночью и днем
+    val iconRes = if (hasActiveFilters) {
+        R.drawable.ic_filter_active
+    } else {
+        R.drawable.ic_filter
+    }
+
+    val iconTint = if (hasActiveFilters) {
+        Color.Unspecified
+    } else {
+        MaterialTheme.colorScheme.onBackground
+    }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -381,9 +418,9 @@ private fun SearchToolbar(
             onClick = onFilterClick,
         ) {
             Icon(
-                painter = painterResource(R.drawable.ic_filter),
+                painter = painterResource(iconRes),
                 contentDescription = stringResource(R.string.filter),
-                tint = MaterialTheme.colorScheme.onBackground,
+                tint = iconTint
             )
         }
     }

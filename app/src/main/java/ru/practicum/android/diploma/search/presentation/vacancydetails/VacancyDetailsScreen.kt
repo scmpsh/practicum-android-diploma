@@ -1,4 +1,4 @@
-package ru.practicum.android.diploma.search.presentation
+package ru.practicum.android.diploma.search.presentation.vacancydetails
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

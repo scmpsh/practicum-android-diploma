@@ -1,4 +1,4 @@
-package ru.practicum.android.diploma.search.presentation.models
+package ru.practicum.android.diploma.search.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -14,6 +14,7 @@ import ru.practicum.android.diploma.search.domain.api.SearchInteractor
 import ru.practicum.android.diploma.search.domain.models.FilterSettings
 import ru.practicum.android.diploma.search.domain.models.Resource
 import ru.practicum.android.diploma.search.domain.models.SearchResult
+import ru.practicum.android.diploma.search.presentation.models.SearchState
 
 class SearchViewModel(
     private val searchInteractor: SearchInteractor,
@@ -23,6 +24,9 @@ class SearchViewModel(
     private val _state = MutableStateFlow<SearchState>(SearchState.Initial)
     val state: StateFlow<SearchState> = _state
 
+    private val _hasActiveFilters = MutableStateFlow(false)
+    val hasActiveFilters: StateFlow<Boolean> = _hasActiveFilters
+
     private var latestSearchText: String? = null
     private var searchJob: Job? = null
     private var pagingJob: Job? = null
@@ -31,6 +35,10 @@ class SearchViewModel(
     private var currentPage = 0
     private var maxPages = 0
     private var isNextPageLoading = false
+
+    init {
+        updateFilterIndicator()
+    }
 
     fun searchDebounce(changedText: String) {
         if (latestSearchText == changedText) {
@@ -46,6 +54,7 @@ class SearchViewModel(
             currentPage = 0
             maxPages = 0
             _state.value = SearchState.Initial
+            updateFilterIndicator()
             return
         }
 
@@ -59,6 +68,8 @@ class SearchViewModel(
     }
 
     fun onFilterApplied() {
+        updateFilterIndicator()
+
         val searchText = latestSearchText.orEmpty()
         if (searchText.isBlank()) {
             return
@@ -70,6 +81,22 @@ class SearchViewModel(
 
         searchJob = viewModelScope.launch {
             search(searchText)
+        }
+    }
+
+    fun updateFilterIndicator() {
+        val settings = filterInteractor.getFilterSettings()
+
+        with(settings) {
+            _hasActiveFilters.value =
+                countryId != null ||
+                !countryName.isNullOrBlank() ||
+                regionId != null ||
+                !regionName.isNullOrBlank() ||
+                !industryId.isNullOrBlank() ||
+                !industryName.isNullOrBlank() ||
+                salary != null ||
+                onlyWithSalary
         }
     }
 
@@ -105,6 +132,7 @@ class SearchViewModel(
         _state.value = SearchState.Loading
         currentPage = 0
         currentFilterSettings = filterInteractor.getFilterSettings()
+        updateFilterIndicator()
 
         when (
             val resource = searchInteractor.searchVacancies(

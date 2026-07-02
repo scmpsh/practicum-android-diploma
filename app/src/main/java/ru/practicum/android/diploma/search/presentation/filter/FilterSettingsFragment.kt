@@ -62,7 +62,7 @@ class FilterSettingsFragment : Fragment() {
                     FilterSettingsScreen(
                         viewModel = viewModel,
                         onNavigateBack = {
-                            findNavController().popBackStack()
+                            sendFilterAppliedResult()
                         },
                         onNavigateToPlaceOfWork = {
                             findNavController().navigate(
@@ -78,7 +78,6 @@ class FilterSettingsFragment : Fragment() {
                             sendFilterAppliedResult()
                         },
                         onResetAppliedClick = {
-                            // После сброса остаёмся на экране фильтра
                         }
                     )
                 }
