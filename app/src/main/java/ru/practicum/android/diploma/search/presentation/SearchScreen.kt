@@ -185,7 +185,8 @@ fun SearchContent(
         SearchVacanciesList(
             vacancies = currentState.vacancies,
             onNavigateToDetails = onNavigateToDetails,
-            onLastItemReached = onLastItemReached
+            onLastItemReached = onLastItemReached,
+            isPaging = currentState.isPaging
         )
     }
 }
@@ -225,9 +226,11 @@ private fun SearchResultCounter(
 private fun SearchVacanciesList(
     vacancies: ImmutableList<Vacancy>,
     onNavigateToDetails: (String, String) -> Unit,
-    onLastItemReached: () -> Unit
+    onLastItemReached: () -> Unit,
+    isPaging: Boolean   // 👈 ДОБАВИЛИ
 ) {
     LazyColumn {
+
         itemsIndexed(vacancies) { index, vacancy ->
 
             CheckPagination(
@@ -239,12 +242,27 @@ private fun SearchVacanciesList(
             VacancyItem(
                 vacancy = vacancy,
                 onClick = {
-                    onNavigateToDetails(
-                        vacancy.id,
-                        vacancy.logoUrl.orEmpty()
-                    )
+                    onNavigateToDetails(vacancy.id, vacancy.logoUrl.orEmpty())
                 }
             )
+        }
+
+
+        if (isPaging) {
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(80.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(36.dp),
+                        color = Blue,
+                        strokeWidth = 3.dp
+                    )
+                }
+            }
         }
     }
 }
@@ -389,13 +407,15 @@ private fun SearchToolbar(
             onClick = onFilterClick,
         ) {
             Icon(
-                painter = painterResource(R.drawable.ic_filter),
+                painter = painterResource(
+                    if (hasActiveFilters) {
+                        R.drawable.ic_filter_active
+                    } else {
+                        R.drawable.ic_filter
+                    }
+                ),
                 contentDescription = stringResource(R.string.filter),
-                tint = if (hasActiveFilters) {
-                    Blue
-                } else {
-                    MaterialTheme.colorScheme.onBackground
-                },
+                tint = Color.Unspecified
             )
         }
     }

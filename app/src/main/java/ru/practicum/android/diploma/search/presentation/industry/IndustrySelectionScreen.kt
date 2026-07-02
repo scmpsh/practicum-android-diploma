@@ -5,18 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -26,18 +15,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
@@ -51,11 +30,7 @@ import ru.practicum.android.diploma.R
 import ru.practicum.android.diploma.search.domain.models.IndustryFilter
 import ru.practicum.android.diploma.search.presentation.models.IndustriesState
 import ru.practicum.android.diploma.search.presentation.models.IndustriesViewModel
-import ru.practicum.android.diploma.ui.theme.Black
-import ru.practicum.android.diploma.ui.theme.Blue
-import ru.practicum.android.diploma.ui.theme.Grey
-import ru.practicum.android.diploma.ui.theme.LightGrey
-import ru.practicum.android.diploma.ui.theme.White
+import ru.practicum.android.diploma.ui.theme.*
 import java.text.Collator
 import java.util.Locale
 
@@ -85,25 +60,17 @@ fun IndustrySelectionScreen(
         (state as? IndustriesState.Content)
             ?.industries
             .orEmpty()
-            .sortedWith { first, second ->
-                russianCollator.compare(first.name, second.name)
-            }
+            .sortedWith { a, b -> russianCollator.compare(a.name, b.name) }
     }
 
     val filteredIndustries = remember(searchQuery, industries) {
         val query = searchQuery.trim().lowercase()
-
-        if (query.isBlank()) {
-            industries
-        } else {
-            industries.filter { industry ->
-                industry.matchesQuery(query)
-            }
-        }
+        if (query.isBlank()) industries
+        else industries.filter { it.matchesQuery(query) }
     }
 
-    val selectedIndustry = industries.firstOrNull { industry ->
-        industry.id.toString() == selectedIndustryId
+    val selectedIndustry = industries.firstOrNull {
+        it.id.toString() == selectedIndustryId
     }
 
     Column(
@@ -111,55 +78,66 @@ fun IndustrySelectionScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        IndustrySelectionTopBar(
-            onNavigateBack = onNavigateBack
-        )
+
+        IndustrySelectionTopBar(onNavigateBack)
 
         IndustrySearchField(
             value = searchQuery,
-            onValueChange = {
-                searchQuery = it
-            },
-            onClearClick = {
-                searchQuery = ""
-            }
+            onValueChange = { searchQuery = it },
+            onClearClick = { searchQuery = "" }
         )
 
-        Box(
-            modifier = Modifier.weight(1f)
-        ) {
+        Box(modifier = Modifier.weight(1f)) {
+
             when (state) {
+
                 is IndustriesState.Content -> {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        items(
-                            items = filteredIndustries,
-                            key = { industry -> industry.id }
-                        ) { industry ->
+                    LazyColumn(modifier = Modifier.fillMaxSize()) {
+                        items(filteredIndustries, key = { it.id }) { industry ->
                             IndustryItem(
                                 title = industry.name,
                                 selected = selectedIndustryId == industry.id.toString(),
                                 onClick = {
-                                    val clickedIndustryId = industry.id.toString()
-                                    selectedIndustryId = if (selectedIndustryId == clickedIndustryId) {
-                                        null
-                                    } else {
-                                        clickedIndustryId
-                                    }
+                                    val id = industry.id.toString()
+                                    selectedIndustryId =
+                                        if (selectedIndustryId == id) null else id
                                 }
                             )
                         }
                     }
                 }
 
+                IndustriesState.Loading -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+
                 IndustriesState.Empty -> {
-                    Text(
-                        text = stringResource(R.string.choose_region_not_found),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Grey,
-                        modifier = Modifier.padding(16.dp)
-                    )
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(top = 72.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Image(
+                            painter = painterResource(R.drawable.il_regions_error),
+                            contentDescription = null,
+                            modifier = Modifier.size(328.dp, 223.dp)
+                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Text(
+                            text = stringResource(R.string.choose_region_not_found),
+                            style = MaterialTheme.typography.titleLarge,
+                            color = MaterialTheme.colorScheme.onBackground,
+                            textAlign = TextAlign.Center
+                        )
+                    }
                 }
 
                 IndustriesState.Error,
@@ -167,8 +145,9 @@ fun IndustrySelectionScreen(
                     IndustryErrorPlaceholder()
                 }
 
-                IndustriesState.Initial,
-                IndustriesState.Loading -> Unit
+                IndustriesState.Initial -> {
+                    Box(modifier = Modifier.fillMaxSize())
+                }
             }
         }
 
@@ -180,26 +159,17 @@ fun IndustrySelectionScreen(
                     .padding(start = 17.dp, end = 17.dp, bottom = 24.dp)
             ) {
                 Button(
-                    onClick = {
-                        onIndustryClick(selectedIndustry)
-                    },
+                    onClick = { onIndustryClick(selectedIndustry) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(59.dp),
                     shape = RoundedCornerShape(12.dp),
-                    contentPadding = PaddingValues(
-                        horizontal = 8.dp,
-                        vertical = 20.dp
-                    ),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Blue,
                         contentColor = White
                     )
                 ) {
-                    Text(
-                        text = stringResource(R.string.choose_button_text),
-                        style = MaterialTheme.typography.labelLarge
-                    )
+                    Text(text = stringResource(R.string.choose_button_text))
                 }
             }
         }
@@ -218,9 +188,7 @@ private fun IndustrySelectionTopBar(
             .padding(start = 4.dp, end = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        IconButton(
-            onClick = onNavigateBack
-        ) {
+        IconButton(onClick = onNavigateBack) {
             Icon(
                 imageVector = Icons.Default.ArrowBack,
                 contentDescription = stringResource(R.string.back),
@@ -246,40 +214,21 @@ private fun IndustrySearchField(
 ) {
     val isDarkTheme = isSystemInDarkTheme()
 
-    val searchFieldBackground = if (isDarkTheme) {
-        Grey
-    } else {
-        LightGrey
-    }
-
-    val searchFieldTextColor = if (isDarkTheme) {
-        White
-    } else {
-        Black
-    }
-
-    val searchFieldHintColor = if (isDarkTheme) {
-        White
-    } else {
-        Grey
-    }
+    val searchFieldBackground = if (isDarkTheme) Grey else LightGrey
+    val searchFieldTextColor = if (isDarkTheme) White else Black
+    val searchFieldHintColor = if (isDarkTheme) White else Grey
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
             .height(56.dp)
-            .background(
-                color = searchFieldBackground,
-                shape = RoundedCornerShape(12.dp)
-            )
+            .background(searchFieldBackground, RoundedCornerShape(12.dp))
             .padding(start = 16.dp, end = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(
-            modifier = Modifier.weight(1f),
-            contentAlignment = Alignment.CenterStart
-        ) {
+        Box(modifier = Modifier.weight(1f)) {
+
             if (value.isBlank()) {
                 Text(
                     text = stringResource(R.string.industry_search_hint),
@@ -303,17 +252,14 @@ private fun IndustrySearchField(
         IconButton(
             modifier = Modifier.size(48.dp),
             onClick = {
-                if (value.isNotBlank()) {
-                    onClearClick()
-                }
+                if (value.isNotBlank()) onClearClick()
             }
         ) {
             Icon(
-                imageVector = if (value.isBlank()) {
+                imageVector = if (value.isBlank())
                     Icons.Default.Search
-                } else {
-                    Icons.Default.Close
-                },
+                else
+                    Icons.Default.Close,
                 contentDescription = null,
                 tint = Black
             )
@@ -332,46 +278,34 @@ private fun IndustryItem(
             .fillMaxWidth()
             .height(56.dp)
             .clickable { onClick() }
-            .padding(start = 16.dp, end = 16.dp),
+            .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
             text = title,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier.weight(1f),
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis
+            overflow = TextOverflow.Ellipsis,
+            color = MaterialTheme.colorScheme.onBackground
         )
 
-        IndustryRadioButton(
-            selected = selected
-        )
+        IndustryRadioButton(selected)
     }
 }
 
 @Composable
-private fun IndustryRadioButton(
-    selected: Boolean
-) {
+private fun IndustryRadioButton(selected: Boolean) {
     Box(
         modifier = Modifier
             .size(20.dp)
-            .border(
-                width = 1.dp,
-                color = if (selected) Blue else Grey,
-                shape = CircleShape
-            ),
+            .border(1.dp, if (selected) Blue else Grey, CircleShape),
         contentAlignment = Alignment.Center
     ) {
         if (selected) {
             Box(
                 modifier = Modifier
                     .size(10.dp)
-                    .background(
-                        color = Blue,
-                        shape = CircleShape
-                    )
+                    .background(Blue, CircleShape)
             )
         }
     }
@@ -388,10 +322,7 @@ private fun IndustryErrorPlaceholder() {
         Image(
             painter = painterResource(R.drawable.il_regions_error),
             contentDescription = null,
-            modifier = Modifier.size(
-                width = 328.dp,
-                height = 223.dp
-            )
+            modifier = Modifier.size(328.dp, 223.dp)
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -408,9 +339,7 @@ private fun IndustryErrorPlaceholder() {
 private fun IndustryFilter.matchesQuery(query: String): Boolean {
     val normalizedName = name.lowercase()
 
-    if (normalizedName.contains(query)) {
-        return true
-    }
+    if (normalizedName.contains(query)) return true
 
     val isItQuery = query == IT_QUERY || query == IT_QUERY_CYRILLIC
 
