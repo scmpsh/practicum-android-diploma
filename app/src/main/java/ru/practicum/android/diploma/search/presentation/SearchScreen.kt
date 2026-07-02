@@ -390,6 +390,20 @@ private fun SearchToolbar(
     hasActiveFilters: Boolean,
     onFilterClick: () -> Unit,
 ) {
+    // для правильного отображения иконки фильтра ночью и днем
+    val iconRes = if (hasActiveFilters) {
+        R.drawable.ic_filter_active
+    } else {
+        R.drawable.ic_filter
+    }
+
+    val iconTint = if (hasActiveFilters) {
+        Color.Unspecified
+    } else {
+        MaterialTheme.colorScheme.onBackground
+    }
+
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -407,15 +421,9 @@ private fun SearchToolbar(
             onClick = onFilterClick,
         ) {
             Icon(
-                painter = painterResource(
-                    if (hasActiveFilters) {
-                        R.drawable.ic_filter_active
-                    } else {
-                        R.drawable.ic_filter
-                    }
-                ),
+                painter = painterResource(iconRes),
                 contentDescription = stringResource(R.string.filter),
-                tint = Color.Unspecified
+                tint = iconTint
             )
         }
     }

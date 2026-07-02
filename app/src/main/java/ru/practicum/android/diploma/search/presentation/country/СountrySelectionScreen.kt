@@ -168,7 +168,7 @@ private fun CountryErrorPlaceholder() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(top = 72.dp),
+            .padding(top = 122.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
@@ -183,6 +183,7 @@ private fun CountryErrorPlaceholder() {
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
+            modifier = Modifier.padding(horizontal = 76.dp),
             text = stringResource(R.string.choose_country_error),
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onBackground,
