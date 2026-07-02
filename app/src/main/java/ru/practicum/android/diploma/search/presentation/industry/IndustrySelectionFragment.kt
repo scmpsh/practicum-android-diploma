@@ -15,7 +15,7 @@ import ru.practicum.android.diploma.search.domain.api.FilterInteractor
 import ru.practicum.android.diploma.search.presentation.filter.FilterSettingsFragment.Companion.INDUSTRY_BUNDLE_KEY
 import ru.practicum.android.diploma.search.presentation.filter.FilterSettingsFragment.Companion.INDUSTRY_ID_BUNDLE_KEY
 import ru.practicum.android.diploma.search.presentation.filter.FilterSettingsFragment.Companion.INDUSTRY_RESULT_KEY
-import ru.practicum.android.diploma.search.presentation.models.IndustriesViewModel
+import ru.practicum.android.diploma.search.presentation.industry.IndustriesViewModel
 import ru.practicum.android.diploma.ui.theme.AppTheme
 
 class IndustrySelectionFragment : Fragment() {

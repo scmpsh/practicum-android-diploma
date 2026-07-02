@@ -38,8 +38,8 @@ import ru.practicum.android.diploma.search.domain.impl.SearchInteractorImpl
 import ru.practicum.android.diploma.search.domain.impl.VacancyDetailsInteractorImpl
 import ru.practicum.android.diploma.search.presentation.country.CountryViewModel
 import ru.practicum.android.diploma.search.presentation.filter.FilterSettingsViewModel
-import ru.practicum.android.diploma.search.presentation.models.IndustriesViewModel
-import ru.practicum.android.diploma.search.presentation.models.SearchViewModel
+import ru.practicum.android.diploma.search.presentation.industry.IndustriesViewModel
+import ru.practicum.android.diploma.search.presentation.SearchViewModel
 import ru.practicum.android.diploma.search.presentation.place.PlaceOfWorkViewModel
 import ru.practicum.android.diploma.search.presentation.regions.RegionsViewModel
 

@@ -50,7 +50,7 @@ import ru.practicum.android.diploma.R
 import ru.practicum.android.diploma.search.domain.models.Vacancy
 import ru.practicum.android.diploma.search.presentation.components.VacancyItem
 import ru.practicum.android.diploma.search.presentation.models.SearchState
-import ru.practicum.android.diploma.search.presentation.models.SearchViewModel
+import ru.practicum.android.diploma.search.presentation.SearchViewModel
 import ru.practicum.android.diploma.ui.theme.Blue
 
 @Composable
@@ -133,7 +133,7 @@ private fun SearchStateContent(
     onNavigateToVacancyDetails: (String, String) -> Unit,
     onLastItemReached: () -> Unit
 ) {
-    when (val currentState = state) {
+    when (state) {
         SearchState.Initial -> {
             if (searchQuery.isBlank()) {
                 Image(
@@ -165,7 +165,7 @@ private fun SearchStateContent(
 
         is SearchState.Content -> {
             SearchContent(
-                currentState = currentState,
+                currentState = state,
                 onNavigateToDetails = onNavigateToVacancyDetails,
                 onLastItemReached = onLastItemReached
             )
@@ -227,10 +227,9 @@ private fun SearchVacanciesList(
     vacancies: ImmutableList<Vacancy>,
     onNavigateToDetails: (String, String) -> Unit,
     onLastItemReached: () -> Unit,
-    isPaging: Boolean   // 👈 ДОБАВИЛИ
+    isPaging: Boolean // 👈ДОБАВИЛИ
 ) {
     LazyColumn {
-
         itemsIndexed(vacancies) { index, vacancy ->
 
             CheckPagination(
@@ -246,7 +245,6 @@ private fun SearchVacanciesList(
                 }
             )
         }
-
 
         if (isPaging) {
             item {
@@ -402,7 +400,6 @@ private fun SearchToolbar(
     } else {
         MaterialTheme.colorScheme.onBackground
     }
-
 
     Row(
         modifier = Modifier

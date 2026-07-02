@@ -1,4 +1,4 @@
-package ru.practicum.android.diploma.search.presentation.models
+package ru.practicum.android.diploma.search.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -14,6 +14,7 @@ import ru.practicum.android.diploma.search.domain.api.SearchInteractor
 import ru.practicum.android.diploma.search.domain.models.FilterSettings
 import ru.practicum.android.diploma.search.domain.models.Resource
 import ru.practicum.android.diploma.search.domain.models.SearchResult
+import ru.practicum.android.diploma.search.presentation.models.SearchState
 
 class SearchViewModel(
     private val searchInteractor: SearchInteractor,
@@ -85,15 +86,18 @@ class SearchViewModel(
 
     fun updateFilterIndicator() {
         val settings = filterInteractor.getFilterSettings()
-        _hasActiveFilters.value =
-            settings.countryId != null ||
-                !settings.countryName.isNullOrBlank() ||
-                settings.regionId != null ||
-                !settings.regionName.isNullOrBlank() ||
-                !settings.industryId.isNullOrBlank() ||
-                !settings.industryName.isNullOrBlank() ||
-                settings.salary != null ||
-                settings.onlyWithSalary
+
+        with(settings) {
+            _hasActiveFilters.value =
+                countryId != null ||
+                !countryName.isNullOrBlank() ||
+                regionId != null ||
+                !regionName.isNullOrBlank() ||
+                !industryId.isNullOrBlank() ||
+                !industryName.isNullOrBlank() ||
+                salary != null ||
+                onlyWithSalary
+        }
     }
 
     fun onLastItemReached() {

@@ -13,7 +13,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 import ru.practicum.android.diploma.R
 import ru.practicum.android.diploma.details.presentation.DetailsFragment
 import ru.practicum.android.diploma.search.presentation.filter.FilterSettingsFragment
-import ru.practicum.android.diploma.search.presentation.models.SearchViewModel
+import ru.practicum.android.diploma.search.presentation.SearchViewModel
 import ru.practicum.android.diploma.ui.theme.AppTheme
 
 class SearchFragment : Fragment() {

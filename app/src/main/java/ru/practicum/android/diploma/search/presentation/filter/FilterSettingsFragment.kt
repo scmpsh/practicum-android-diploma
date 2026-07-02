@@ -78,7 +78,6 @@ class FilterSettingsFragment : Fragment() {
                             sendFilterAppliedResult()
                         },
                         onResetAppliedClick = {
-
                         }
                     )
                 }

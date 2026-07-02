@@ -15,8 +15,19 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
@@ -29,8 +40,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ru.practicum.android.diploma.R
 import ru.practicum.android.diploma.search.domain.models.IndustryFilter
 import ru.practicum.android.diploma.search.presentation.models.IndustriesState
-import ru.practicum.android.diploma.search.presentation.models.IndustriesViewModel
-import ru.practicum.android.diploma.ui.theme.*
+import ru.practicum.android.diploma.search.presentation.industry.IndustriesViewModel
+import ru.practicum.android.diploma.ui.theme.Black
+import ru.practicum.android.diploma.ui.theme.Blue
+import ru.practicum.android.diploma.ui.theme.Grey
+import ru.practicum.android.diploma.ui.theme.LightGrey
+import ru.practicum.android.diploma.ui.theme.White
 import java.text.Collator
 import java.util.Locale
 
@@ -65,8 +80,11 @@ fun IndustrySelectionScreen(
 
     val filteredIndustries = remember(searchQuery, industries) {
         val query = searchQuery.trim().lowercase()
-        if (query.isBlank()) industries
-        else industries.filter { it.matchesQuery(query) }
+        if (query.isBlank()) {
+            industries
+        } else {
+            industries.filter { it.matchesQuery(query) }
+        }
     }
 
     val selectedIndustry = industries.firstOrNull {
@@ -78,7 +96,6 @@ fun IndustrySelectionScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-
         IndustrySelectionTopBar(onNavigateBack)
 
         IndustrySearchField(
@@ -88,7 +105,6 @@ fun IndustrySelectionScreen(
         )
 
         Box(modifier = Modifier.weight(1f)) {
-
             when (state) {
 
                 is IndustriesState.Content -> {
@@ -228,7 +244,6 @@ private fun IndustrySearchField(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(modifier = Modifier.weight(1f)) {
-
             if (value.isBlank()) {
                 Text(
                     text = stringResource(R.string.industry_search_hint),
@@ -252,14 +267,17 @@ private fun IndustrySearchField(
         IconButton(
             modifier = Modifier.size(48.dp),
             onClick = {
-                if (value.isNotBlank()) onClearClick()
+                if (value.isNotBlank()) {
+                    onClearClick()
+                }
             }
         ) {
             Icon(
-                imageVector = if (value.isBlank())
+                imageVector = if (value.isBlank()) {
                     Icons.Default.Search
-                else
-                    Icons.Default.Close,
+                } else {
+                    Icons.Default.Close
+                },
                 contentDescription = null,
                 tint = Black
             )

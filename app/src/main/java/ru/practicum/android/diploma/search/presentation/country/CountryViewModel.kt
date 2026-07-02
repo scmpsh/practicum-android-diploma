@@ -24,7 +24,6 @@ class CountryViewModel(
         viewModelScope.launch {
             interactor.getAreas().collect { result ->
                 when (result) {
-
                     is Resource.Success -> {
                         val countries = result.data
                             ?.filter { it.parentId == null } // только страны
