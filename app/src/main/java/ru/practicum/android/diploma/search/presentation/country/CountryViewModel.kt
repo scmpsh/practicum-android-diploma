@@ -11,6 +11,8 @@ import ru.practicum.android.diploma.search.domain.models.FilterArea
 import ru.practicum.android.diploma.search.domain.models.Resource
 import ru.practicum.android.diploma.search.presentation.models.CountriesState
 
+private const val OTHER_REGIONS = "Другие регионы"
+
 class CountryViewModel(
     private val interactor: AreaInteractor,
     private val filterInteractor: FilterInteractor
@@ -22,26 +24,23 @@ class CountryViewModel(
         viewModelScope.launch {
             interactor.getAreas().collect { result ->
                 when (result) {
+
                     is Resource.Success -> {
-                        val countryNames = listOf(
-                            "Россия",
-                            "Украина",
-                            "Казахстан",
-                            "Азербайджан",
-                            "Беларусь",
-                            "Грузия",
-                            "Кыргызстан",
-                            "Узбекистан",
-                            "Другие регионы"
-                        )
-                        val countries = result.data?.filter { it.parentId == null }
-                            ?.filter { it.name in countryNames }
-                            ?.sortedBy { countryNames.indexOf(it.name) } ?: emptyList()
+                        val countries = result.data
+                            ?.filter { it.parentId == null } // только страны
+                            ?.sortedWith( // сортировка алфавит, в конце регионы
+                                compareBy<FilterArea> { it.name == OTHER_REGIONS }
+                                    .thenBy { it.name }
+                            )
+                            ?: emptyList()
+
                         _state.value = CountriesState.Content(countries)
                     }
 
                     is Resource.Error -> {
-                        _state.value = CountriesState.Error(result.message ?: "Unknown error")
+                        _state.value = CountriesState.Error(
+                            result.message ?: "Unknown error"
+                        )
                     }
                 }
             }
